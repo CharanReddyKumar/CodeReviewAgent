@@ -47,13 +47,32 @@ def _git_ls(repo_path: Path, relative: str) -> str:
     return result.stdout.strip()
 
 
+def _find_nested_git_root(repo_path: Path, path: Path) -> Path | None:
+    path = Path(path)
+    for ancestor in (path, *path.parents):
+        if ancestor == repo_path:
+            break
+        git_dir = ancestor / ".git"
+        if git_dir.exists():
+            return ancestor
+    return None
+
+
 def _is_git_tracked(repo_path: Path, path: Path) -> bool:
+    nested_root = _find_nested_git_root(repo_path, path)
+    git_root = nested_root or repo_path
     try:
-        relative = path.relative_to(repo_path)
+        relative = path.relative_to(git_root)
     except ValueError:
         return True
-    output = _git_ls(repo_path, str(relative))
-    return bool(output)
+    output = _git_ls(git_root, str(relative))
+    if output:
+        return True
+    if nested_root is not None:
+        # If the file is not tracked within the nested repository we already
+        # checked, there is no need to fall back to the outer repo.
+        return False
+    return False
 
 
 def _iter_matches(repo_path: Path, patterns: Iterable[str]) -> List[Path]:
@@ -75,6 +94,14 @@ def _iter_matches(repo_path: Path, patterns: Iterable[str]) -> List[Path]:
     return unique
 
 
+def _is_inside_git_dir(repo_path: Path, path: Path) -> bool:
+    try:
+        rel_parts = path.relative_to(repo_path).parts
+    except ValueError:
+        return False
+    return ".git" in rel_parts
+
+
 def prune_workspace(repo_path: Path, *, patterns: Sequence[str] = DEFAULT_PATTERNS, dry_run: bool = False) -> CleanupReport:
     repo_path = Path(repo_path)
     removed: List[str] = []
@@ -84,6 +111,9 @@ def prune_workspace(repo_path: Path, *, patterns: Sequence[str] = DEFAULT_PATTER
         if match == repo_path:
             continue
         rel = str(match.relative_to(repo_path))
+        if _is_inside_git_dir(repo_path, match):
+            skipped.append(rel)
+            continue
         if _is_git_tracked(repo_path, match):
             skipped.append(rel)
             continue
