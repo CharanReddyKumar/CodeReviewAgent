@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentic Reviewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; color: #111; background: #f6f7fb; }
+    h1 { margin-bottom: 0.5rem; }
+    form { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 640px; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input, button { width: 100%; padding: 0.75rem; margin-top: 0.35rem; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+    button { background: #2563eb; color: #fff; border: none; cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #status { margin: 1rem 0; font-style: italic; }
+    .results { margin-top: 2rem; }
+    .card { background: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .findings { margin-top: 0.75rem; padding-left: 1rem; }
+    .finding { margin-bottom: 0.5rem; }
+    code { background: #f2f2f2; padding: 0.15rem 0.3rem; border-radius: 4px; }
+    .log { margin-top: 1.5rem; background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; min-height: 120px; font-family: Menlo, monospace; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <h1>Agentic Reviewer</h1>
+  <p>Enter a git repository and branch to run the agentic review pipeline.</p>
+
+  <form id="review-form">
+    <label>
+      Repository URL or Path
+      <input type="text" id="repo" value="https://github.com/astral-sh/uv" required />
+    </label>
+    <label>
+      Branch
+      <input type="text" id="branch" value="main" required />
+    </label>
+    <label>
+      Max Commits
+      <input type="number" id="max-commits" value="1" min="1" max="5" required />
+    </label>
+    <button type="submit">Run Review</button>
+  </form>
+
+  <div id="status"></div>
+  <div id="log" class="log"></div>
+  <section class="results" id="results"></section>
+
+  <script>
+    const form = document.getElementById('review-form');
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+    const resultsEl = document.getElementById('results');
+    let eventSource = null;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      statusEl.textContent = 'Submitting review job...';
+      resultsEl.innerHTML = '';
+      logEl.textContent = '';
+      form.querySelector('button').disabled = true;
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+
+      try {
+        const payload = {
+          repo: document.getElementById('repo').value.trim(),
+          branch: document.getElementById('branch').value.trim(),
+          max_commits: parseInt(document.getElementById('max-commits').value, 10)
+        };
+
+        runStreamingReview(payload);
+      } catch (error) {
+        statusEl.textContent = `Error: ${error.message}`;
+        form.querySelector('button').disabled = false;
+      }
+    });
+
+    function runStreamingReview(payload) {
+      const params = new URLSearchParams({
+        repo: payload.repo,
+        branch: payload.branch,
+        max_commits: payload.max_commits.toString()
+      });
+
+      statusEl.textContent = 'Review in progress...';
+      appendLog('Starting review...');
+
+      eventSource = new EventSource(`http://127.0.0.1:8000/review/stream?${params.toString()}`);
+
+      const handlers = {
+        repo_ready: (data) => appendLog(`Repository ready at ${data.path}`),
+        vector_store: (data) => appendLog(`Vector store: ${data.status}`),
+        import_graph: (data) => appendLog(`Import graph: ${data.status}`),
+        code_graph: () => appendLog('Building code structure graph...'),
+        best_practices: (data) => appendLog(`Best practices store: ${data.status}`),
+        commit_start: (data) => appendLog(`Reviewing ${data.commit.slice(0, 7)} – ${data.summary}`),
+        commit_complete: (data) => appendLog(`Completed ${data.commit.slice(0, 7)} (${data.findings} findings)`),
+        complete: (data) => {
+          renderResults(data.runs || []);
+          appendLog('Review complete.');
+          statusEl.textContent = 'Review complete.';
+          cleanupStream();
+        },
+        error: (data) => {
+          appendLog(`Error: ${data.detail || 'Unknown error'}`);
+          statusEl.textContent = 'Error during review.';
+          cleanupStream();
+        }
+      };
+
+      Object.keys(handlers).forEach((event) => {
+        eventSource.addEventListener(event, (message) => {
+          const data = JSON.parse(message.data || '{}');
+          handlers[event](data);
+        });
+      });
+
+      eventSource.onerror = () => {
+        appendLog('Connection error. Check backend logs.');
+        statusEl.textContent = 'Connection error.';
+        cleanupStream();
+      };
+    }
+
+    function cleanupStream() {
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+      form.querySelector('button').disabled = false;
+    }
+
+    function appendLog(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      logEl.textContent += `[${timestamp}] ${message}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function renderResults(runs) {
+      if (!runs.length) {
+        resultsEl.innerHTML = '<p>No commits were reviewed.</p>';
+        return;
+      }
+      resultsEl.innerHTML = '';
+      runs.forEach((run) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <h2>Commit ${run.commit.slice(0, 7)}</h2>
+          <p><strong>Summary:</strong> ${run.summary}</p>
+          <p><strong>Author:</strong> ${run.author ?? 'unknown'}</p>
+          <p><strong>Report:</strong> <code>${run.report_path}</code></p>
+        `;
+
+        const findings = run.review?.findings || [];
+        const findingsList = document.createElement('div');
+        findingsList.className = 'findings';
+        if (!findings.length) {
+          findingsList.innerHTML = '<em>No issues detected.</em>';
+        } else {
+          findings.forEach((finding, idx) => {
+            const div = document.createElement('div');
+            div.className = 'finding';
+            div.innerHTML = `
+              <strong>${idx + 1}. [${finding.severity}] ${finding.file_path || 'repo'}:${finding.line || '?'}:</strong>
+              ${finding.message}
+            `;
+            findingsList.appendChild(div);
+          });
+        }
+        card.appendChild(findingsList);
+        resultsEl.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>

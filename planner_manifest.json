@@ -1,0 +1,32 @@
+{
+  "agents": [
+    {
+      "id": "scope",
+      "cost": 0.1,
+      "signal": "classifies topics/risk",
+      "requires": [],
+      "run_if": "always"
+    },
+    {
+      "id": "retrieval",
+      "cost": 0.2,
+      "signal": "gathers evidence bundles",
+      "requires": ["scope"],
+      "run_if": "scope.topics not empty"
+    },
+    {
+      "id": "python_security",
+      "cost": 0.8,
+      "signal": "security issues",
+      "requires": ["retrieval"],
+      "run_if": "scope.topics intersects ['auth','pii','secrets','network'] or risk_score >= 0.6"
+    },
+    {
+      "id": "python_performance",
+      "cost": 0.5,
+      "signal": "performance issues",
+      "requires": ["retrieval"],
+      "run_if": "scope.topics intersects ['performance'] or risk_score >= 0.7"
+    }
+  ]
+}

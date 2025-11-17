@@ -1,0 +1,1791 @@
+{
+  "repo": "https://github.com/astral-sh/uv",
+  "branch": "main",
+  "pr": null,
+  "commit": "b9826778b989143ece02b2dee7a6cc6885515a7e",
+  "summary": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542)",
+  "manifest": {
+    "summary": "",
+    "description": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and HTTPS URLs in the `--python-downloads-json-url` option.\",\n  \"files\": [\n    \"Cargo.lock\",\n    \"Cargo.toml\",\n    \"crates/uv-python/Cargo.toml\",\n    \"docs/reference/cli.md\",\n    \"docs/reference/environmen",
+    "files": [
+      "Cargo.lock",
+      "Cargo.toml",
+      "crates/uv-python/Cargo.toml",
+      "docs/reference/cli.md",
+      "docs/reference/environment.md",
+      "docs/reference/settings.md"
+    ],
+    "languages": [
+      "css",
+      "html",
+      "javascript",
+      "python"
+    ],
+    "frameworks": [],
+    "high_risk_tags": [],
+    "size": "medium",
+    "priority": "medium"
+  },
+  "changed_files": [
+    "Cargo.lock",
+    "Cargo.toml",
+    "crates/uv-python/Cargo.toml",
+    "docs/reference/cli.md",
+    "docs/reference/environment.md",
+    "docs/reference/settings.md"
+  ],
+  "tasks": [
+    {
+      "id": "auto_style_0",
+      "title": "Style & formatting review",
+      "specialist": "style",
+      "files": [
+        "Cargo.lock",
+        "Cargo.toml",
+        "crates/uv-python/Cargo.toml",
+        "docs/reference/cli.md",
+        "docs/reference/environment.md",
+        "docs/reference/settings.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and H",
+      "risks": [],
+      "context_ids": [
+        "ctx_0",
+        "ctx_1",
+        "ctx_2",
+        "ctx_3",
+        "ctx_4",
+        "ctx_5"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type",
+        "web_eslint",
+        "web_prettier"
+      ]
+    },
+    {
+      "id": "auto_correctness_1",
+      "title": "Tests, lint, type coverage",
+      "specialist": "correctness",
+      "files": [
+        "Cargo.lock",
+        "Cargo.toml",
+        "crates/uv-python/Cargo.toml",
+        "docs/reference/cli.md",
+        "docs/reference/environment.md",
+        "docs/reference/settings.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and H",
+      "risks": [],
+      "context_ids": [
+        "ctx_0",
+        "ctx_1",
+        "ctx_2",
+        "ctx_3",
+        "ctx_4",
+        "ctx_5"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type",
+        "web_eslint",
+        "web_prettier"
+      ]
+    },
+    {
+      "id": "auto_security_2",
+      "title": "Security, secrets, auth",
+      "specialist": "security",
+      "files": [
+        "Cargo.lock",
+        "Cargo.toml",
+        "crates/uv-python/Cargo.toml",
+        "docs/reference/cli.md",
+        "docs/reference/environment.md",
+        "docs/reference/settings.md"
+      ],
+      "priority": "high",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and H",
+      "risks": [],
+      "context_ids": [
+        "ctx_0",
+        "ctx_1",
+        "ctx_2",
+        "ctx_3",
+        "ctx_4",
+        "ctx_5"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type",
+        "web_eslint",
+        "web_prettier"
+      ]
+    },
+    {
+      "id": "auto_performance_3",
+      "title": "Performance-sensitive code",
+      "specialist": "performance",
+      "files": [
+        "Cargo.lock",
+        "Cargo.toml",
+        "crates/uv-python/Cargo.toml",
+        "docs/reference/cli.md",
+        "docs/reference/environment.md",
+        "docs/reference/settings.md"
+      ],
+      "priority": "high",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and H",
+      "risks": [],
+      "context_ids": [
+        "ctx_0",
+        "ctx_1",
+        "ctx_2",
+        "ctx_3",
+        "ctx_4",
+        "ctx_5"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type",
+        "web_eslint",
+        "web_prettier"
+      ]
+    },
+    {
+      "id": "auto_dependency_4",
+      "title": "Dependencies and packages",
+      "specialist": "dependency",
+      "files": [
+        "Cargo.lock",
+        "Cargo.toml",
+        "crates/uv-python/Cargo.toml",
+        "docs/reference/cli.md",
+        "docs/reference/environment.md",
+        "docs/reference/settings.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and H",
+      "risks": [],
+      "context_ids": [
+        "ctx_0",
+        "ctx_1",
+        "ctx_2",
+        "ctx_3",
+        "ctx_4",
+        "ctx_5"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type",
+        "web_eslint",
+        "web_prettier"
+      ]
+    },
+    {
+      "id": "auto_docs_5",
+      "title": "Docs and public API",
+      "specialist": "docs",
+      "files": [
+        "Cargo.lock",
+        "Cargo.toml",
+        "crates/uv-python/Cargo.toml",
+        "docs/reference/cli.md",
+        "docs/reference/environment.md",
+        "docs/reference/settings.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and H",
+      "risks": [],
+      "context_ids": [
+        "ctx_0",
+        "ctx_1",
+        "ctx_2",
+        "ctx_3",
+        "ctx_4",
+        "ctx_5"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type",
+        "web_eslint",
+        "web_prettier"
+      ]
+    }
+  ],
+  "task_reports": [
+    {
+      "task_id": "auto_style_0",
+      "title": "Style & formatting review",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3423",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-list--python-downloads-json-url\"><a href=\"#uv-python-list--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3522",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-install--python-downloads-json-url\"><a href=\"#uv-python-install--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3615",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-upgrade--python-downloads-json-url\"><a href=\"#uv-python-upgrade--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3689",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-find--python-downloads-json-url\"><a href=\"#uv-python-find--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\ncrates/uv-",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./crates/uv-installer/src/pip_compileall.py:1 at module level:\n        D205: 1 blank line required between summary line and description (found 0)\n./crates/uv-installer/src/pip_compileall.py:1 at modul",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 31.6%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Skipping .ipynb files as Jupyter dependencies are not installed.\nYou can fix this by running ``pip install \"black[jupyter]\"``\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/packages/anyio_local/anyio/__init__.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-virtualenv/src/activator/ac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/python/get_interpreter_info.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/publish/test_publish.py Imports are incorrectly sorted and/or formatted.",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n_____ ERROR collecting scripts/packages/built-by-uv/tests/test_package.py ______\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/fetch-download-metadata.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_correctness_1",
+      "title": "Tests, lint, type coverage",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3423",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-list--python-downloads-json-url\"><a href=\"#uv-python-list--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3522",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-install--python-downloads-json-url\"><a href=\"#uv-python-install--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3615",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-upgrade--python-downloads-json-url\"><a href=\"#uv-python-upgrade--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3689",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-find--python-downloads-json-url\"><a href=\"#uv-python-find--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\ncrates/uv-",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./crates/uv-installer/src/pip_compileall.py:1 at module level:\n        D205: 1 blank line required between summary line and description (found 0)\n./crates/uv-installer/src/pip_compileall.py:1 at modul",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 31.6%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Skipping .ipynb files as Jupyter dependencies are not installed.\nYou can fix this by running ``pip install \"black[jupyter]\"``\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/packages/anyio_local/anyio/__init__.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-virtualenv/src/activator/ac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/python/get_interpreter_info.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/publish/test_publish.py Imports are incorrectly sorted and/or formatted.",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n_____ ERROR collecting scripts/packages/built-by-uv/tests/test_package.py ______\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/fetch-download-metadata.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_security_2",
+      "title": "Security, secrets, auth",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3423",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-list--python-downloads-json-url\"><a href=\"#uv-python-list--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3522",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-install--python-downloads-json-url\"><a href=\"#uv-python-install--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3615",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-upgrade--python-downloads-json-url\"><a href=\"#uv-python-upgrade--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3689",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-find--python-downloads-json-url\"><a href=\"#uv-python-find--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\ncrates/uv-",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./crates/uv-installer/src/pip_compileall.py:1 at module level:\n        D205: 1 blank line required between summary line and description (found 0)\n./crates/uv-installer/src/pip_compileall.py:1 at modul",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 31.6%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Skipping .ipynb files as Jupyter dependencies are not installed.\nYou can fix this by running ``pip install \"black[jupyter]\"``\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/packages/anyio_local/anyio/__init__.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-virtualenv/src/activator/ac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/python/get_interpreter_info.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/publish/test_publish.py Imports are incorrectly sorted and/or formatted.",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n_____ ERROR collecting scripts/packages/built-by-uv/tests/test_package.py ______\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/fetch-download-metadata.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_performance_3",
+      "title": "Performance-sensitive code",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3423",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-list--python-downloads-json-url\"><a href=\"#uv-python-list--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3522",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-install--python-downloads-json-url\"><a href=\"#uv-python-install--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3615",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-upgrade--python-downloads-json-url\"><a href=\"#uv-python-upgrade--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3689",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-find--python-downloads-json-url\"><a href=\"#uv-python-find--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\ncrates/uv-",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./crates/uv-installer/src/pip_compileall.py:1 at module level:\n        D205: 1 blank line required between summary line and description (found 0)\n./crates/uv-installer/src/pip_compileall.py:1 at modul",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 31.6%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Skipping .ipynb files as Jupyter dependencies are not installed.\nYou can fix this by running ``pip install \"black[jupyter]\"``\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/packages/anyio_local/anyio/__init__.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-virtualenv/src/activator/ac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/python/get_interpreter_info.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/publish/test_publish.py Imports are incorrectly sorted and/or formatted.",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n_____ ERROR collecting scripts/packages/built-by-uv/tests/test_package.py ______\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/fetch-download-metadata.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_dependency_4",
+      "title": "Dependencies and packages",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3423",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-list--python-downloads-json-url\"><a href=\"#uv-python-list--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3522",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-install--python-downloads-json-url\"><a href=\"#uv-python-install--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3615",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-upgrade--python-downloads-json-url\"><a href=\"#uv-python-upgrade--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3689",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-find--python-downloads-json-url\"><a href=\"#uv-python-find--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\ncrates/uv-",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./crates/uv-installer/src/pip_compileall.py:1 at module level:\n        D205: 1 blank line required between summary line and description (found 0)\n./crates/uv-installer/src/pip_compileall.py:1 at modul",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 31.6%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Skipping .ipynb files as Jupyter dependencies are not installed.\nYou can fix this by running ``pip install \"black[jupyter]\"``\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/packages/anyio_local/anyio/__init__.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-virtualenv/src/activator/ac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/python/get_interpreter_info.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/publish/test_publish.py Imports are incorrectly sorted and/or formatted.",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n_____ ERROR collecting scripts/packages/built-by-uv/tests/test_package.py ______\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/fetch-download-metadata.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_docs_5",
+      "title": "Docs and public API",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3423",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-list--python-downloads-json-url\"><a href=\"#uv-python-list--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3522",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-install--python-downloads-json-url\"><a href=\"#uv-python-install--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3615",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "</dd><dt id=\"uv-python-upgrade--python-downloads-json-url\"><a href=\"#uv-python-upgrade--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "style",
+          "file_path": "docs/reference/cli.md",
+          "span": "3689",
+          "severity": "low",
+          "category": "python_style",
+          "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+          "recommended_fix": "",
+          "references": {
+            "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+            "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+          },
+          "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-find--python-downloads-json-url\"><a href=\"#uv-python-find--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+          "rule_id": "STYLE_LONG_LINE"
+        },
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\ncrates/uv-",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./crates/uv-installer/src/pip_compileall.py:1 at module level:\n        D205: 1 blank line required between summary line and description (found 0)\n./crates/uv-installer/src/pip_compileall.py:1 at modul",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 31.6%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Skipping .ipynb files as Jupyter dependencies are not installed.\nYou can fix this by running ``pip install \"black[jupyter]\"``\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/packages/anyio_local/anyio/__init__.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-virtualenv/src/activator/ac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/python/get_interpreter_info.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/publish/test_publish.py Imports are incorrectly sorted and/or formatted.",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n_____ ERROR collecting scripts/packages/built-by-uv/tests/test_package.py ______\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/fetch-download-metadata.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    }
+  ],
+  "tool_results": [],
+  "critic": {
+    "executive_summary": "Here is the output in JSON format:\n\n```json\n{\n  \"executive_summary\": [\n    {\n      \"message\": \"The codebase has several issues, including a long line in docs/reference/cli.md, potentially unused code in crates/uv-build/python/uv_build/__init__.py, dependency vulnerabilities detected by pip-audit, and more.\"\n    }\n  ],\n  \"grouped_comments\": [\n    {\n      \"file_path\": \"docs/reference/cli.md\",\n      \"span\": \"3423\",\n      \"severity\": \"low\",\n      \"message\": \"Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )\",\n      \"recommended_fix\": \"\",\n      \"references\": {\n        \"documentation\": \"docs/reference/environment.md: set, uv will use this username for publishing. \",\n        \"best_practices\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542) \"\n      },\n      \"code_line\": \"<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\\\"uv-python-list--python-downloads-json-url\\\"><a href=\\\"#uv-python-list--python-downloads-json-url\\\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>\",\n      \"rule_id\": \"STYLE_LONG_LINE\"\n    },\n    {\n      \"file_path\": \"crates/uv-build/python/uv_build/__init__.py\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"vulture: Potentially unused code detected by vulture.\",\n      \"recommended_fix\": \"\",\n      \"references\": {\n        \"stderr\": \"\",\n        \"command\": \"vulture .\"\n      },\n      \"code_line\": \"crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\\ncrates/uv-\",\n      \"rule_id\": \"COMPLEXITY_SIGNAL\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pip-audit: Dependency vulnerabilities detected by pip-audit.\",\n      \"recommended_fix\": \"\",\n      \"references\": {\n        \"stderr\": \"Found 3 known vulnerabilities in 2 packages\",\n        \"command\": \"pip-audit\"\n      },\n      \"code_line\": \"Name    Version ID                  Fix Versions\\n------- ------- ------------------- ------------\\npy      1.11.0  PYSEC-2022-42969\\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\\nurllib3 2.3.0   GHSA-pq67-6\",\n      \"rule_id\": \"DEPENDENCIES_SIGNAL\"\n    }\n  ],\n  \"follow_ups\": [\n    \"Please address the issues mentioned above to improve code quality and security.\",\n    \"Consider using tools like vulture, pip-audit, and pyright to catch potential issues early on.\"\n  ]\n}\n```",
+    "grouped_comments": [],
+    "follow_ups": []
+  },
+  "synthesis": {
+    "normalized_findings": [
+      {
+        "agent": "style",
+        "file_path": "docs/reference/cli.md",
+        "span": "3423",
+        "severity": "low",
+        "category": "python_style",
+        "message": "Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )",
+        "recommended_fix": "",
+        "references": {
+          "documentation": "docs/reference/environment.md: set, uv will use this username for publishing. ",
+          "best_practices": "Support http/https URLs in `uv python --python-downloads-json-url` (#16542) "
+        },
+        "code_line": "<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\"uv-python-list--python-downloads-json-url\"><a href=\"#uv-python-list--python-downloads-json-url\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>",
+        "rule_id": "STYLE_LONG_LINE"
+      },
+      {
+        "agent": "complexity",
+        "file_path": "",
+        "span": "",
+        "severity": "low",
+        "category": "python_complexity",
+        "message": "vulture: Potentially unused code detected by vulture.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "vulture ."
+        },
+        "code_line": "crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\ncrates/uv-",
+        "rule_id": "COMPLEXITY_SIGNAL"
+      },
+      {
+        "agent": "dependencies",
+        "file_path": "",
+        "span": "",
+        "severity": "high",
+        "category": "python_dependency",
+        "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "Found 3 known vulnerabilities in 2 packages",
+          "command": "pip-audit"
+        },
+        "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+        "rule_id": "DEPENDENCIES_SIGNAL"
+      },
+      {
+        "agent": "docs",
+        "file_path": "",
+        "span": "",
+        "severity": "medium",
+        "category": "python_doc",
+        "message": "pydocstyle: pydocstyle errors detected.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pydocstyle ."
+        },
+        "code_line": "./crates/uv-installer/src/pip_compileall.py:1 at module level:\n        D205: 1 blank line required between summary line and description (found 0)\n./crates/uv-installer/src/pip_compileall.py:1 at modul",
+        "rule_id": "DOCS_SIGNAL"
+      },
+      {
+        "agent": "docs",
+        "file_path": "",
+        "span": "",
+        "severity": "low",
+        "category": "python_doc",
+        "message": "interrogate: Docstring coverage below target per interrogate.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "interrogate ."
+        },
+        "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 31.6%)",
+        "rule_id": "DOCS_SIGNAL"
+      },
+      {
+        "agent": "format",
+        "file_path": "",
+        "span": "",
+        "severity": "medium",
+        "category": "python_format",
+        "message": "black: Code formatting diverges from black output.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "Skipping .ipynb files as Jupyter dependencies are not installed.\nYou can fix this by running ``pip install \"black[jupyter]\"``\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/packages/anyio_local/anyio/__init__.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-virtualenv/src/activator/ac",
+          "command": "black --check ."
+        },
+        "code_line": "",
+        "rule_id": "FORMAT_SIGNAL"
+      },
+      {
+        "agent": "format",
+        "file_path": "",
+        "span": "",
+        "severity": "low",
+        "category": "python_format",
+        "message": "isort: Import ordering issues reported by isort.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/python/get_interpreter_info.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/scripts/publish/test_publish.py Imports are incorrectly sorted and/or formatted.",
+          "command": "isort --check-only ."
+        },
+        "code_line": "Skipped 1 files",
+        "rule_id": "FORMAT_SIGNAL"
+      },
+      {
+        "agent": "performance",
+        "file_path": "",
+        "span": "",
+        "severity": "info",
+        "category": "python_performance",
+        "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pytest --benchmark-only --benchmark-disable-gc"
+        },
+        "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+        "rule_id": "PERFORMANCE_SIGNAL"
+      },
+      {
+        "agent": "tests",
+        "file_path": "",
+        "span": "",
+        "severity": "high",
+        "category": "python_tests",
+        "message": "pytest: pytest failed. Inspect failing tests/logs.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pytest --maxfail=1 --disable-warnings -q"
+        },
+        "code_line": "==================================== ERRORS ====================================\n_____ ERROR collecting scripts/packages/built-by-uv/tests/test_package.py ______\nImportError while importing test modul",
+        "rule_id": "TESTS_SIGNAL"
+      },
+      {
+        "agent": "types",
+        "file_path": "",
+        "span": "",
+        "severity": "high",
+        "category": "python_type",
+        "message": "pyright: Static type errors reported by pyright.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pyright"
+        },
+        "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-sh_uv/crates/uv-python/fetch-download-metadata.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_astral-",
+        "rule_id": "TYPES_SIGNAL"
+      }
+    ],
+    "summary": "The review of the provided codebase has revealed several issues across various categories. The findings include a long line in a documentation file, potentially unused code detected by vulture, dependency vulnerabilities reported by pip-audit, and formatting issues identified by black and isort. Additionally, there are errors in docstring coverage, pytest failed to run, and static type errors reported by pyright."
+  },
+  "node_outputs": {
+    "intake": {
+      "summary": "",
+      "description": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542)\",\n  \"description\": \"Added support for HTTP and HTTPS URLs in the `--python-downloads-json-url` option.\",\n  \"files\": [\n    \"Cargo.lock\",\n    \"Cargo.toml\",\n    \"crates/uv-python/Cargo.toml\",\n    \"docs/reference/cli.md\",\n    \"docs/reference/environmen",
+      "files": [
+        "Cargo.lock",
+        "Cargo.toml",
+        "crates/uv-python/Cargo.toml",
+        "docs/reference/cli.md",
+        "docs/reference/environment.md",
+        "docs/reference/settings.md"
+      ],
+      "languages": [
+        "css",
+        "html",
+        "javascript",
+        "python"
+      ],
+      "frameworks": [],
+      "high_risk_tags": [],
+      "size": "medium",
+      "priority": "medium"
+    },
+    "context": {
+      "count": 6
+    },
+    "planner": {
+      "task_count": 6
+    },
+    "tasks": {
+      "task_count": 6
+    },
+    "synthesis": {
+      "summary": "The review of the provided codebase has revealed several issues across various categories. The findings include a long line in a documentation file, potentially unused code detected by vulture, dependency vulnerabilities reported by pip-audit, and formatting issues identified by black and isort. Additionally, there are errors in docstring coverage, pytest failed to run, and static type errors reported by pyright."
+    },
+    "critic": {
+      "executive_summary": "Here is the output in JSON format:\n\n```json\n{\n  \"executive_summary\": [\n    {\n      \"message\": \"The codebase has several issues, including a long line in docs/reference/cli.md, potentially unused code in crates/uv-build/python/uv_build/__init__.py, dependency vulnerabilities detected by pip-audit, and more.\"\n    }\n  ],\n  \"grouped_comments\": [\n    {\n      \"file_path\": \"docs/reference/cli.md\",\n      \"span\": \"3423\",\n      \"severity\": \"low\",\n      \"message\": \"Line exceeds 120 characters. (docs/reference/environment.md: set, uv will use this username for publishing. ; Support http/https URLs in `uv python --python-downloads-json-url` (#16542) )\",\n      \"recommended_fix\": \"\",\n      \"references\": {\n        \"documentation\": \"docs/reference/environment.md: set, uv will use this username for publishing. \",\n        \"best_practices\": \"Support http/https URLs in `uv python --python-downloads-json-url` (#16542) \"\n      },\n      \"code_line\": \"<p>May also be set with the <code>UV_PROJECT</code> environment variable.</p></dd><dt id=\\\"uv-python-list--python-downloads-json-url\\\"><a href=\\\"#uv-python-list--python-downloads-json-url\\\"><code>--python-downloads-json-url</code></a> <i>python-downloads-json-url</i></dt><dd><p>URL pointing to JSON of custom Python installations.</p>\",\n      \"rule_id\": \"STYLE_LONG_LINE\"\n    },\n    {\n      \"file_path\": \"crates/uv-build/python/uv_build/__init__.py\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"vulture: Potentially unused code detected by vulture.\",\n      \"recommended_fix\": \"\",\n      \"references\": {\n        \"stderr\": \"\",\n        \"command\": \"vulture .\"\n      },\n      \"code_line\": \"crates/uv-build/python/uv_build/__init__.py:72: unused function 'build_sdist' (60% confidence)\\ncrates/uv-build/python/uv_build/__init__.py:80: unused function 'build_wheel' (60% confidence)\\ncrates/uv-\",\n      \"rule_id\": \"COMPLEXITY_SIGNAL\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pip-audit: Dependency vulnerabilities detected by pip-audit.\",\n      \"recommended_fix\": \"\",\n      \"references\": {\n        \"stderr\": \"Found 3 known vulnerabilities in 2 packages\",\n        \"command\": \"pip-audit\"\n      },\n      \"code_line\": \"Name    Version ID                  Fix Versions\\n------- ------- ------------------- ------------\\npy      1.11.0  PYSEC-2022-42969\\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\\nurllib3 2.3.0   GHSA-pq67-6\",\n      \"rule_id\": \"DEPENDENCIES_SIGNAL\"\n    }\n  ],\n  \"follow_ups\": [\n    \"Please address the issues mentioned above to improve code quality and security.\",\n    \"Consider using tools like vulture, pip-audit, and pyright to catch potential issues early on.\"\n  ]\n}\n```",
+      "grouped_comments": [],
+      "follow_ups": []
+    },
+    "memory": {
+      "logged": true
+    },
+    "finalize": {
+      "finding_count": 10
+    }
+  }
+}

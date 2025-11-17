@@ -1,0 +1,14 @@
+{
+  "id": "python_semgrep",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.semgrep_agent",
+  "class_name": "SemgrepAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs semgrep security rules.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

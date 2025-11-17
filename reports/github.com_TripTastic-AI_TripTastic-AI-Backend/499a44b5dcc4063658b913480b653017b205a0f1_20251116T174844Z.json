@@ -1,0 +1,1457 @@
+{
+  "repo": "https://github.com/TripTastic-AI/TripTastic-AI-Backend",
+  "branch": "main",
+  "pr": null,
+  "commit": "499a44b5dcc4063658b913480b653017b205a0f1",
+  "summary": "Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param",
+  "manifest": {
+    "summary": "",
+    "description": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes in dev pipeline\",\n  \"files\": [\"README.md\"],\n  \"languages\": [\"python\"],\n  \"frameworks\": [],\n  \"high_risk_tags\": [],\n  \"size\": \"tiny\",\n  \"priority\": \"low\"\n}\n```\n\nNote that I've made the following assum",
+    "files": [
+      "README.md"
+    ],
+    "languages": [
+      "python"
+    ],
+    "frameworks": [],
+    "high_risk_tags": [],
+    "size": "medium",
+    "priority": "medium"
+  },
+  "triage": {
+    "overall_risk": "medium",
+    "lanes": [
+      "style",
+      "security",
+      "tests"
+    ],
+    "decisions": [
+      {
+        "file_path": "README.md",
+        "risk": "medium",
+        "file_type": "general",
+        "lanes": [
+          "style",
+          "security",
+          "tests"
+        ],
+        "notes": ""
+      }
+    ],
+    "recommendations": []
+  },
+  "changed_files": [
+    "README.md"
+  ],
+  "tasks": [
+    {
+      "id": "auto_style_0",
+      "title": "Style & formatting review",
+      "specialist": "style",
+      "files": [
+        "README.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes",
+      "risks": [],
+      "context_ids": [
+        "ctx_0"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ]
+    },
+    {
+      "id": "auto_correctness_1",
+      "title": "Tests, lint, type coverage",
+      "specialist": "correctness",
+      "files": [
+        "README.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes",
+      "risks": [],
+      "context_ids": [
+        "ctx_0"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ]
+    },
+    {
+      "id": "auto_security_2",
+      "title": "Security, secrets, auth",
+      "specialist": "security",
+      "files": [
+        "README.md"
+      ],
+      "priority": "high",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes",
+      "risks": [],
+      "context_ids": [
+        "ctx_0"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ]
+    },
+    {
+      "id": "auto_performance_3",
+      "title": "Performance-sensitive code",
+      "specialist": "performance",
+      "files": [
+        "README.md"
+      ],
+      "priority": "high",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes",
+      "risks": [],
+      "context_ids": [
+        "ctx_0"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ]
+    },
+    {
+      "id": "auto_dependency_4",
+      "title": "Dependencies and packages",
+      "specialist": "dependency",
+      "files": [
+        "README.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes",
+      "risks": [],
+      "context_ids": [
+        "ctx_0"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ]
+    },
+    {
+      "id": "auto_docs_5",
+      "title": "Docs and public API",
+      "specialist": "docs",
+      "files": [
+        "README.md"
+      ],
+      "priority": "medium",
+      "budget": "m",
+      "notes": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes",
+      "risks": [],
+      "context_ids": [
+        "ctx_0"
+      ],
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ]
+    }
+  ],
+  "task_reports": [
+    {
+      "task_id": "auto_style_0",
+      "title": "Style & formatting review",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAM",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./test.py:1 at module level:\n        D100: Missing docstring in public module\n./test.py:7 in public function `main`:\n        D103: Missing docstring in public function\n./app.py:1 at module level:\n    ",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 64.0%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "would reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/config/settings.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/services/Prompts/HotelPrompt.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Bac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/gith",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "lint",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_lint",
+          "message": "ruff: ruff lint failures detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "ruff check ."
+          },
+          "code_line": "F401 [*] `datetime.datetime` imported but unused\n --> app.py:5:22\n  |\n3 | import requests\n4 | import uuid\n5 | from datetime import datetime\n  |                      ^^^^^^^^\n6 |\n7 | # Configure API UR",
+          "rule_id": "LINT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTas",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_correctness_1",
+      "title": "Tests, lint, type coverage",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAM",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./test.py:1 at module level:\n        D100: Missing docstring in public module\n./test.py:7 in public function `main`:\n        D103: Missing docstring in public function\n./app.py:1 at module level:\n    ",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 64.0%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "would reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/config/settings.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/services/Prompts/HotelPrompt.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Bac",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/gith",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "lint",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_lint",
+          "message": "ruff: ruff lint failures detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "ruff check ."
+          },
+          "code_line": "F401 [*] `datetime.datetime` imported but unused\n --> app.py:5:22\n  |\n3 | import requests\n4 | import uuid\n5 | from datetime import datetime\n  |                      ^^^^^^^^\n6 |\n7 | # Configure API UR",
+          "rule_id": "LINT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTas",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_security_2",
+      "title": "Security, secrets, auth",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAM",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./test.py:1 at module level:\n        D100: Missing docstring in public module\n./test.py:7 in public function `main`:\n        D103: Missing docstring in public function\n./app.py:1 at module level:\n    ",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 64.0%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "would reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/config/settings.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/models/chat_models.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/servi",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/gith",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "lint",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_lint",
+          "message": "ruff: ruff lint failures detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "ruff check ."
+          },
+          "code_line": "F401 [*] `datetime.datetime` imported but unused\n --> app.py:5:22\n  |\n3 | import requests\n4 | import uuid\n5 | from datetime import datetime\n  |                      ^^^^^^^^\n6 |\n7 | # Configure API UR",
+          "rule_id": "LINT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTas",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_performance_3",
+      "title": "Performance-sensitive code",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAM",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./test.py:1 at module level:\n        D100: Missing docstring in public module\n./test.py:7 in public function `main`:\n        D103: Missing docstring in public function\n./app.py:1 at module level:\n    ",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 64.0%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "would reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/config/settings.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/models/chat_models.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/manag",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/gith",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "lint",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_lint",
+          "message": "ruff: ruff lint failures detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "ruff check ."
+          },
+          "code_line": "F401 [*] `datetime.datetime` imported but unused\n --> app.py:5:22\n  |\n3 | import requests\n4 | import uuid\n5 | from datetime import datetime\n  |                      ^^^^^^^^\n6 |\n7 | # Configure API UR",
+          "rule_id": "LINT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTas",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_dependency_4",
+      "title": "Dependencies and packages",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAM",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./test.py:1 at module level:\n        D100: Missing docstring in public module\n./test.py:7 in public function `main`:\n        D103: Missing docstring in public function\n./app.py:1 at module level:\n    ",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 64.0%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "would reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/config/settings.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/models/chat_models.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/manag",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/gith",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "lint",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_lint",
+          "message": "ruff: ruff lint failures detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "ruff check ."
+          },
+          "code_line": "F401 [*] `datetime.datetime` imported but unused\n --> app.py:5:22\n  |\n3 | import requests\n4 | import uuid\n5 | from datetime import datetime\n  |                      ^^^^^^^^\n6 |\n7 | # Configure API UR",
+          "rule_id": "LINT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTas",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    },
+    {
+      "task_id": "auto_docs_5",
+      "title": "Docs and public API",
+      "tool_ids": [
+        "python_security",
+        "python_style",
+        "python_complexity",
+        "python_dependency",
+        "python_doc",
+        "python_format",
+        "python_lint",
+        "python_performance",
+        "python_secrets",
+        "python_semgrep",
+        "python_tests",
+        "python_type"
+      ],
+      "findings": [
+        {
+          "agent": "complexity",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_complexity",
+          "message": "vulture: Potentially unused code detected by vulture.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "vulture ."
+          },
+          "code_line": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAM",
+          "rule_id": "COMPLEXITY_SIGNAL"
+        },
+        {
+          "agent": "dependencies",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_dependency",
+          "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "Found 3 known vulnerabilities in 2 packages",
+            "command": "pip-audit"
+          },
+          "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+          "rule_id": "DEPENDENCIES_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_doc",
+          "message": "pydocstyle: pydocstyle errors detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pydocstyle ."
+          },
+          "code_line": "./test.py:1 at module level:\n        D100: Missing docstring in public module\n./test.py:7 in public function `main`:\n        D103: Missing docstring in public function\n./app.py:1 at module level:\n    ",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "docs",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_doc",
+          "message": "interrogate: Docstring coverage below target per interrogate.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "interrogate ."
+          },
+          "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 64.0%)",
+          "rule_id": "DOCS_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_format",
+          "message": "black: Code formatting diverges from black output.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "would reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/config/settings.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/models/chat_models.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/servi",
+            "command": "black --check ."
+          },
+          "code_line": "",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "format",
+          "file_path": "",
+          "span": "",
+          "severity": "low",
+          "category": "python_format",
+          "message": "isort: Import ordering issues reported by isort.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/gith",
+            "command": "isort --check-only ."
+          },
+          "code_line": "Skipped 1 files",
+          "rule_id": "FORMAT_SIGNAL"
+        },
+        {
+          "agent": "lint",
+          "file_path": "",
+          "span": "",
+          "severity": "medium",
+          "category": "python_lint",
+          "message": "ruff: ruff lint failures detected.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "ruff check ."
+          },
+          "code_line": "F401 [*] `datetime.datetime` imported but unused\n --> app.py:5:22\n  |\n3 | import requests\n4 | import uuid\n5 | from datetime import datetime\n  |                      ^^^^^^^^\n6 |\n7 | # Configure API UR",
+          "rule_id": "LINT_SIGNAL"
+        },
+        {
+          "agent": "performance",
+          "file_path": "",
+          "span": "",
+          "severity": "info",
+          "category": "python_performance",
+          "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --benchmark-only --benchmark-disable-gc"
+          },
+          "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+          "rule_id": "PERFORMANCE_SIGNAL"
+        },
+        {
+          "agent": "tests",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_tests",
+          "message": "pytest: pytest failed. Inspect failing tests/logs.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pytest --maxfail=1 --disable-warnings -q"
+          },
+          "code_line": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test modul",
+          "rule_id": "TESTS_SIGNAL"
+        },
+        {
+          "agent": "types",
+          "file_path": "",
+          "span": "",
+          "severity": "high",
+          "category": "python_type",
+          "message": "pyright: Static type errors reported by pyright.",
+          "recommended_fix": "",
+          "references": {
+            "stderr": "",
+            "command": "pyright"
+          },
+          "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTas",
+          "rule_id": "TYPES_SIGNAL"
+        }
+      ],
+      "notes": "ran 12 tools"
+    }
+  ],
+  "tool_results": [],
+  "critic": {
+    "executive_summary": "Here is the output in JSON format:\n\n```json\n{\n  \"executive_summary\": [\n    {\n      \"severity\": \"high\",\n      \"message\": \"Dependency vulnerabilities detected by pip-audit.\"\n    },\n    {\n      \"severity\": \"high\",\n      \"message\": \"pytest failed. Inspect failing tests/logs.\"\n    }\n  ],\n  \"grouped_comments\": [\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"vulture: Potentially unused code detected by vulture.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_complexity\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pip-audit: Dependency vulnerabilities detected by pip-audit.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_dependency\"\n    },\n    {\n      \"file_path\": \"./test.py\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"pydocstyle: pydocstyle errors detected.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_doc\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"interrogate: Docstring coverage below target per interrogate.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_doc\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"black: Code formatting diverges from black output.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_format\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"isort: Import ordering issues reported by isort.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_format\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"ruff: ruff lint failures detected.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_lint\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"info\",\n      \"message\": \"pytest-benchmark: pytest-benchmark run failed or reported regressions.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_performance\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pytest: pytest failed. Inspect failing tests/logs.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_tests\"\n    },\n    {\n      \"file_path\": \"/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pyright: Static type errors reported by pyright.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_type\"\n    }\n  ],\n  \"follow_ups\": [\n    \"Please review the dependency vulnerabilities detected by pip-audit and update the dependencies accordingly.\",\n    \"Inspect the failing tests/logs to identify the root cause of the issue.\",\n    \"Review the static type errors reported by pyright and make necessary corrections.\"\n  ]\n}\n```",
+    "grouped_comments": [],
+    "follow_ups": []
+  },
+  "synthesis": {
+    "normalized_findings": [
+      {
+        "agent": "complexity",
+        "file_path": "",
+        "span": "",
+        "severity": "low",
+        "category": "python_complexity",
+        "message": "vulture: Potentially unused code detected by vulture.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "vulture ."
+        },
+        "code_line": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAM",
+        "rule_id": "COMPLEXITY_SIGNAL"
+      },
+      {
+        "agent": "dependencies",
+        "file_path": "",
+        "span": "",
+        "severity": "high",
+        "category": "python_dependency",
+        "message": "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "Found 3 known vulnerabilities in 2 packages",
+          "command": "pip-audit"
+        },
+        "code_line": "Name    Version ID                  Fix Versions\n------- ------- ------------------- ------------\npy      1.11.0  PYSEC-2022-42969\nurllib3 2.3.0   GHSA-48p4-8xcf-vxj5 2.5.0\nurllib3 2.3.0   GHSA-pq67-6",
+        "rule_id": "DEPENDENCIES_SIGNAL"
+      },
+      {
+        "agent": "docs",
+        "file_path": "",
+        "span": "",
+        "severity": "medium",
+        "category": "python_doc",
+        "message": "pydocstyle: pydocstyle errors detected.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pydocstyle ."
+        },
+        "code_line": "./test.py:1 at module level:\n        D100: Missing docstring in public module\n./test.py:7 in public function `main`:\n        D103: Missing docstring in public function\n./app.py:1 at module level:\n    ",
+        "rule_id": "DOCS_SIGNAL"
+      },
+      {
+        "agent": "docs",
+        "file_path": "",
+        "span": "",
+        "severity": "low",
+        "category": "python_doc",
+        "message": "interrogate: Docstring coverage below target per interrogate.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "interrogate ."
+        },
+        "code_line": "RESULT: FAILED (minimum: 80.0%, actual: 64.0%)",
+        "rule_id": "DOCS_SIGNAL"
+      },
+      {
+        "agent": "format",
+        "file_path": "",
+        "span": "",
+        "severity": "medium",
+        "category": "python_format",
+        "message": "black: Code formatting diverges from black output.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "would reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/config/settings.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/services/Prompts/HotelPrompt.py\nwould reformat /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Bac",
+          "command": "black --check ."
+        },
+        "code_line": "",
+        "rule_id": "FORMAT_SIGNAL"
+      },
+      {
+        "agent": "format",
+        "file_path": "",
+        "span": "",
+        "severity": "low",
+        "category": "python_format",
+        "message": "isort: Import ordering issues reported by isort.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "ERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py Imports are incorrectly sorted and/or formatted.\nERROR: /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/gith",
+          "command": "isort --check-only ."
+        },
+        "code_line": "Skipped 1 files",
+        "rule_id": "FORMAT_SIGNAL"
+      },
+      {
+        "agent": "lint",
+        "file_path": "",
+        "span": "",
+        "severity": "medium",
+        "category": "python_lint",
+        "message": "ruff: ruff lint failures detected.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "ruff check ."
+        },
+        "code_line": "F401 [*] `datetime.datetime` imported but unused\n --> app.py:5:22\n  |\n3 | import requests\n4 | import uuid\n5 | from datetime import datetime\n  |                      ^^^^^^^^\n6 |\n7 | # Configure API UR",
+        "rule_id": "LINT_SIGNAL"
+      },
+      {
+        "agent": "performance",
+        "file_path": "",
+        "span": "",
+        "severity": "info",
+        "category": "python_performance",
+        "message": "pytest-benchmark: pytest-benchmark run failed or reported regressions.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pytest --benchmark-only --benchmark-disable-gc"
+        },
+        "code_line": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.4, pytest-9.0.1, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disabl",
+        "rule_id": "PERFORMANCE_SIGNAL"
+      },
+      {
+        "agent": "tests",
+        "file_path": "",
+        "span": "",
+        "severity": "high",
+        "category": "python_tests",
+        "message": "pytest: pytest failed. Inspect failing tests/logs.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pytest --maxfail=1 --disable-warnings -q"
+        },
+        "code_line": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test modul",
+        "rule_id": "TESTS_SIGNAL"
+      },
+      {
+        "agent": "types",
+        "file_path": "",
+        "span": "",
+        "severity": "high",
+        "category": "python_type",
+        "message": "pyright: Static type errors reported by pyright.",
+        "recommended_fix": "",
+        "references": {
+          "stderr": "",
+          "command": "pyright"
+        },
+        "code_line": "/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\n  /Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTas",
+        "rule_id": "TYPES_SIGNAL"
+      }
+    ],
+    "summary": "The code review has identified several issues across various categories. The most severe issues are high-risk dependencies, failing tests, and static type errors. Additionally, there are medium-severity issues with code formatting, documentation, and complexity. It is recommended to address these issues to improve the overall quality of the codebase."
+  },
+  "node_outputs": {
+    "intake": {
+      "summary": "",
+      "description": "Here is the JSON output with the requested fields:\n\n```json\n{\n  \"summary\": \"Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param\",\n  \"description\": \"Updated README.md to reflect changes in dev pipeline\",\n  \"files\": [\"README.md\"],\n  \"languages\": [\"python\"],\n  \"frameworks\": [],\n  \"high_risk_tags\": [],\n  \"size\": \"tiny\",\n  \"priority\": \"low\"\n}\n```\n\nNote that I've made the following assum",
+      "files": [
+        "README.md"
+      ],
+      "languages": [
+        "python"
+      ],
+      "frameworks": [],
+      "high_risk_tags": [],
+      "size": "medium",
+      "priority": "medium"
+    },
+    "context": {
+      "count": 1
+    },
+    "triage": {
+      "lanes": [
+        "style",
+        "security",
+        "tests"
+      ]
+    },
+    "planner": {
+      "task_count": 6
+    },
+    "tasks": {
+      "task_count": 6
+    },
+    "synthesis": {
+      "summary": "The code review has identified several issues across various categories. The most severe issues are high-risk dependencies, failing tests, and static type errors. Additionally, there are medium-severity issues with code formatting, documentation, and complexity. It is recommended to address these issues to improve the overall quality of the codebase."
+    },
+    "critic": {
+      "executive_summary": "Here is the output in JSON format:\n\n```json\n{\n  \"executive_summary\": [\n    {\n      \"severity\": \"high\",\n      \"message\": \"Dependency vulnerabilities detected by pip-audit.\"\n    },\n    {\n      \"severity\": \"high\",\n      \"message\": \"pytest failed. Inspect failing tests/logs.\"\n    }\n  ],\n  \"grouped_comments\": [\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"vulture: Potentially unused code detected by vulture.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_complexity\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pip-audit: Dependency vulnerabilities detected by pip-audit.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_dependency\"\n    },\n    {\n      \"file_path\": \"./test.py\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"pydocstyle: pydocstyle errors detected.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_doc\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"interrogate: Docstring coverage below target per interrogate.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_doc\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"black: Code formatting diverges from black output.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_format\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"isort: Import ordering issues reported by isort.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_format\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"ruff: ruff lint failures detected.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_lint\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"info\",\n      \"message\": \"pytest-benchmark: pytest-benchmark run failed or reported regressions.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_performance\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pytest: pytest failed. Inspect failing tests/logs.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_tests\"\n    },\n    {\n      \"file_path\": \"/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pyright: Static type errors reported by pyright.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_type\"\n    }\n  ],\n  \"follow_ups\": [\n    \"Please review the dependency vulnerabilities detected by pip-audit and update the dependencies accordingly.\",\n    \"Inspect the failing tests/logs to identify the root cause of the issue.\",\n    \"Review the static type errors reported by pyright and make necessary corrections.\"\n  ]\n}\n```",
+      "grouped_comments": [],
+      "follow_ups": []
+    },
+    "memory": {
+      "logged": true
+    },
+    "finalize": {
+      "finding_count": 10
+    }
+  }
+}

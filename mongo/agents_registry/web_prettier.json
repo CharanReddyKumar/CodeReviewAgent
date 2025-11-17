@@ -1,0 +1,12 @@
+{
+  "id": "web_prettier",
+  "languages": ["html", "css", "javascript", "typescript"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": null,
+  "class_name": null,
+  "enabled": true,
+  "implemented": false,
+  "description": "Placeholder for Prettier formatting agent (to be implemented).",
+  "init_kwargs": {}
+}

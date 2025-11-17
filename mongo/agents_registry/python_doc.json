@@ -1,0 +1,14 @@
+{
+  "id": "python_doc",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.doc_agent",
+  "class_name": "DocAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs pydocstyle and interrogate.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

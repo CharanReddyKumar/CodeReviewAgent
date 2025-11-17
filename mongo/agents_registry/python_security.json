@@ -1,0 +1,12 @@
+{
+  "id": "python_security",
+  "languages": ["python"],
+  "scope": "file",
+  "kind": "tool",
+  "module": "agents.security_agent",
+  "class_name": "SecurityAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Flags risky patterns such as eval/exec and shell=True.",
+  "init_kwargs": {}
+}

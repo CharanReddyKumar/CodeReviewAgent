@@ -3,27 +3,31 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional
 
-from agent_registry import detect_languages, instantiate_tools
+from agent_registry import detect_languages, get_tool_specs, instantiate_tools
 from graph_defination import normalize_repo_reference
 from tools import rag_tools
 from telemetry.langsmith import LangSmithTracer
-
-from agents.complexity_agent import ComplexityAgent
-from agents.dependency_agent import DependencyAgent
-from agents.doc_agent import DocAgent
-from agents.format_agent import FormatAgent
-from agents.llm_critic_agent import LLMCriticAgent
-from agents.lint_agent import LintAgent
-from agents.performance_agent import PerformanceAgent
-from agents.semgrep_agent import SemgrepAgent
-from agents.security_agent import SecurityAgent
-from agents.secrets_agent import SecretsAgent
-from agents.style_agent import StyleAgent
-from agents.test_agent import TestAgent
-from agents.type_agent import TypeAgent
 from memory import session_memory
+from memory import preferences as preference_memory
+
+from agents.context_agent import ContextAgent
+from agents.intake_agent import IntakeAgent
+from agents.memory_agent import MemoryAgent
+from agents.planner_agent import PlannerAgent
+from agents.review_types import (
+    CriticOutput,
+    PlannerTask,
+    ReviewManifest,
+    TriagePlan,
+    SpecialistFinding,
+    TaskReport,
+)
+from agents.synthesis_agent import SynthesisAgent
+from agents.critic_agent import CriticAgent
+from agents.triage_agent import TriageAgent
 from rag.reteriever import RepositoryRetriever
 
 logger = logging.getLogger(__name__)
@@ -34,18 +38,28 @@ class Supervisor:
     Coordinates individual specialist agents and aggregates their findings.
     """
 
+    @dataclass
+    class FileReviewContext:
+        file_path: str
+        patch_text: str
+        query: str
+        context: Dict[str, Any]
+
     def __init__(
         self,
         repo_reference: str,
         repo_path: Path,
         *,
         tracer: Optional[LangSmithTracer] = None,
+        progress_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None,
         languages: Optional[List[str]] = None,
     ):
         self.repo_reference = normalize_repo_reference(repo_reference)
         self.repo_path = Path(repo_path)
         self.tracer = tracer or LangSmithTracer()
-        self.retriever = RepositoryRetriever(self.repo_reference)
+        self.progress_callback = progress_callback
+        rag_tools.register_repo_path(self.repo_reference, self.repo_path)
+        self.retriever = RepositoryRetriever(self.repo_reference, repo_path=self.repo_path)
 
         detected_languages = languages or detect_languages(self.repo_path)
         self.languages = [lang.lower() for lang in detected_languages]
@@ -54,27 +68,61 @@ class Supervisor:
             ", ".join(self.languages),
         )
 
-        self.file_tools = instantiate_tools(
-            self.languages,
-            scope="file",
-            repo_reference=self.repo_reference,
-            repo_path=self.repo_path,
-        )
-        if not self.file_tools:
-            logger.warning("No file-level tools found via registry; using defaults.")
-            self.file_tools = self._fallback_file_tools()
+        self.intake_agent = IntakeAgent()
+        self.triage_agent = TriageAgent()
+        self.context_agent = ContextAgent(self.repo_reference, self.retriever, repo_path=self.repo_path)
+        self.planner_agent = PlannerAgent()
+        self.synthesis_agent = SynthesisAgent()
+        self.critic_agent = CriticAgent()
+        self.memory_agent = MemoryAgent()
 
-        self.repo_tools = instantiate_tools(
-            self.languages,
-            scope="repo",
-            repo_reference=self.repo_reference,
-            repo_path=self.repo_path,
-        )
-        if not self.repo_tools:
-            logger.warning("No repo-level tools found via registry; using defaults.")
-            self.repo_tools = self._fallback_repo_tools()
+        self.tool_specs = self._load_tool_specs()
+        self.tool_instances = self._instantiate_tool_instances()
 
-        self.llm_agent = LLMCriticAgent(self.repo_reference, self.retriever)
+    def _emit_progress(self, event: str, data: Optional[Dict[str, Any]] = None) -> None:
+        if not self.progress_callback:
+            return
+        payload = data.copy() if data else {}
+        payload.setdefault("repo", self.repo_reference)
+        try:
+            self.progress_callback(event, payload)
+        except Exception:
+            pass
+
+    def _load_tool_specs(self) -> Dict[str, Any]:
+        specs: Dict[str, Any] = {}
+        planner_summaries: List[Dict[str, Any]] = []
+        for scope in ("file", "repo"):
+            scoped_specs = get_tool_specs(self.languages, scope=scope)
+            for spec in scoped_specs:
+                specs[spec.id] = spec
+                planner_summaries.append(
+                    {
+                        "id": spec.id,
+                        "scope": spec.scope,
+                        "description": spec.description,
+                        "languages": spec.languages,
+                    }
+                )
+        self._planner_tool_summaries = planner_summaries
+        return specs
+
+    def _instantiate_tool_instances(self) -> Dict[str, Any]:
+        instances: Dict[str, Any] = {}
+        for scope in ("file", "repo"):
+            tools = instantiate_tools(
+                self.languages,
+                scope=scope,
+                repo_reference=self.repo_reference,
+                repo_path=self.repo_path,
+            )
+            for tool in tools:
+                tool_id = getattr(tool, "tool_id", tool.__class__.__name__)
+                instances[tool_id] = tool
+        return instances
+
+    def planner_tool_inventory(self) -> List[Dict[str, Any]]:
+        return list(self._planner_tool_summaries)
 
     @staticmethod
     def _module_name_from_path(file_path: str) -> str:
@@ -84,11 +132,23 @@ class Supervisor:
         module = ".".join(path.with_suffix("").parts)
         return module
 
-    def _build_context(self, file_path: str, query: str) -> Dict:
+    def _build_context(self, file_path: str, query: str, patch_text: str) -> Dict:
+        structured = rag_tools.build_structured_context(
+            self.repo_reference,
+            file_path=file_path,
+            patch_text=patch_text,
+            query=query,
+        )
         context = {
-            "code": rag_tools.fetch_code_context(self.repo_reference, query, n_results=3),
-            "documentation": rag_tools.fetch_doc_context(self.repo_reference, query, n_results=2),
-            "best_practices": rag_tools.fetch_best_practices(self.repo_reference, query, n_results=2),
+            "code": structured.get("scoped_code", []),
+            "documentation": structured.get("scoped_docs", []),
+            "best_practices": structured.get("best_practices", []),
+            "policy_docs": structured.get("policy_docs", []),
+            "symbol_context": structured.get("symbol_context", []),
+            "tests": structured.get("related_tests", []),
+            "lexical": structured.get("lexical_hits", []),
+            "scoped_neighbors": structured.get("neighbors", []),
+            "structured": structured,
         }
         module_name = self._module_name_from_path(file_path)
         if module_name:
@@ -97,61 +157,18 @@ class Supervisor:
                 module_name,
                 depth=1,
             )
+        context["memory"] = session_memory.load_recent(self.repo_reference, limit=3)
+        pref_summary = preference_memory.summarize_patterns(self.repo_reference)
+        memory_patterns: List[Dict[str, Any]] = []
+        for action, entries in pref_summary.items():
+            for entry in entries:
+                pattern = dict(entry)
+                pattern["action"] = action
+                memory_patterns.append(pattern)
+        context["memory_patterns"] = memory_patterns
+        context["repo_reference"] = self.repo_reference
+        context["repo_path"] = str(self.repo_path)
         return context
-
-    def _fallback_file_tools(self) -> List:
-        return [StyleAgent(), SecurityAgent()]
-
-    def _fallback_repo_tools(self) -> List:
-        return [
-            FormatAgent(self.repo_path),
-            LintAgent(self.repo_path),
-            TypeAgent(self.repo_path),
-            TestAgent(self.repo_path),
-            DocAgent(self.repo_path),
-            ComplexityAgent(self.repo_path),
-            DependencyAgent(self.repo_path),
-            SecretsAgent(self.repo_path),
-            SemgrepAgent(self.repo_path),
-            PerformanceAgent(self.repo_path),
-        ]
-
-    def _tool_selected(self, tool, plan: Optional[List[str]]) -> bool:
-        if not plan:
-            return True
-        tool_id = getattr(tool, "tool_id", getattr(tool, "name", tool.__class__.__name__))
-        return tool_id in plan
-
-    def _review_file(self, file_path: str, patch_text: str, query: str, commit_run, plan: Optional[List[str]]) -> List[Dict]:
-        context = self._build_context(file_path, query)
-        findings: List[Dict] = []
-        for agent in self.file_tools:
-            if not self._tool_selected(agent, plan):
-                continue
-            agent_run = self.tracer.child_run(
-                commit_run,
-                name=f"{agent.name}:{file_path}",
-                inputs={"file_path": file_path, "query": query},
-            )
-            try:
-                agent_findings = agent.review(file_path, patch_text, context)
-                self.tracer.end_run(agent_run, outputs={"findings": agent_findings})
-                findings.extend(agent_findings)
-            except Exception as exc:
-                self.tracer.end_run(agent_run, error=str(exc))
-                findings.append(
-                    {
-                        "agent": getattr(agent, "name", agent.__class__.__name__),
-                        "rule_id": "AGENT_ERROR",
-                        "severity": "info",
-                        "file_path": file_path,
-                        "line": 0,
-                        "message": f"{agent.__class__.__name__} failed: {exc}",
-                        "code_line": "",
-                        "references": {},
-                    }
-                )
-        return findings
 
     @staticmethod
     def _is_binary_diff(diff) -> bool:
@@ -168,100 +185,352 @@ class Supervisor:
         except Exception:
             return False
 
-    def review_commit(self, commit, plan: Optional[List[str]] = None) -> Dict:
-        commit_run = self.tracer.start_run(
-            name=f"review:{commit.hexsha[:7]}",
-            inputs={"commit": commit.hexsha, "summary": commit.summary},
+    def prepare_file_contexts(self, commit) -> List["Supervisor.FileReviewContext"]:
+        parent = commit.parents[0]
+        diffs = commit.diff(parent, create_patch=True)
+        contexts: List[Supervisor.FileReviewContext] = []
+        self._emit_progress(
+            "file_contexts_start",
+            {"commit": commit.hexsha, "file_count": len(diffs)},
         )
-        diff_excerpts: List[str] = []
-        try:
-            if not commit.parents:
-                result = {
-                    "commit": commit.hexsha,
-                    "summary": commit.summary,
-                    "findings": [],
-                    "notes": "Initial commit – no parent to diff against.",
-                }
-                self.tracer.end_run(commit_run, outputs=result)
-                return result
-
-            parent = commit.parents[0]
-            diffs = commit.diff(parent, create_patch=True)
-            findings: List[Dict] = []
-            for diff in diffs:
-                if self._is_binary_diff(diff):
-                    continue
-                file_path = diff.b_path or diff.a_path or ""
-                if not file_path:
-                    continue
-                patch_bytes = diff.diff
-                if patch_bytes is None:
-                    continue
-                patch_text = patch_bytes.decode("utf-8", errors="ignore")
-                if not patch_text.strip():
-                    continue
-                query = f"{file_path} {commit.summary}"
-                findings.extend(self._review_file(file_path, patch_text, query, commit_run, plan))
-                diff_excerpts.append(f"File: {file_path}\n{patch_text[:2000]}")
-
-            for agent in self.repo_tools:
-                if not self._tool_selected(agent, plan):
-                    continue
-                agent_run = self.tracer.child_run(
-                    commit_run,
-                    name=f"{agent.name}:repo",
-                    inputs={"agent": agent.name},
+        for diff in diffs:
+            if self._is_binary_diff(diff):
+                continue
+            file_path = diff.b_path or diff.a_path or ""
+            if not file_path:
+                continue
+            patch_bytes = diff.diff
+            if patch_bytes is None:
+                continue
+            patch_text = patch_bytes.decode("utf-8", errors="ignore")
+            if not patch_text.strip():
+                continue
+            query = f"{file_path} {commit.summary}"
+            context = self._build_context(file_path, query, patch_text)
+            contexts.append(
+                Supervisor.FileReviewContext(
+                    file_path=file_path,
+                    patch_text=patch_text,
+                    query=query,
+                    context=context,
                 )
-                try:
-                    repo_findings = agent.review_repo(commit)
-                    findings.extend(repo_findings)
-                    self.tracer.end_run(agent_run, outputs={"findings": repo_findings})
-                except Exception as exc:
-                    self.tracer.end_run(agent_run, error=str(exc))
-                    findings.append(
-                        {
-                            "agent": getattr(agent, "name", agent.__class__.__name__),
-                            "rule_id": "AGENT_ERROR",
-                            "severity": "info",
-                            "file_path": "",
-                            "line": 0,
-                            "message": f"{agent.__class__.__name__} failed: {exc}",
-                            "code_line": "",
-                            "references": {},
-                        }
-                    )
+            )
+        self._emit_progress(
+            "file_contexts_ready",
+            {"commit": commit.hexsha, "contexts": len(contexts)},
+        )
+        return contexts
 
-            if self.llm_agent:
-                diff_excerpt = "\n\n".join(diff_excerpts)[:4000]
-                llm_run = self.tracer.child_run(
-                    commit_run,
-                    name="llm_critic",
-                    inputs={"summary": commit.summary},
-                )
-                critic_findings = self.llm_agent.review(
-                    commit.summary,
-                    diff_excerpt,
-                    findings,
-                )
-                self.tracer.end_run(llm_run, outputs={"findings": critic_findings})
-                findings.extend(critic_findings)
-                session_memory.append_memory(
-                    self.repo_reference,
+    @staticmethod
+    def _select_contexts(target_files: List[str], contexts: List["Supervisor.FileReviewContext"]) -> List["Supervisor.FileReviewContext"]:
+        if not target_files:
+            return contexts
+        targets = set(target_files)
+        selected = [ctx for ctx in contexts if ctx.file_path in targets]
+        return selected or contexts
+
+    @staticmethod
+    def _normalize_references(references: Any) -> Dict[str, str]:
+        if isinstance(references, dict):
+            return {str(k): str(v) for k, v in references.items()}
+        if isinstance(references, list):
+            return {str(idx): str(value) for idx, value in enumerate(references)}
+        return {}
+
+    def _normalize_finding(self, raw: Dict[str, Any], default_agent: str) -> SpecialistFinding:
+        file_path = raw.get("file_path") or raw.get("file") or ""
+        line_start = raw.get("line_start", raw.get("line", 0))
+        line_end = raw.get("line_end", raw.get("line", line_start))
+        span = ""
+        if line_start and line_end:
+            span = str(line_start) if line_start == line_end else f"{line_start}-{line_end}"
+        return SpecialistFinding(
+            agent=raw.get("agent") or default_agent,
+            file_path=file_path,
+            span=span,
+            severity=str(raw.get("severity", "info")),
+            category=raw.get("category", default_agent),
+            message=raw.get("message", raw.get("description", "")),
+            recommended_fix=raw.get("recommended_fix", raw.get("suggested_patch", "")),
+            references=self._normalize_references(raw.get("references")),
+            code_line=raw.get("code_line", ""),
+            rule_id=str(raw.get("rule_id", default_agent.upper())),
+        )
+
+    def _run_file_tool(
+        self,
+        tool,
+        contexts: List["Supervisor.FileReviewContext"],
+        tool_id: str,
+    ) -> List[SpecialistFinding]:
+        findings: List[SpecialistFinding] = []
+        for ctx in contexts:
+            try:
+                raw_findings = tool.review(ctx.file_path, ctx.patch_text, ctx.context)
+            except Exception as exc:
+                raw_findings = [
                     {
+                        "file_path": ctx.file_path,
+                        "message": f"{tool_id} failed: {exc}",
+                        "severity": "info",
+                        "rule_id": "TOOL_ERROR",
+                    }
+                ]
+            for raw in raw_findings or []:
+                result = self._normalize_finding(raw, tool_id)
+                if not result.get("file_path"):
+                    result["file_path"] = ctx.file_path
+                findings.append(result)
+        return findings
+
+    def _run_repo_tool(self, tool, commit, tool_id: str) -> List[SpecialistFinding]:
+        try:
+            raw_findings = tool.review_repo(commit)
+        except Exception as exc:
+            raw_findings = [
+                {
+                    "file_path": "",
+                    "message": f"{tool_id} failed: {exc}",
+                    "severity": "info",
+                    "rule_id": "TOOL_ERROR",
+                }
+            ]
+        return [self._normalize_finding(raw, tool_id) for raw in raw_findings or []]
+
+    def run_task(
+        self,
+        task: PlannerTask,
+        file_contexts: List["Supervisor.FileReviewContext"],
+        commit,
+        commit_run,
+    ) -> TaskReport:
+        task_run = self.tracer.child_run(
+            commit_run,
+            name=f"task:{task.get('id')}",
+            inputs={"tool_ids": task.get("tool_ids", [])},
+        )
+        tool_ids = [tool_id for tool_id in task.get("tool_ids", []) if tool_id in self.tool_instances]
+        if not tool_ids:
+            tool_ids = [tool_id for tool_id in self.tool_instances.keys()]
+        contexts = self._select_contexts(task.get("files", []), file_contexts)
+        findings: List[SpecialistFinding] = []
+        self._emit_progress(
+            "task_start",
+            {
+                "task": task.get("id"),
+                "title": task.get("title"),
+                "tools": tool_ids,
+                "files": task.get("files", []),
+                "commit": commit.hexsha,
+            },
+        )
+        for tool_id in tool_ids:
+            tool = self.tool_instances.get(tool_id)
+            spec = self.tool_specs.get(tool_id)
+            if tool is None or spec is None:
+                findings.append(
+                    self._normalize_finding(
+                        {
+                            "agent": tool_id,
+                            "message": f"Tool '{tool_id}' is not available for this repo.",
+                            "severity": "info",
+                            "rule_id": "MISSING_TOOL",
+                        },
+                        tool_id,
+                    )
+                )
+                continue
+            tool_run = self.tracer.child_run(
+                task_run,
+                name=f"tool:{tool_id}",
+                inputs={"scope": spec.scope},
+            )
+            tool_findings: List[SpecialistFinding] = []
+            self._emit_progress(
+                "tool_start",
+                {
+                    "tool": tool_id,
+                    "scope": spec.scope,
+                    "task": task.get("id"),
+                    "commit": commit.hexsha,
+                },
+            )
+            if spec.scope == "file":
+                tool_findings = self._run_file_tool(tool, contexts, tool_id)
+            else:
+                tool_findings = self._run_repo_tool(tool, commit, tool_id)
+            findings.extend(tool_findings)
+            self.tracer.end_run(tool_run, outputs={"finding_count": len(tool_findings)})
+            self._emit_progress(
+                "tool_complete",
+                {
+                    "tool": tool_id,
+                    "task": task.get("id"),
+                    "findings": len(tool_findings),
+                    "commit": commit.hexsha,
+                },
+            )
+            if tool_findings:
+                preview = tool_findings[:5]
+                self._emit_progress(
+                    "tool_findings",
+                    {
+                        "tool": tool_id,
+                        "task": task.get("id"),
+                        "findings": preview,
+                        "total_findings": len(tool_findings),
                         "commit": commit.hexsha,
-                        "summary": commit.summary,
-                        "highlights": [f.get("message", "") for f in critic_findings],
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
                     },
                 )
-
-            result = {
+        self.tracer.end_run(task_run, outputs={"finding_count": len(findings)})
+        self._emit_progress(
+            "task_complete",
+            {
+                "task": task.get("id"),
+                "findings": len(findings),
                 "commit": commit.hexsha,
-                "summary": commit.summary,
-                "findings": findings,
-            }
-            self.tracer.end_run(commit_run, outputs={"result": result})
+            },
+        )
+        return TaskReport(
+            task_id=task.get("id", ""),
+            title=task.get("title", ""),
+            tool_ids=tool_ids,
+            findings=findings,
+            notes=f"ran {len(tool_ids)} tools",
+        )
+
+    def run_intake(
+        self,
+        commit_summary: str,
+        changed_files: List[str],
+        diff_excerpt: str,
+        commit_run,
+    ) -> ReviewManifest:
+        intake_run = self.tracer.child_run(
+            commit_run,
+            name="intake",
+            inputs={"files": changed_files},
+        )
+        try:
+            manifest = self.intake_agent.create_manifest(
+                commit_summary,
+                changed_files,
+                diff_excerpt,
+                self.languages,
+            )
+            self.tracer.end_run(intake_run, outputs={"manifest": manifest})
+            return manifest
+        except Exception as exc:
+            self.tracer.end_run(intake_run, error=str(exc))
+            raise
+
+    def build_context_packets(
+        self,
+        manifest: ReviewManifest,
+        file_contexts: List["Supervisor.FileReviewContext"],
+        commit_run,
+    ):
+        context_run = self.tracer.child_run(
+            commit_run,
+            name="context",
+            inputs={"file_count": len(file_contexts)},
+        )
+        try:
+            packets = self.context_agent.build_context_packets(manifest, file_contexts)
+            self.tracer.end_run(context_run, outputs={"packets": packets})
+            return packets
+        except Exception as exc:
+            self.tracer.end_run(context_run, error=str(exc))
+            raise
+
+    def run_triage(
+        self,
+        manifest: ReviewManifest,
+        context_packets,
+        diff_excerpt: str,
+        commit_run,
+    ) -> TriagePlan:
+        triage_run = self.tracer.child_run(
+            commit_run,
+            name="triage",
+            inputs={"file_count": len(context_packets)},
+        )
+        try:
+            plan = self.triage_agent.run_triage(manifest, context_packets, diff_excerpt)
+            self.tracer.end_run(triage_run, outputs={"lanes": plan.get("lanes", [])})
+            return plan
+        except Exception as exc:
+            self.tracer.end_run(triage_run, error=str(exc))
+            raise
+
+    def plan_tasks(
+        self,
+        manifest: ReviewManifest,
+        context_packets,
+        triage_plan: TriagePlan,
+        commit_run,
+    ) -> List[PlannerTask]:
+        planner_run = self.tracer.child_run(
+            commit_run,
+            name="planner",
+            inputs={"tools": [tool["id"] for tool in self.planner_tool_inventory()]},
+        )
+        try:
+            tasks = self.planner_agent.create_tasks(
+                manifest,
+                context_packets,
+                triage_plan,
+                self.planner_tool_inventory(),
+            )
+            self.tracer.end_run(planner_run, outputs={"tasks": tasks})
+            return tasks
+        except Exception as exc:
+            self.tracer.end_run(planner_run, error=str(exc))
+            raise
+
+    def synthesize_findings(
+        self,
+        manifest: ReviewManifest,
+        reports: List[TaskReport],
+        commit_run,
+    ):
+        synthesis_run = self.tracer.child_run(
+            commit_run,
+            name="synthesis",
+            inputs={"report_count": len(reports)},
+        )
+        try:
+            result = self.synthesis_agent.synthesize(manifest, reports)
+            self.tracer.end_run(synthesis_run, outputs={"summary": result.get("summary")})
             return result
         except Exception as exc:
-            self.tracer.end_run(commit_run, error=str(exc))
+            self.tracer.end_run(synthesis_run, error=str(exc))
             raise
+
+    def critique(
+        self,
+        commit_summary: str,
+        diff_excerpt: str,
+        findings,
+        commit_run,
+    ) -> CriticOutput:
+        critic_run = self.tracer.child_run(
+            commit_run,
+            name="critic",
+            inputs={"finding_count": len(findings)},
+        )
+        try:
+            output = self.critic_agent.critique(commit_summary, diff_excerpt, findings)
+            self.tracer.end_run(critic_run, outputs={"exec_summary": output.get("executive_summary", "")})
+            return output
+        except Exception as exc:
+            self.tracer.end_run(critic_run, error=str(exc))
+            raise
+
+    def record_memory(self, commit, summary: str, findings) -> None:
+        self.memory_agent.record(
+            self.repo_reference,
+            commit.hexsha,
+            summary,
+            findings,
+        )
