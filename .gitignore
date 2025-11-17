@@ -1,16 +1,28 @@
+# Python virtual environment and cache
 .venv/
 __pycache__/
 *.pyc
+
+# All hidden folders (except .git, .github, .vscode for now)
+.*/
+!.git/
+!.github/
+!.vscode/
+
+# Specific hidden folders
 .coderabbit_chroma/
 .coderabbit_memory.db
-
-# Local run artifacts & caches
-.env
 .agentic_reviewer/
 .local_repos/
 .local_graphs/
 .local_vectorstore/
 .cache/
+.langgraph_api/
+.pytest_cache/
+.benchmarks/
+
+# Local run artifacts & caches
+.env
 reports/
 agentic-review-trace.jsonl
 .local_vectorstore/chroma.sqlite3 
@@ -29,6 +41,7 @@ build/
 *.bin
 *.pt
 *.ckpt
+*.pdf
 
 # Operating system cruft
 .DS_Store
