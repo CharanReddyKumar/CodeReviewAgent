@@ -193,7 +193,7 @@ class _InstrumentedChat:
             outputs = {"text": str(getattr(response, "content", response))[:400]}
             usage = _extract_usage(response)
             if usage:
-                outputs["token_usage"] = usage
+                outputs["usage_metadata"] = usage
             tracer.end_run(llm_run, outputs=outputs)
         return response
 
