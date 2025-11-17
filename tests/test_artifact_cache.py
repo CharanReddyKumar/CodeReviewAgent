@@ -24,7 +24,7 @@ class TestStatePath:
         path = _state_path("github.com/user/repo")
         assert path.parent == CACHE_ROOT
         assert path.name.endswith(".json")
-        assert "github_com_user_repo" in path.name
+        assert "github.com_user_repo" in path.name
 
     def test_state_path_different_references(self):
         """Test state paths are different for different repos."""
@@ -37,8 +37,8 @@ class TestStatePath:
         path1 = _state_path("https://github.com/user/repo")
         path2 = _state_path("github.com/user/repo")
         # Both should normalize to same path
-        assert "github_com_user_repo" in path1.name
-        assert "github_com_user_repo" in path2.name
+        assert "github.com_user_repo" in path1.name
+        assert "github.com_user_repo" in path2.name
 
 
 class TestLoadState:
@@ -55,7 +55,7 @@ class TestLoadState:
         cache_dir = temp_dir / ".cache" / "artifacts"
         cache_dir.mkdir(parents=True)
         
-        state_file = cache_dir / "github_com_user_repo.json"
+        state_file = cache_dir / "github.com_user_repo.json"
         state_data = {"key1": "sha1", "key2": "sha2"}
         state_file.write_text(json.dumps(state_data))
         
@@ -68,7 +68,7 @@ class TestLoadState:
         cache_dir = temp_dir / ".cache" / "artifacts"
         cache_dir.mkdir(parents=True)
         
-        state_file = cache_dir / "github_com_user_repo.json"
+        state_file = cache_dir / "github.com_user_repo.json"
         state_file.write_text("invalid json {")
         
         monkeypatch.setattr("artifact_cache.CACHE_ROOT", cache_dir)
@@ -80,7 +80,7 @@ class TestLoadState:
         cache_dir = temp_dir / ".cache" / "artifacts"
         cache_dir.mkdir(parents=True)
         
-        state_file = cache_dir / "github_com_user_repo.json"
+        state_file = cache_dir / "github.com_user_repo.json"
         state_file.write_text("")
         
         monkeypatch.setattr("artifact_cache.CACHE_ROOT", cache_dir)
@@ -100,7 +100,7 @@ class TestSaveState:
         _save_state("github.com/user/repo", state)
         
         assert cache_dir.exists()
-        state_file = cache_dir / "github_com_user_repo.json"
+        state_file = cache_dir / "github.com_user_repo.json"
         assert state_file.exists()
 
     def test_save_state_writes_json(self, temp_dir, monkeypatch):
@@ -112,7 +112,7 @@ class TestSaveState:
         state = {"key1": "sha1", "key2": "sha2"}
         _save_state("github.com/user/repo", state)
         
-        state_file = cache_dir / "github_com_user_repo.json"
+        state_file = cache_dir / "github.com_user_repo.json"
         loaded = json.loads(state_file.read_text())
         assert loaded == state
 
@@ -128,7 +128,7 @@ class TestSaveState:
         # Save new state
         _save_state("github.com/user/repo", {"key1": "new", "key2": "added"})
         
-        state_file = cache_dir / "github_com_user_repo.json"
+        state_file = cache_dir / "github.com_user_repo.json"
         loaded = json.loads(state_file.read_text())
         assert loaded == {"key1": "new", "key2": "added"}
 

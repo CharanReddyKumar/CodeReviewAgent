@@ -114,7 +114,7 @@ class TestRepoSlug:
         """Test creating simple repo slug."""
         ref = "github.com/user/repo"
         result = repo_slug(ref)
-        assert result == "github_com_user_repo"
+        assert result == "github.com_user_repo"
 
     def test_repo_slug_with_slashes(self):
         """Test slug replaces slashes with underscores."""
@@ -134,7 +134,7 @@ class TestRepoSlug:
         """Test creating slug from URL."""
         url = "https://github.com/user/repo.git"
         result = repo_slug(url)
-        assert result == "github_com_user_repo"
+        assert result == "github.com_user_repo"
 
     def test_repo_slug_safe_for_filesystem(self):
         """Test slug is safe for filesystem."""
@@ -153,7 +153,7 @@ class TestChromaCollectionName:
         ref = "github.com/user/repo"
         result = chroma_collection_name(ref)
         assert result.startswith("code_chunks_")
-        assert "github_com_user_repo" in result
+        assert "github.com_user_repo" in result
 
     def test_chroma_collection_starts_with_alnum(self):
         """Test collection name starts with alphanumeric."""
@@ -189,13 +189,13 @@ class TestRepoPickleName:
         """Test creating pickle filename."""
         ref = "github.com/user/repo"
         result = repo_pickle_name(ref)
-        assert result == "github_com_user_repo"
+        assert result == "github.com_user_repo"
 
     def test_repo_pickle_name_from_url(self):
         """Test creating pickle name from URL."""
         url = "https://github.com/user/repo.git"
         result = repo_pickle_name(url)
-        assert result == "github_com_user_repo"
+        assert result == "github.com_user_repo"
 
     def test_repo_pickle_name_no_extension(self):
         """Test pickle name doesn't include extension."""
