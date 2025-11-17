@@ -86,7 +86,11 @@ class TestGetChangedFiles:
         
         changed = get_changed_files(repo_path)
         
-        # For initial commits, git diff behavior may vary
+        # For initial commit, behavior varies by git version
+        # Either we get the file or empty list is acceptable
+        assert isinstance(changed, list)
+        # Accepting both behaviors as valid
+        assert isinstance(changed, list)
         # Accept either the file is present or list is empty
         assert isinstance(changed, list)
         if changed:
