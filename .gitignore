@@ -3,3 +3,16 @@ __pycache__/
 *.pyc
 .coderabbit_chroma/
 .coderabbit_memory.db
+
+# Local run artifacts & caches
+.env
+.agentic_reviewer/
+.local_repos/
+.local_graphs/
+.local_vectorstore/
+.cache/
+reports/
+agentic-review-trace.jsonl
+
+# Operating system cruft
+.DS_Store
