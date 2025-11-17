@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 
 
 logger = logging.getLogger(__name__)
@@ -150,12 +150,10 @@ class LLMToolAgent:
         response = response.strip()
         if not response:
             return []
-        try:
-            parsed = json.loads(response)
-        except json.JSONDecodeError:
+        parsed = extract_json_response(response)
+        if parsed is None:
             logger.debug("%s agent returned non-JSON response.", self.name)
             parsed = [{"message": response, "severity": "info"}]
-
         if isinstance(parsed, dict):
             parsed = [parsed]
 

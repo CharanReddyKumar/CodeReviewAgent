@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import os
 from pathlib import Path
+from typing import Any, Callable, Dict, Optional
 
 import chromadb
 from chromadb.config import Settings
@@ -32,7 +35,14 @@ def get_best_practices_collection():
     return client.get_or_create_collection(name="best_practices")
 
 
-def ingest_commits_into_best_practices(repo_path: Path, repo_reference: str):
+ProgressCallback = Callable[[str, Dict[str, Any]], None]
+
+
+def ingest_commits_into_best_practices(
+    repo_path: Path,
+    repo_reference: str,
+    progress_callback: Optional[ProgressCallback] = None,
+):
     """
     Store commit messages as lightweight "best practice" hints.
     """
@@ -47,6 +57,13 @@ def ingest_commits_into_best_practices(repo_path: Path, repo_reference: str):
     docs = []
     ids = []
     metas = []
+
+    def _notify(event: str, payload: Dict[str, Any]) -> None:
+        if progress_callback:
+            try:
+                progress_callback(event, payload)
+            except Exception:
+                pass
 
     for commit in repo.iter_commits():
         msg = commit.message.strip()
@@ -75,6 +92,7 @@ def ingest_commits_into_best_practices(repo_path: Path, repo_reference: str):
 
     batch_size = 1000
     total = len(docs)
+    _notify("best_practices_progress", {"processed": 0, "total": total, "status": "start"})
     print(
         f"[best_practices] Ingesting {total} commit messages in batches of {batch_size}..."
     )
@@ -87,5 +105,7 @@ def ingest_commits_into_best_practices(repo_path: Path, repo_reference: str):
 
         col.add(documents=batch_docs, metadatas=batch_metas, ids=batch_ids)
         print(f"[best_practices] Added batch {start}–{end} / {total}")
+        _notify("best_practices_progress", {"processed": end, "total": total, "status": "in-progress"})
 
     print(f"[best_practices] ✅ Finished ingesting {total} commit messages.")
+    _notify("best_practices_progress", {"processed": total, "total": total, "status": "done"})

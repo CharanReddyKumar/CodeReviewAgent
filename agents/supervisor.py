@@ -29,6 +29,7 @@ from agents.synthesis_agent import SynthesisAgent
 from agents.critic_agent import CriticAgent
 from agents.triage_agent import TriageAgent
 from rag.reteriever import RepositoryRetriever
+from agents.executor_agent import ActionExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +76,7 @@ class Supervisor:
         self.synthesis_agent = SynthesisAgent()
         self.critic_agent = CriticAgent()
         self.memory_agent = MemoryAgent()
+        self.executor_agent = ActionExecutor()
 
         self.tool_specs = self._load_tool_specs()
         self.tool_instances = self._instantiate_tool_instances()
@@ -237,6 +239,31 @@ class Supervisor:
             return {str(idx): str(value) for idx, value in enumerate(references)}
         return {}
 
+    @staticmethod
+    def _confidence_from_evidence(
+        references: Dict[str, str],
+        code_line: str,
+        agent: str,
+        severity: Any,
+    ) -> str:
+        score = 0
+        if references:
+            score += 1
+        if code_line:
+            score += 1
+        if any(key for key in references if "best" in key.lower() or "doc" in key.lower()):
+            score += 1
+        severity_label = str(severity or "").lower()
+        if severity_label in {"blocker", "high"}:
+            score += 1
+        if agent and ("tool" in agent.lower() or "python_" in agent.lower()):
+            score += 1
+        if score >= 4:
+            return "high"
+        if score >= 2:
+            return "medium"
+        return "low"
+
     def _normalize_finding(self, raw: Dict[str, Any], default_agent: str) -> SpecialistFinding:
         file_path = raw.get("file_path") or raw.get("file") or ""
         line_start = raw.get("line_start", raw.get("line", 0))
@@ -244,6 +271,13 @@ class Supervisor:
         span = ""
         if line_start and line_end:
             span = str(line_start) if line_start == line_end else f"{line_start}-{line_end}"
+        references = self._normalize_references(raw.get("references"))
+        confidence = self._confidence_from_evidence(
+            references,
+            raw.get("code_line") or raw.get("snippet", ""),
+            raw.get("agent") or default_agent,
+            raw.get("severity"),
+        )
         return SpecialistFinding(
             agent=raw.get("agent") or default_agent,
             file_path=file_path,
@@ -252,10 +286,72 @@ class Supervisor:
             category=raw.get("category", default_agent),
             message=raw.get("message", raw.get("description", "")),
             recommended_fix=raw.get("recommended_fix", raw.get("suggested_patch", "")),
-            references=self._normalize_references(raw.get("references")),
+            references=references,
             code_line=raw.get("code_line", ""),
             rule_id=str(raw.get("rule_id", default_agent.upper())),
+            confidence=confidence,
+            citations=[f"{key}: {value}" for key, value in references.items()],
         )
+
+    @staticmethod
+    def _normalize_action_plan(task: PlannerTask, default_tools: List[str]) -> List[Dict[str, Any]]:
+        files = task.get("files", [])
+        plan: List[Dict[str, Any]] = []
+        for raw in task.get("actions") or []:
+            if not isinstance(raw, dict):
+                continue
+            action_type = str(raw.get("type", "analysis")).lower()
+            if action_type not in {"analysis", "tool", "note"}:
+                action_type = "analysis"
+            plan.append(
+                {
+                    "type": action_type,
+                    "description": raw.get("description", ""),
+                    "instructions": raw.get("instructions", raw.get("notes", "")),
+                    "files": raw.get("files", files),
+                    "tool_ids": raw.get("tool_ids", default_tools),
+                }
+            )
+        if plan:
+            return plan
+        return [
+            {
+                "type": "analysis",
+                "description": "Study the context and outline the inspection focus.",
+                "instructions": "Summarize primary risks, affected files, and any testing strategy before using tools.",
+                "files": files,
+                "tool_ids": [],
+            },
+            {
+                "type": "tool",
+                "description": "Run the specialist tool suite on the scoped files.",
+                "instructions": "",
+                "files": files,
+                "tool_ids": default_tools,
+            },
+        ]
+
+    def _resolve_action_tools(self, action: Dict[str, Any], fallback: List[str]) -> List[str]:
+        requested = action.get("tool_ids") or fallback
+        valid = [tool_id for tool_id in requested if tool_id in self.tool_instances]
+        return valid or fallback
+
+    @staticmethod
+    def _context_snapshot(contexts: List["Supervisor.FileReviewContext"], limit: int = 2) -> List[Dict[str, Any]]:
+        snapshots: List[Dict[str, Any]] = []
+        for ctx in contexts[:limit]:
+            structured = ctx.context.get("structured") or {}
+            snapshots.append(
+                {
+                    "file_path": ctx.file_path,
+                    "patch_excerpt": (ctx.patch_text or "")[:600],
+                    "risk_tags": structured.get("risk_tags", []),
+                    "related_tests": [
+                        test.get("file_path", str(test)) for test in (structured.get("related_tests") or [])[:3]
+                    ],
+                }
+            )
+        return snapshots
 
     def _run_file_tool(
         self,
@@ -303,6 +399,7 @@ class Supervisor:
         file_contexts: List["Supervisor.FileReviewContext"],
         commit,
         commit_run,
+        manifest: Optional[ReviewManifest] = None,
     ) -> TaskReport:
         task_run = self.tracer.child_run(
             commit_run,
@@ -313,7 +410,11 @@ class Supervisor:
         if not tool_ids:
             tool_ids = [tool_id for tool_id in self.tool_instances.keys()]
         contexts = self._select_contexts(task.get("files", []), file_contexts)
+        action_plan = self._normalize_action_plan(task, tool_ids)
         findings: List[SpecialistFinding] = []
+        action_results: List[Dict[str, Any]] = []
+        reasoning_notes: List[str] = []
+        executed_tools: List[str] = []
         self._emit_progress(
             "task_start",
             {
@@ -321,67 +422,143 @@ class Supervisor:
                 "title": task.get("title"),
                 "tools": tool_ids,
                 "files": task.get("files", []),
+                "actions": action_plan,
                 "commit": commit.hexsha,
             },
         )
-        for tool_id in tool_ids:
-            tool = self.tool_instances.get(tool_id)
-            spec = self.tool_specs.get(tool_id)
-            if tool is None or spec is None:
-                findings.append(
-                    self._normalize_finding(
-                        {
-                            "agent": tool_id,
-                            "message": f"Tool '{tool_id}' is not available for this repo.",
-                            "severity": "info",
-                            "rule_id": "MISSING_TOOL",
-                        },
-                        tool_id,
-                    )
-                )
-                continue
-            tool_run = self.tracer.child_run(
+        for idx, action in enumerate(action_plan, start=1):
+            action_type = str(action.get("type", "analysis")).lower()
+            description = action.get("description") or f"Action {idx}"
+            action_files = action.get("files", task.get("files", []))
+            targeted_contexts = self._select_contexts(action_files, contexts) if action_files else contexts
+            if not targeted_contexts:
+                targeted_contexts = contexts
+            snapshots = self._context_snapshot(targeted_contexts)
+            action_payload = {
+                "task": task.get("id"),
+                "task_title": task.get("title"),
+                "description": description,
+                "type": action_type,
+                "index": idx,
+                "commit": commit.hexsha,
+            }
+            self._emit_progress("task_action", {**action_payload, "status": "start"})
+            action_run = self.tracer.child_run(
                 task_run,
-                name=f"tool:{tool_id}",
-                inputs={"scope": spec.scope},
+                name=f"action:{task.get('id')}:{idx}",
+                inputs={"type": action_type, "description": description},
             )
-            tool_findings: List[SpecialistFinding] = []
-            self._emit_progress(
-                "tool_start",
-                {
-                    "tool": tool_id,
-                    "scope": spec.scope,
-                    "task": task.get("id"),
-                    "commit": commit.hexsha,
-                },
-            )
-            if spec.scope == "file":
-                tool_findings = self._run_file_tool(tool, contexts, tool_id)
-            else:
-                tool_findings = self._run_repo_tool(tool, commit, tool_id)
-            findings.extend(tool_findings)
-            self.tracer.end_run(tool_run, outputs={"finding_count": len(tool_findings)})
-            self._emit_progress(
-                "tool_complete",
-                {
-                    "tool": tool_id,
-                    "task": task.get("id"),
-                    "findings": len(tool_findings),
-                    "commit": commit.hexsha,
-                },
-            )
-            if tool_findings:
-                preview = tool_findings[:5]
+            if action_type == "note":
+                output = action.get("instructions") or description
+                reasoning_notes.append(f"{description}: {output}")
+                action_results.append(
+                    {
+                        "type": action_type,
+                        "description": description,
+                        "output": output,
+                        "tool_ids": [],
+                        "files": action_files,
+                        "findings": 0,
+                    }
+                )
+                self.tracer.end_run(action_run, outputs={"note": output})
+                self._emit_progress("task_action", {**action_payload, "status": "complete", "output": output})
+                continue
+
+            if action_type == "analysis":
+                output = self.executor_agent.execute(task, action, manifest or {}, snapshots)
+                reasoning_notes.append(f"{description}: {output}")
+                action_results.append(
+                    {
+                        "type": action_type,
+                        "description": description,
+                        "output": output,
+                        "tool_ids": [],
+                        "files": action_files,
+                        "findings": 0,
+                    }
+                )
+                self.tracer.end_run(action_run, outputs={"notes": output})
+                self._emit_progress("task_action", {**action_payload, "status": "complete", "output": output})
+                continue
+
+            selected_tools = self._resolve_action_tools(action, tool_ids)
+            action_finding_count = 0
+            for tool_id in selected_tools:
+                tool = self.tool_instances.get(tool_id)
+                spec = self.tool_specs.get(tool_id)
+                if tool is None or spec is None:
+                    findings.append(
+                        self._normalize_finding(
+                            {
+                                "agent": tool_id,
+                                "message": f"Tool '{tool_id}' is not available for this repo.",
+                                "severity": "info",
+                                "rule_id": "MISSING_TOOL",
+                            },
+                            tool_id,
+                        )
+                    )
+                    continue
+                tool_run = self.tracer.child_run(
+                    task_run,
+                    name=f"tool:{tool_id}",
+                    inputs={"scope": spec.scope},
+                )
+                tool_findings: List[SpecialistFinding] = []
                 self._emit_progress(
-                    "tool_findings",
+                    "tool_start",
                     {
                         "tool": tool_id,
+                        "scope": spec.scope,
                         "task": task.get("id"),
-                        "findings": preview,
-                        "total_findings": len(tool_findings),
                         "commit": commit.hexsha,
                     },
                 )
+                if spec.scope == "file":
+                    tool_findings = self._run_file_tool(tool, contexts, tool_id)
+                else:
+                    tool_findings = self._run_repo_tool(tool, commit, tool_id)
+                findings.extend(tool_findings)
+                self.tracer.end_run(tool_run, outputs={"finding_count": len(tool_findings)})
+                self._emit_progress(
+                    "tool_complete",
+                    {
+                        "tool": tool_id,
+                        "task": task.get("id"),
+                        "findings": len(tool_findings),
+                        "commit": commit.hexsha,
+                    },
+                )
+                if tool_findings:
+                    preview = tool_findings[:5]
+                    self._emit_progress(
+                        "tool_findings",
+                        {
+                            "tool": tool_id,
+                            "task": task.get("id"),
+                            "findings": preview,
+                            "total_findings": len(tool_findings),
+                            "commit": commit.hexsha,
+                        },
+                    )
+                action_finding_count += len(tool_findings)
+            executed_tools.extend(selected_tools)
+            action_results.append(
+                {
+                    "type": "tool",
+                    "description": description,
+                    "output": "",
+                    "tool_ids": selected_tools,
+                    "files": action_files,
+                    "findings": action_finding_count,
+                }
+            )
+            self.tracer.end_run(action_run, outputs={"finding_count": action_finding_count})
+            self._emit_progress(
+                "task_action",
+                {**action_payload, "status": "complete", "findings": action_finding_count},
+            )
         self.tracer.end_run(task_run, outputs={"finding_count": len(findings)})
         self._emit_progress(
             "task_complete",
@@ -394,9 +571,10 @@ class Supervisor:
         return TaskReport(
             task_id=task.get("id", ""),
             title=task.get("title", ""),
-            tool_ids=tool_ids,
+            tool_ids=executed_tools or tool_ids,
             findings=findings,
-            notes=f"ran {len(tool_ids)} tools",
+            notes="\n".join(reasoning_notes).strip(),
+            action_results=action_results,
         )
 
     def run_intake(

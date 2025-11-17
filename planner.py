@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Dict, Any
-
-import json
+from typing import Any, Dict, List
 
 from agent_registry import get_tool_specs
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 
 MANIFEST_PATH = Path("planner_manifest.json")
 
@@ -68,18 +66,18 @@ def plan_tools(
     chat = build_chat_model(task="planner")
     try:
         response = chat.invoke(prompt).content
-        plan = json.loads(response)
-        if isinstance(plan, list):
-            normalized: List[str] = []
-            for item in plan:
-                if isinstance(item, str):
-                    normalized.append(item)
-                elif isinstance(item, dict) and "id" in item:
-                    normalized.append(str(item["id"]))
-            if normalized:
-                return normalized
     except Exception:
-        pass
+        response = ""
+    plan = extract_json_response(response or "")
+    if isinstance(plan, list):
+        normalized: List[str] = []
+        for item in plan:
+            if isinstance(item, str):
+                normalized.append(item)
+            elif isinstance(item, dict) and "id" in item:
+                normalized.append(str(item["id"]))
+        if normalized:
+            return normalized
     # fallback risk-aware plan
     fallback = []
     base_topics = _topics(scope_payload)

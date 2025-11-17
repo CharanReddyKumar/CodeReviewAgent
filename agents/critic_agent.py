@@ -6,7 +6,7 @@ from typing import List
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.review_types import CriticOutput, SpecialistFinding
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 
 
 class CriticAgent:
@@ -36,16 +36,13 @@ class CriticAgent:
                 HumanMessage(content=f"Context:\n```json\n{json.dumps(payload, indent=2)}\n```"),
             ]
         ).content
-        try:
-            data = json.loads(response)
-            if isinstance(data, dict):
-                return CriticOutput(
-                    executive_summary=str(data.get("executive_summary", "")).strip(),
-                    grouped_comments=data.get("grouped_comments", []),
-                    follow_ups=data.get("follow_ups", []),
-                )
-        except json.JSONDecodeError:
-            pass
+        data = extract_json_response(response)
+        if isinstance(data, dict):
+            return CriticOutput(
+                executive_summary=str(data.get("executive_summary", "")).strip(),
+                grouped_comments=data.get("grouped_comments", []),
+                follow_ups=data.get("follow_ups", []),
+            )
         return CriticOutput(
             executive_summary=response.strip(),
             grouped_comments=[],

@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 
 
 class ScopeAgent:
@@ -37,13 +37,12 @@ class ScopeAgent:
                 HumanMessage(content=f"Context:\n```json\n{json.dumps(examples, indent=2)}\n```"),
             ]
         ).content
-        try:
-            data = json.loads(response)
-        except json.JSONDecodeError:
+        data = extract_json_response(response)
+        if not isinstance(data, dict):
             return {
                 "topics": [],
                 "risk_score": 0.3,
-                "justification": response.strip()[:200],
+                "justification": (response or "").strip()[:200],
                 "risk_flags": [],
             }
         data.setdefault("topics", [])

@@ -24,17 +24,70 @@ class ReviewState(TypedDict, total=False):
     node_outputs: Dict[str, Any]
     _supervisor: Any
     _commit: Any
+    _progress_callback: Optional[Callable[[str, Dict[str, Any]], None]]
 
 
 _GRAPH_CACHE: Dict[str, Any] = {}
+_GRAPH_VERSION = 2
 
 
 def build_review_graph():
-    key = "default"
+    key = f"default_v{_GRAPH_VERSION}"
     if key in _GRAPH_CACHE:
         return _GRAPH_CACHE[key]
 
     builder = StateGraph(ReviewState)
+
+    severity_order = {"blocker": 5, "high": 4, "medium": 3, "low": 2, "info": 1}
+
+    def _compact_tasks(tasks: List[PlannerTask]) -> List[Dict[str, Any]]:
+        preview: List[Dict[str, Any]] = []
+        for task in tasks or []:
+            preview.append(
+                {
+                    "id": task.get("id"),
+                    "title": task.get("title"),
+                    "specialist": task.get("specialist"),
+                    "priority": task.get("priority"),
+                    "budget": task.get("budget"),
+                    "files": task.get("files", []),
+                    "tools": task.get("tool_ids", []),
+                    "actions": task.get("actions", []),
+                }
+            )
+        return preview
+
+    def _summarize_reports(reports: List[TaskReport]) -> List[Dict[str, Any]]:
+        summaries: List[Dict[str, Any]] = []
+        for report in reports or []:
+            findings = report.get("findings", []) or []
+            top_label = ""
+            top_score = 0
+            sample = ""
+            for finding in findings:
+                severity = str(finding.get("severity", "info")).lower()
+                score = severity_order.get(severity, 0)
+                if score >= top_score:
+                    top_score = score
+                    top_label = severity
+                    sample = finding.get("message", sample)
+            if not sample:
+                for action in report.get("action_results", []) or []:
+                    output = action.get("output")
+                    if output:
+                        sample = output
+                        break
+            summaries.append(
+                {
+                    "task_id": report.get("task_id"),
+                    "title": report.get("title"),
+                    "tools": report.get("tool_ids", []),
+                    "findings": len(findings),
+                    "top_severity": top_label or "info",
+                    "sample": sample[:160] if sample else "",
+                }
+            )
+        return summaries
 
     def _notify_progress(state: ReviewState, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
         callback = state.get("_progress_callback")
@@ -101,6 +154,8 @@ def build_review_graph():
         state["tasks"] = tasks
         state.setdefault("node_outputs", {})["planner"] = {"task_count": len(tasks)}
         _notify_progress(state, "node_complete", {"node": "planner", "tasks": len(tasks)})
+        if tasks:
+            _notify_progress(state, "plan_update", {"tasks": _compact_tasks(tasks)})
         return state
 
     def tasks_node(state: ReviewState) -> ReviewState:
@@ -116,11 +171,14 @@ def build_review_graph():
                     file_contexts,
                     state["_commit"],
                     state.get("commit_run"),
+                    state.get("manifest"),
                 )
-        )
+            )
         state["task_reports"] = reports
         state.setdefault("node_outputs", {})["tasks"] = {"task_count": len(reports)}
         _notify_progress(state, "node_complete", {"node": "tasks", "reports": len(reports)})
+        if reports:
+            _notify_progress(state, "execution_update", {"reports": _summarize_reports(reports)})
         return state
 
     def synthesis_node(state: ReviewState) -> ReviewState:
@@ -150,6 +208,25 @@ def build_review_graph():
         state["critic_output"] = critic_output
         state.setdefault("node_outputs", {})["critic"] = critic_output
         _notify_progress(state, "node_complete", {"node": "critic"})
+        groups = []
+        for group in critic_output.get("grouped_comments", []) or []:
+            groups.append(
+                {
+                    "file_path": group.get("file_path"),
+                    "severity": group.get("severity"),
+                    "message": group.get("message"),
+                }
+            )
+        _notify_progress(
+            state,
+            "reflection_update",
+            {
+                "executive_summary": critic_output.get("executive_summary", ""),
+                "follow_ups": critic_output.get("follow_ups", []),
+                "groups": groups,
+                "finding_count": len(findings),
+            },
+        )
         return state
 
     def memory_node(state: ReviewState) -> ReviewState:
@@ -214,12 +291,15 @@ def execute_review_workflow(
     changed_files: List[str],
     diff_excerpt: str,
     progress_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+    *,
+    parent_run: Any = None,
 ) -> ReviewState:
     graph = build_review_graph()
     file_contexts = supervisor.prepare_file_contexts(commit) if commit.parents else []
     commit_run = supervisor.tracer.start_run(
         name=f"review:{commit.hexsha[:7]}",
         inputs={"commit": commit.hexsha, "summary": getattr(commit, "summary", "")},
+        parent_run=parent_run,
     )
     initial_state: ReviewState = {
         "changed_files": changed_files,

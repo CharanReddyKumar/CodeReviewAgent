@@ -96,12 +96,139 @@ def run_review(
     and the path to the JSON report written on disk.
     """
 
-    def emit(event: str, **data: Any) -> None:
-        if progress_callback:
-            try:
-                progress_callback(event, data)
-            except Exception:
-                pass
+    def _summarize(values: List[str], *, limit: int = 3) -> str:
+        if not values:
+            return ""
+        if len(values) <= limit:
+            return ", ".join(values)
+        return ", ".join(values[:limit]) + ", ..."
+
+    def _console_progress(event: str, data: Dict[str, Any]) -> None:
+        commit = data.get("commit")
+        commit_label = f"[{str(commit)[:7]}] " if commit else ""
+        prefix = "[agentic_reviewer]"
+        message: Optional[str] = None
+
+        if event == "commit_start":
+            summary = data.get("summary", "")
+            message = f"{prefix} {commit_label}Starting review: {summary}"
+        elif event == "commit_complete":
+            findings = data.get("findings")
+            label = f"{findings} finding{'s' if findings != 1 else ''}" if findings is not None else ""
+            message = f"{prefix} {commit_label}Review complete {label}".rstrip()
+        elif event == "file_contexts_start":
+            count = data.get("file_count")
+            message = f"{prefix} {commit_label}Building file contexts ({count} files)..."
+        elif event == "file_contexts_ready":
+            contexts = data.get("contexts")
+            message = f"{prefix} {commit_label}Ready with {contexts} context packets."
+        elif event == "node_start":
+            node = data.get("node")
+            message = f"{prefix} {commit_label}-> {node} phase"
+        elif event == "node_complete":
+            node = data.get("node")
+            details: List[str] = []
+            if "packets" in data:
+                details.append(f"packets={data['packets']}")
+            if "lanes" in data:
+                lanes = data.get("lanes") or []
+                details.append(f"lanes={_summarize([str(l) for l in lanes])}")
+            if "tasks" in data:
+                details.append(f"tasks={data['tasks']}")
+            if "reports" in data:
+                details.append(f"reports={data['reports']}")
+            if "findings" in data:
+                details.append(f"findings={data['findings']}")
+            detail_text = f" ({', '.join(details)})" if details else ""
+            message = f"{prefix} {commit_label}[done] {node} complete{detail_text}"
+        elif event == "task_start":
+            task = data.get("task")
+            title = data.get("title") or ""
+            tools = data.get("tools") or []
+            files = data.get("files") or []
+            tool_text = _summarize([str(t) for t in tools])
+            file_text = _summarize([str(f) for f in files])
+            message = (
+                f"{prefix} {commit_label}Task {task or ''} '{title}' "
+                f"(tools: {tool_text or 'all'}, files: {file_text or 'all'})"
+            )
+        elif event == "task_complete":
+            task = data.get("task")
+            findings = data.get("findings", 0)
+            message = f"{prefix} {commit_label}Task {task or ''} complete with {findings} finding(s)"
+        elif event == "task_action":
+            task = data.get("task")
+            desc = data.get("description") or data.get("type") or "action"
+            status = data.get("status")
+            detail = ""
+            if data.get("output"):
+                detail = f": {str(data['output'])[:80]}"
+            elif isinstance(data.get("findings"), int):
+                detail = f" ({data['findings']} finding{'s' if data['findings'] != 1 else ''})"
+            message = f"{prefix} {commit_label}    - Action {task or ''} '{desc}' {status}{detail}"
+        elif event == "tool_start":
+            tool = data.get("tool")
+            scope = data.get("scope") or ""
+            task = data.get("task") or ""
+            message = f"{prefix} {commit_label}  -> Running {tool} [{scope}] for task {task}"
+        elif event == "tool_complete":
+            tool = data.get("tool")
+            findings = data.get("findings", 0)
+            message = f"{prefix} {commit_label}  -> {tool} finished ({findings} finding(s))"
+        elif event == "tool_findings":
+            tool = data.get("tool")
+            total = data.get("total_findings", 0)
+            findings = data.get("findings") or []
+            sample = ""
+            if findings:
+                first = findings[0]
+                sample = first.get("message") or first.get("recommended_fix") or ""
+                sample = sample.strip()
+                if sample:
+                    sample = f": {sample[:120]}"
+            message = f"{prefix} {commit_label}    - {tool} surfaced {total} finding(s){sample}"
+        elif event == "plan_update":
+            tasks = data.get("tasks") or []
+            message = (
+                f"{prefix} {commit_label}[plan] {len(tasks)} task(s) prepared"
+            )
+        elif event == "execution_update":
+            reports = data.get("reports") or []
+            top = reports[0] if reports else {}
+            sample = top.get("sample")
+            summary = f"top severity {top.get('top_severity')}" if top else ""
+            if sample:
+                summary += f" – {sample[:80]}"
+            summary = summary.strip()
+            message = (
+                f"{prefix} {commit_label}[exec] {len(reports)} task report(s) consolidated"
+                + (f" ({summary})" if summary else "")
+            )
+        elif event == "reflection_update":
+            summary = data.get("executive_summary") or ""
+            followups = len(data.get("follow_ups") or [])
+            message = (
+                f"{prefix} {commit_label}[reflect] {followups} follow-up(s). "
+                f"Summary: {summary[:120]}"
+            )
+
+        if message:
+            print(message, flush=True)
+
+    progress_sink = progress_callback or _console_progress
+
+    def emit(event: str, payload: Optional[Dict[str, Any]] = None, **data: Any) -> None:
+        if not progress_sink:
+            return
+        body: Dict[str, Any] = {}
+        if isinstance(payload, dict):
+            body.update(payload)
+        if data:
+            body.update(data)
+        try:
+            progress_sink(event, body)
+        except Exception:
+            pass
 
     repo_path = get_or_clone_repo(repo, branch)
     emit("repo_ready", path=str(repo_path))
@@ -173,7 +300,11 @@ def run_review(
     if refresh_bp:
         print("[agentic_reviewer] Refreshing best practices store...")
         emit("best_practices", status="refreshing")
-        ingest_commits_into_best_practices(repo_path, repo)
+        ingest_commits_into_best_practices(
+            repo_path,
+            repo,
+            progress_callback=lambda evt, payload=None: emit(evt, **(payload or {})),
+        )
         mark_artifact_refreshed(repo, "best_practices_sha", bp_sha)
     else:
         print("[agentic_reviewer] Using cached best practices store.")
@@ -184,111 +315,132 @@ def run_review(
     commits = list(repository.iter_commits(branch, max_count=max_commits))
     if not commits:
         print("[agentic_reviewer] No commits found to review.")
+        emit("no_commits", message="Repository history is empty", branch=branch)
         return []
 
+    ordered_commits = list(reversed(commits))
     indexed_commits = set(session_manager.indexed_commits())
-    commits = [commit for commit in reversed(commits) if commit.hexsha not in indexed_commits]
-    if not commits:
-        print("[agentic_reviewer] Session is up to date; no new commits to review.")
-        return []
+    pending_commits = [commit for commit in ordered_commits if commit.hexsha not in indexed_commits]
+    if not pending_commits:
+        latest_commit = ordered_commits[-1]
+        print(
+            "[agentic_reviewer] Session is up to date; re-reviewing latest commit "
+            f"{latest_commit.hexsha[:7]} for visibility."
+        )
+        emit(
+            "no_commits",
+            commit=latest_commit.hexsha,
+            summary=latest_commit.summary,
+            message="No new commits; re-running latest to keep UI populated.",
+        )
+        pending_commits = [latest_commit]
+
+    commits = pending_commits
 
     tracer = LangSmithTracer()
     if getattr(tracer, "enabled", False):
         print(f"[agentic_reviewer] LangSmith tracing enabled (project={tracer.project_name}).")
+    review_run = tracer.start_run(
+        name=f"review:{repo}@{branch}",
+        inputs={"repo": repo, "branch": branch, "pr": pr, "max_commits": max_commits},
+    )
 
     supervisor = Supervisor(repo, repo_path, tracer=tracer, progress_callback=emit)
     results: List[Dict[str, Any]] = []
 
     previous_session_commit = session_manager.last_commit_sha()
-    for commit in commits:
-        base_sha = previous_session_commit or (commit.parents[0].hexsha if commit.parents else None)
-        base_commit = None
-        if base_sha:
-            try:
-                base_commit = repository.commit(base_sha)
-            except Exception:
-                base_commit = None
-        changed_files_commit, diff_excerpt = _collect_diff_metadata(commit, base_commit=base_commit)
-        planning_files = changed_files_commit
+    try:
+        for commit in commits:
+            base_sha = previous_session_commit or (commit.parents[0].hexsha if commit.parents else None)
+            base_commit = None
+            if base_sha:
+                try:
+                    base_commit = repository.commit(base_sha)
+                except Exception:
+                    base_commit = None
+            changed_files_commit, diff_excerpt = _collect_diff_metadata(commit, base_commit=base_commit)
+            planning_files = changed_files_commit
 
-        emit("commit_start", commit=commit.hexsha, summary=commit.summary)
-        state = execute_review_workflow(
-            supervisor,
-            commit,
-            planning_files,
-            diff_excerpt,
-            progress_callback=emit,
-        )
+            emit("commit_start", commit=commit.hexsha, summary=commit.summary)
+            state = execute_review_workflow(
+                supervisor,
+                commit,
+                planning_files,
+                diff_excerpt,
+                progress_callback=emit,
+                parent_run=review_run,
+            )
 
-        review = state.get("review", {"findings": []})
-        triage_plan = state.get("triage", {})
+            review = state.get("review", {"findings": []})
+            triage_plan = state.get("triage", {})
 
-        report_payload = {
-            "repo": repo,
-            "branch": branch,
-            "pr": pr,
-            "commit": commit.hexsha,
-            "summary": commit.summary,
-            "manifest": state.get("manifest", {}),
-            "triage": triage_plan,
-            "changed_files": planning_files,
-            "tasks": state.get("tasks", []),
-            "task_reports": state.get("task_reports", []),
-            "tool_results": state.get("tool_results", []),
-            "critic": state.get("critic_output", {}),
-            "synthesis": state.get("synthesis", {}),
-            "node_outputs": state.get("node_outputs", {}),
-        }
-        report_path = write_report(
-            repo,
-            commit.hexsha,
-            report_payload,
-            reports_dir,
-        )
-        record_findings(repo, commit.hexsha, review.get("findings", []), report_path=report_path)
-        record_commit_event(
-            repo,
-            commit.hexsha,
-            summary=commit.summary,
-            author=getattr(commit.author, "name", None),
-            files_changed=len(planning_files),
-        )
-        emit("commit_complete", commit=commit.hexsha, findings=len(review.get("findings", [])))
-
-        triage_info = triage_plan or {}
-        session_manager.record_commit(
-            commit.hexsha,
-            commit.summary,
-            planning_files=planning_files,
-            triage=triage_info,
-            findings=review.get("findings", []),
-            base_commit=base_sha,
-        )
-        session_manager.append_comments(commit.hexsha, review.get("findings", []))
-        session_manager.save()
-
-        session_snapshot = session_manager.session_summary()
-        report_payload["session"] = session_snapshot
-
-        results.append(
-            {
+            report_payload = {
+                "repo": repo,
+                "branch": branch,
+                "pr": pr,
                 "commit": commit.hexsha,
                 "summary": commit.summary,
-                "author": getattr(commit.author, "name", None),
-                "committed_at": commit.committed_datetime.isoformat(),
-                "review": review,
                 "manifest": state.get("manifest", {}),
                 "triage": triage_plan,
+                "changed_files": planning_files,
                 "tasks": state.get("tasks", []),
                 "task_reports": state.get("task_reports", []),
+                "tool_results": state.get("tool_results", []),
                 "critic": state.get("critic_output", {}),
                 "synthesis": state.get("synthesis", {}),
                 "node_outputs": state.get("node_outputs", {}),
-                "report_path": str(report_path),
-                "session": session_snapshot,
             }
-        )
+            report_path = write_report(
+                repo,
+                commit.hexsha,
+                report_payload,
+                reports_dir,
+            )
+            record_findings(repo, commit.hexsha, review.get("findings", []), report_path=report_path)
+            record_commit_event(
+                repo,
+                commit.hexsha,
+                summary=commit.summary,
+                author=getattr(commit.author, "name", None),
+                files_changed=len(planning_files),
+            )
+            emit("commit_complete", commit=commit.hexsha, findings=len(review.get("findings", [])))
 
-        previous_session_commit = commit.hexsha
+            triage_info = triage_plan or {}
+            session_manager.record_commit(
+                commit.hexsha,
+                commit.summary,
+                planning_files=planning_files,
+                triage=triage_info,
+                findings=review.get("findings", []),
+                base_commit=base_sha,
+            )
+            session_manager.append_comments(commit.hexsha, review.get("findings", []))
+            session_manager.save()
 
-    return results
+            session_snapshot = session_manager.session_summary()
+            report_payload["session"] = session_snapshot
+
+            results.append(
+                {
+                    "commit": commit.hexsha,
+                    "summary": commit.summary,
+                    "author": getattr(commit.author, "name", None),
+                    "committed_at": commit.committed_datetime.isoformat(),
+                    "review": review,
+                    "manifest": state.get("manifest", {}),
+                    "triage": triage_plan,
+                    "tasks": state.get("tasks", []),
+                    "task_reports": state.get("task_reports", []),
+                    "critic": state.get("critic_output", {}),
+                    "synthesis": state.get("synthesis", {}),
+                    "node_outputs": state.get("node_outputs", {}),
+                    "report_path": str(report_path),
+                    "session": session_snapshot,
+                }
+            )
+
+            previous_session_commit = commit.hexsha
+        return results
+    finally:
+        tracer.end_run(review_run, outputs={"result_count": len(results)})

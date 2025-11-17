@@ -6,7 +6,7 @@ from typing import Dict, List
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.evidence_guard import enforce_evidence
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 from memory import session_memory
 from rag.reteriever import RepositoryRetriever
 
@@ -28,7 +28,7 @@ class LLMCriticAgent:
         commit_memory: List[Dict],
     ) -> List:
         system_text = (
-            "You are an expert Python code reviewer (similar to CodeRabbit). "
+            "You are an expert Python code reviewer. "
             "Use the provided diffs, tool findings, and best-practice excerpts to write actionable review comments. "
             "Always cite relevant best-practice snippets when possible."
         )
@@ -86,14 +86,15 @@ class LLMCriticAgent:
                 }
             ]
 
-        try:
-            findings = json.loads(response)
-        except json.JSONDecodeError:
+        findings = extract_json_response(response)
+        if isinstance(findings, dict):
+            findings = [findings]
+        if not isinstance(findings, list):
             findings = [
                 {
                     "severity": "info",
                     "title": "LLM Review Summary",
-                    "message": response.strip(),
+                    "message": (response or "").strip(),
                     "recommended_fix": "",
                     "references": [],
                 }

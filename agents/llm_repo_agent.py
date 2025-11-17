@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 import logging
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
-import uuid
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 from memory import session_memory
 from tools import rag_tools
 from tools.system_tools import ToolResult, command_available, run_command
@@ -361,9 +361,8 @@ class LLMRepoAgent:
         response = response.strip()
         if not response:
             return []
-        try:
-            parsed = json.loads(response)
-        except json.JSONDecodeError:
+        parsed = extract_json_response(response)
+        if parsed is None:
             logger.warning("%s agent produced non-JSON response; falling back to tool output.", self.name)
             return []
         if isinstance(parsed, dict):

@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.review_types import ReviewManifest, TriagePlan
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 
 
 DEFAULT_LANES = ["style", "security", "tests", "performance", "docs", "api_contract"]
@@ -73,18 +73,15 @@ class TriageAgent:
             ],
             "recommendations": [],
         }
-        try:
-            data = json.loads(response)
-            if isinstance(data, dict):
-                plan: TriagePlan = {
-                    "overall_risk": data.get("overall_risk", default_plan["overall_risk"]) or "medium",
-                    "lanes": data.get("lanes") or DEFAULT_LANES[:3],
-                    "decisions": data.get("decisions", []),
-                    "recommendations": data.get("recommendations", []),
-                }
-                if not plan["decisions"]:
-                    plan["decisions"] = default_plan["decisions"]
-                return plan
-        except json.JSONDecodeError:
-            pass
+        data = extract_json_response(response)
+        if isinstance(data, dict):
+            plan: TriagePlan = {
+                "overall_risk": data.get("overall_risk", default_plan["overall_risk"]) or "medium",
+                "lanes": data.get("lanes") or DEFAULT_LANES[:3],
+                "decisions": data.get("decisions", []),
+                "recommendations": data.get("recommendations", []),
+            }
+            if not plan["decisions"]:
+                plan["decisions"] = default_plan["decisions"]
+            return plan
         return default_plan

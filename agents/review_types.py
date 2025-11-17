@@ -62,6 +62,24 @@ class PlannerTask(TypedDict, total=False):
     risks: List[str]
     context_ids: List[str]
     tool_ids: List[str]
+    actions: List["TaskAction"]
+
+
+class TaskAction(TypedDict, total=False):
+    type: Literal["analysis", "tool", "note"]
+    description: str
+    instructions: str
+    tool_ids: List[str]
+    files: List[str]
+
+
+class TaskActionResult(TypedDict, total=False):
+    type: str
+    description: str
+    output: str
+    tool_ids: List[str]
+    files: List[str]
+    findings: int
 
 
 class SpecialistFinding(TypedDict, total=False):
@@ -75,6 +93,8 @@ class SpecialistFinding(TypedDict, total=False):
     references: Dict[str, str]
     code_line: str
     rule_id: str
+    confidence: Literal["low", "medium", "high"]
+    citations: List[str]
 
 
 class TaskReport(TypedDict, total=False):
@@ -83,6 +103,7 @@ class TaskReport(TypedDict, total=False):
     tool_ids: List[str]
     findings: List[SpecialistFinding]
     notes: str
+    action_results: List[TaskActionResult]
 
 
 class SynthesisOutput(TypedDict, total=False):

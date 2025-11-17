@@ -6,7 +6,7 @@ from typing import Dict, List
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.review_types import ReviewManifest
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 
 
 class IntakeAgent:
@@ -58,15 +58,12 @@ class IntakeAgent:
             "size": "medium",
             "priority": "medium",
         }
-        try:
-            data = json.loads(response)
-            if isinstance(data, dict):
-                fallback.update({k: v for k, v in data.items() if v is not None})
-                fallback.setdefault("files", default_files)
-                fallback.setdefault("languages", languages)
-                fallback.setdefault("frameworks", [])
-                fallback.setdefault("high_risk_tags", [])
-                return fallback
-        except json.JSONDecodeError:
-            pass
+        data = extract_json_response(response)
+        if isinstance(data, dict):
+            fallback.update({k: v for k, v in data.items() if v is not None})
+            fallback.setdefault("files", default_files)
+            fallback.setdefault("languages", languages)
+            fallback.setdefault("frameworks", [])
+            fallback.setdefault("high_risk_tags", [])
+            return fallback
         return fallback

@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.review_types import ContextPacket, PlannerTask, ReviewManifest, TriagePlan
-from llm_utils import build_chat_model
+from llm_utils import build_chat_model, extract_json_response
 
 SPECIALISTS = [
     {"id": "style", "description": "Style & formatting review"},
@@ -54,7 +54,10 @@ class PlannerAgent:
         system_text = (
             "You are the PlannerAgent. Given the intake manifest and context packets, produce tasks for the specialists. "
             "Each task must include id, title, specialist (one of: style, correctness, security, performance, dependency, docs), "
-            "files, priority (low|medium|high|urgent), budget (xs|s|m|l), risks, optional notes, and tool_ids (list of tool IDs from the provided inventory). "
+            "files, priority (low|medium|high|urgent), budget (xs|s|m|l), risks, optional notes, tool_ids (subset of available tools), "
+            "and actions (ordered list). Actions describe how the specialist proceeds. "
+            "Allowed action types: analysis (thinking/strategy), tool (explicit tool execution), or note (communicate warnings). "
+            "Each action must include type, description, optional instructions, and optional tool_ids/files overrides. "
             "Return JSON list only."
         )
         response = self.chat.invoke(
@@ -64,6 +67,7 @@ class PlannerAgent:
             ]
         ).content
         tasks = self._parse_tasks(response, manifest, context_packets, tool_summaries)
+        tasks = self._ensure_lane_coverage(tasks, manifest, context_packets, triage_plan, tool_summaries)
         if not tasks:
             tasks = self._triage_driven_tasks(manifest, context_packets, triage_plan, tool_summaries)
         return tasks
@@ -76,34 +80,33 @@ class PlannerAgent:
         tools: List[Dict[str, Any]],
     ) -> List[PlannerTask]:
         all_tool_ids = [tool["id"] for tool in tools]
-        try:
-            data = json.loads(response)
-            if isinstance(data, list):
-                parsed: List[PlannerTask] = []
-                for idx, raw in enumerate(data):
-                    if not isinstance(raw, dict):
-                        continue
-                    specialist = str(raw.get("specialist", "")).lower() or "style"
-                    files = raw.get("files") or [p["file_path"] for p in packets]
-                    requested_tools = raw.get("tool_ids") or all_tool_ids
-                    parsed.append(
-                        PlannerTask(
-                            id=str(raw.get("id", f"task_{idx}")),
-                            title=raw.get("title", "Review"),
-                            specialist=specialist,
-                            files=files,
-                            priority=str(raw.get("priority", "medium")),
-                            budget=str(raw.get("budget", "m")),
-                            notes=raw.get("notes", ""),
-                            risks=raw.get("risks", manifest.get("high_risk_tags", [])),
-                            context_ids=raw.get("context_ids", [packet["id"] for packet in packets]),
-                            tool_ids=requested_tools,
-                        )
+        data = extract_json_response(response)
+        if isinstance(data, list):
+            parsed: List[PlannerTask] = []
+            for idx, raw in enumerate(data):
+                if not isinstance(raw, dict):
+                    continue
+                specialist = str(raw.get("specialist", "")).lower() or "style"
+                files = raw.get("files") or [p["file_path"] for p in packets]
+                requested_tools = raw.get("tool_ids") or all_tool_ids
+                actions = self._normalize_actions(raw.get("actions"), requested_tools, files)
+                parsed.append(
+                    PlannerTask(
+                        id=str(raw.get("id", f"task_{idx}")),
+                        title=raw.get("title", "Review"),
+                        specialist=specialist,
+                        files=files,
+                        priority=str(raw.get("priority", "medium")),
+                        budget=str(raw.get("budget", "m")),
+                        notes=raw.get("notes", ""),
+                        risks=raw.get("risks", manifest.get("high_risk_tags", [])),
+                        context_ids=raw.get("context_ids", [packet["id"] for packet in packets]),
+                        tool_ids=requested_tools,
+                        actions=actions,
                     )
-                if parsed:
-                    return parsed
-        except json.JSONDecodeError:
-            pass
+                )
+            if parsed:
+                return parsed
         # fallback heuristic: create one task per specialist referencing entire manifest
         fallback: List[PlannerTask] = []
         for idx, spec in enumerate(SPECIALISTS):
@@ -119,9 +122,99 @@ class PlannerAgent:
                     risks=manifest.get("high_risk_tags", []),
                     context_ids=[packet["id"] for packet in packets],
                     tool_ids=all_tool_ids,
+                    actions=self._default_actions(all_tool_ids, [packet["file_path"] for packet in packets]),
                 )
             )
         return fallback
+
+    def _normalize_actions(
+        self,
+        raw_actions,
+        default_tools: List[str],
+        default_files: List[str],
+    ) -> List[Dict[str, Any]]:
+
+        def _normalized_type(value: str) -> str:
+            normalized = (value or "").lower()
+            if normalized in {"analysis", "tool", "note"}:
+                return normalized
+            return "analysis"
+
+        actions: List[Dict[str, Any]] = []
+        if isinstance(raw_actions, list):
+            for raw in raw_actions:
+                if not isinstance(raw, dict):
+                    continue
+                action_type = _normalized_type(str(raw.get("type", "analysis")))
+                description = raw.get("description") or raw.get("title") or ""
+                instructions = raw.get("instructions", raw.get("notes", ""))
+                files = raw.get("files") or default_files
+                tool_ids = []
+                if action_type == "tool":
+                    requested = raw.get("tool_ids") or raw.get("tools") or []
+                    tool_ids = [tool for tool in requested if tool in default_tools] or default_tools
+                actions.append(
+                    {
+                        "type": action_type,
+                        "description": description,
+                        "instructions": instructions,
+                        "files": files,
+                        "tool_ids": tool_ids,
+                    }
+                )
+        if actions:
+            return actions
+        return self._default_actions(default_tools, default_files)
+
+    @staticmethod
+    def _default_actions(tool_ids: List[str], files: List[str]) -> List[Dict[str, Any]]:
+        return [
+            {
+                "type": "analysis",
+                "description": "Review the diff and context to set the inspection strategy.",
+                "instructions": "Summarize risks, affected components, and what to pay attention to before running any tools.",
+                "files": files,
+                "tool_ids": [],
+            },
+            {
+                "type": "tool",
+                "description": "Execute the selected tools to gather findings.",
+                "instructions": "",
+                "files": files,
+                "tool_ids": tool_ids,
+            },
+        ]
+
+    def _ensure_lane_coverage(
+        self,
+        planned_tasks: List[PlannerTask],
+        manifest: ReviewManifest,
+        packets: List[ContextPacket],
+        triage_plan: TriagePlan,
+        tool_summaries: List[Dict[str, Any]],
+    ) -> List[PlannerTask]:
+        """
+        Ensure every lane chosen during triage has a corresponding specialist task so downstream
+        agents always perform the codex-style plan → analyze → tool workflow.
+        """
+        triage_tasks = self._triage_driven_tasks(manifest, packets, triage_plan, tool_summaries)
+        if not planned_tasks:
+            return triage_tasks
+
+        existing_specialists = {str(task.get("specialist", "")).lower() for task in planned_tasks}
+        appended = False
+        for triage_task in triage_tasks:
+            specialist = str(triage_task.get("specialist", "")).lower()
+            if not specialist or specialist in existing_specialists:
+                continue
+            planned_tasks.append(triage_task)
+            existing_specialists.add(specialist)
+            appended = True
+
+        if appended:
+            priority_order = {"urgent": 0, "high": 1, "medium": 2, "low": 3}
+            planned_tasks.sort(key=lambda task: priority_order.get(task.get("priority", "medium"), 2))
+        return planned_tasks
 
     def _triage_driven_tasks(
         self,
@@ -162,6 +255,7 @@ class PlannerAgent:
                     risks=manifest.get("high_risk_tags", []),
                     context_ids=[packet["id"] for packet in packets],
                     tool_ids=resolved_tools,
+                    actions=self._default_actions(resolved_tools, task_files),
                 )
             )
         return tasks
