@@ -11,6 +11,7 @@ from best_practices_docs import ingest_best_practices_docs
 from best_practices_store import ingest_commits_into_best_practices
 from agents.supervisor import Supervisor
 from git_utils import checkout_pr
+from cleanup import prune_workspace
 from knowledge_graph import (
     build_code_structure_graph,
     record_commit_event,
@@ -105,6 +106,17 @@ def run_review(
     repo_path = get_or_clone_repo(repo, branch)
     emit("repo_ready", path=str(repo_path))
     print(f"[agentic_reviewer] Repo ready at {repo_path}")
+
+    cleanup_report = prune_workspace(repo_path)
+    emit("cleanup", cleanup_report.to_dict())
+    if cleanup_report.removed:
+        print(
+            "[agentic_reviewer] Removed transient artifacts: "
+            + ", ".join(cleanup_report.removed[:10])
+            + ("..." if len(cleanup_report.removed) > 10 else "")
+        )
+    if cleanup_report.errors:
+        print("[agentic_reviewer] Cleanup errors: " + "; ".join(cleanup_report.errors))
 
     if pr:
         sha = checkout_pr(repo_path, pr)

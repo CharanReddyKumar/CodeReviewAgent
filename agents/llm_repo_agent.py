@@ -99,7 +99,11 @@ class LLMRepoAgent:
     def review_repo(self, commit) -> List[Dict]:
         signals = self.collect_signals(commit)
         if not signals:
-            return []
+            diff_signal = self._diff_context_signal(commit)
+            if diff_signal:
+                signals = [diff_signal]
+            else:
+                return []
 
         missing_tool_signals = [signal for signal in signals if signal.get("returncode") == 127]
         actionable_signals = [signal for signal in signals if signal.get("returncode") != 127]
@@ -305,6 +309,53 @@ class LLMRepoAgent:
         return command_available(executable)
 
     # -- normalization ---------------------------------------------------------
+
+    def _diff_context_signal(self, commit) -> Optional[Dict[str, Any]]:
+        if commit is None:
+            return None
+        parents = getattr(commit, "parents", [])
+        base = parents[0] if parents else None
+        if base is None:
+            return None
+        try:
+            diffs = commit.diff(base, create_patch=True)
+        except Exception:
+            return None
+        excerpts: List[str] = []
+        for diff in diffs:
+            blob = diff.b_blob or diff.a_blob
+            if blob is not None:
+                mime = getattr(blob, "mime_type", None)
+                if mime and not mime.startswith("text"):
+                    continue
+                try:
+                    chunk = blob.data_stream.read(1024)
+                    blob.data_stream.seek(0)
+                    if b"\x00" in chunk:
+                        continue
+                except Exception:
+                    continue
+            path = diff.b_path or diff.a_path or ""
+            if not path or not diff.diff:
+                continue
+            try:
+                patch_text = diff.diff.decode("utf-8", errors="ignore")
+            except Exception:
+                continue
+            excerpts.append(f"File: {path}\n{patch_text[:800]}")
+            if len("\n\n".join(excerpts)) > MAX_SIGNAL_OUTPUT_CHARS:
+                break
+        if not excerpts:
+            return None
+        stdout = "\n\n".join(excerpts)[:MAX_SIGNAL_OUTPUT_CHARS]
+        return {
+            "tool_name": "diff_context",
+            "severity": "medium",
+            "message": "Raw diff context provided for LLM analysis.",
+            "stdout": stdout,
+            "stderr": "",
+            "returncode": 0,
+        }
 
     def _normalize_response(self, response: str) -> List[Dict]:
         response = response.strip()
