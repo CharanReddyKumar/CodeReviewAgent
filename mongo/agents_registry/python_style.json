@@ -1,0 +1,12 @@
+{
+  "id": "python_style",
+  "languages": ["python"],
+  "scope": "file",
+  "kind": "tool",
+  "module": "agents.style_agent",
+  "class_name": "StyleAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Heuristic checks for line length, TODOs, and doc hints.",
+  "init_kwargs": {}
+}

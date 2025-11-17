@@ -1,0 +1,160 @@
+{
+  "specialty": "Cyclomatic complexity and unused-code detection.",
+  "checklist": [
+    "Surface radon hotspots with actionable advice.",
+    "Call out dead code or unused symbols from vulture.",
+    "Focus on the files touched by the current commit when possible."
+  ],
+  "signals": [
+    {
+      "tool_name": "vulture",
+      "severity": "low",
+      "message": "Potentially unused code detected by vulture.",
+      "stdout": "config/settings.py:15: unused variable 'MAX_FUTURE_DAYS' (60% confidence)\nconfig/settings.py:16: unused variable 'DEFAULT_BUDGET' (60% confidence)\nconfig/settings.py:19: unused variable 'ASSISTANT_NAME' (60% confidence)\nmain.py:121: unused variable 'total' (60% confidence)\nmain.py:125: unused function 'options_chat' (60% confidence)\nmain.py:191: unused function 'get_chat_history' (60% confidence)\nmain.py:218: unused function 'options_reset' (60% confidence)\nmain.py:362: unused function 'search_attractions' (60% confidence)\nmodels/chat_models.py:21: unused variable 'research_results' (60% confidence)\nmodels/trip_details.py:2: unused import 'ClassVar' (90% confidence)\nmodels/trip_details.py:18: unused method 'needs_date_confirmation' (60% confidence)\nmodels/trip_details.py:71: unused method 'is_complete' (60% confidence)\nrepositories/session_repository.py:48: unused method 'get_thread_id' (60% confidence)\nrepositories/session_repository.py:53: unused method 'set_thread_id' (60% confidence)\nrepositories/session_repository.py:57: unused method 'is_confirmed' (60% confidence)\nservices/customizers/customizer_agent.py:125: unused method '_parse_llm_understanding' (60% confidence)\nservices/extraction/llm_extractor.py:9: unused import 'validate_date_range' (90% confidence)\nservices/Prompts/FlightsPrompt.py:1: unused function 'flight_scrape_task' (60% confidence)\nservices/Prompts/HotelPrompt.py:1: unused function 'hotel_scrape_task' (60% confidence)\nservices/supervisors/travel_supervisor.py:41: unused variable 'model_name' (100% confidence)\nservices/travel/events_service.py:14: unused variable 'alt' (60% confidence)\nservices/travel/events_service.py:30: unused variable 'id' (60% confidence)\nservices/travel/flight_service.py:393: unused method 'format_date' (60% confidence)\nservices/travel/google_places_service.py:8: unused import 'Field' (90% confidence)\nservices/travel/google_places_service.py:9: unused import 'lru_cache' (90% confidence)\nservices/travel/google_places_service.py:28: unused variable 'height' (60% confidence)\nservices/travel/google_places_service.py:29: unused variable 'width' (60% confidence)\nservices/travel/google_places_service.py:30: unused variable 'html_attributions' (60% confidence)\nservices/travel/google_places_service.py:35: unused variable 'periods' (60% confidence)\nservices/travel/google_places_service.py:36: unused variable 'weekday_text' (60% confidence)\nservices/travel/google_places_service.py:51: unused variable 'icon' (60% confidence)\nservices/travel/google_places_service.py:52: unused variable 'icon_background_color' (60% confidence)\nservices/travel/google_places_service.py:53: unused variable 'icon_mask_base_uri' (60% confidence)\nservices/travel/google_places_service.py:54: unused variable 'business_status' (60% confidence)\nservices/travel/google_places_service.py:60: unused variable 'next_page_token' (60% confidence)\nservices/travel/google_places_service.py:90: unused variable 'international_phone_number' (60% confidence)\nservices/travel/google_places_service.py:91: unused variable 'website' (60% confidence)\nservices/travel/google_places_service.py:330: unused method '_fetch_details_for_places' (60% confidence)\nservices/travel/hotel_service.py:119: unused method 'calculate_hotel_budget' (60% confidence)\nservices/travel/local_search_service.py:6: unused import 'Field' (90% confidence)\nservices/travel/local_search_service.py:13: unused variable 'latitude' (60% confidence)\nservices/travel/local_search_service.py:14: unused variable 'longitude' (60% confidence)\nservices/travel/local_search_service.py:18: unused variable 'dine_in' (60% confidence)\nservices/travel/local_search_service.py:19: unused variable 'takeout' (60% confidence)\nservices/travel/local_search_service.py:20: unused variable 'delivery' (60% confidence)\nservices/travel/local_search_service.py:24: unused variable 'website' (60% confidence)\nservices/travel/local_search_service.py:25: unused variable 'directions' (60% confidence)\nservices/travel/local_search_service.py:26: unused variable 'phone' (60% confidence)\nservices/travel/local_search_service.py:27: unused variable 'order' (60% confidence)\nservices/travel/local_search_service.py:28: unused variable 'menu' (60% confidence)\nservices/travel/local_search_service.py:29: unused variable 'reservations' (60% confidence)\nservices/travel/local_search_service.py:33: unused variable 'id' (60% confidence)\nservices/travel/local_search_service.py:36: unused variable 'position' (60% confidence)\nservices/travel/local_search_service.py:38: unused variable 'reviews' (60% confidence)\nservices/travel/local_search_service.py:39: unused variable 'reviews_original' (60% confidence)\nservices/travel/local_search_service.py:41: unused variable 'type' (60% confidence)\nservices/travel/local_search_service.py:44: unused variable 'thumbnail' (60% confidence)\nservices/travel/local_search_service.py:45: unused variable 'extensions' (60% confidence)\nservices/travel/local_search_service.py:46: unused variable 'gps_coordinates' (60% confidence)\nservices/travel/local_search_service.py:50: unused variable 'lsig' (60% confidence)\nservices/travel/local_search_service.py:51: unused variable 'provider_id' (60% confidence)\nutils/date_utils.py:6: unused import 'MAX_FUTURE_DAYS' (90% confidence)\nutils/date_utils.py:76: unused function 'validate_date_range' (60% confidence)\nutils/date_utils.py:105: unused function 'calculate_duration' (60% confidence)\nutils/flight_util.py:32: unused method 'get_airport_codes' (60% confidence)\nutils/flight_util.py:45: unused method 'get_primary_airport_code' (60% confidence)",
+      "stderr": "",
+      "returncode": 3,
+      "command": "vulture ."
+    }
+  ],
+  "commit": {
+    "hash": "f2b4458ed3925885eefc4ef1385a78bc3064e24e",
+    "summary": "Updated line color"
+  },
+  "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+  "recent_memory": [
+    {
+      "commit": "499a44b5dcc4063658b913480b653017b205a0f1",
+      "summary": "Here is the output in JSON format:\n\n```json\n{\n  \"executive_summary\": [\n    {\n      \"severity\": \"high\",\n      \"message\": \"Dependency vulnerabilities detected by pip-audit.\"\n    },\n    {\n      \"severity\": \"high\",\n      \"message\": \"pytest failed. Inspect failing tests/logs.\"\n    }\n  ],\n  \"grouped_comments\": [\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"vulture: Potentially unused code detected by vulture.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_complexity\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pip-audit: Dependency vulnerabilities detected by pip-audit.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_dependency\"\n    },\n    {\n      \"file_path\": \"./test.py\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"pydocstyle: pydocstyle errors detected.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_doc\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"interrogate: Docstring coverage below target per interrogate.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_doc\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"black: Code formatting diverges from black output.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_format\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"low\",\n      \"message\": \"isort: Import ordering issues reported by isort.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_format\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"medium\",\n      \"message\": \"ruff: ruff lint failures detected.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_lint\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"info\",\n      \"message\": \"pytest-benchmark: pytest-benchmark run failed or reported regressions.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_performance\"\n    },\n    {\n      \"file_path\": \"\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pytest: pytest failed. Inspect failing tests/logs.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_tests\"\n    },\n    {\n      \"file_path\": \"/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/app.py\",\n      \"span\": \"\",\n      \"severity\": \"high\",\n      \"message\": \"pyright: Static type errors reported by pyright.\",\n      \"recommended_fix\": \"\",\n      \"category\": \"python_type\"\n    }\n  ],\n  \"follow_ups\": [\n    \"Please review the dependency vulnerabilities detected by pip-audit and update the dependencies accordingly.\",\n    \"Inspect the failing tests/logs to identify the root cause of the issue.\",\n    \"Review the static type errors reported by pyright and make necessary corrections.\"\n  ]\n}\n```",
+      "highlights": [
+        "vulture: Potentially unused code detected by vulture.",
+        "pip-audit: Dependency vulnerabilities detected by pip-audit.",
+        "pydocstyle: pydocstyle errors detected.",
+        "interrogate: Docstring coverage below target per interrogate.",
+        "black: Code formatting diverges from black output."
+      ],
+      "timestamp": "2025-11-16T17:48:44.319784+00:00"
+    }
+  ],
+  "code_context": [
+    {
+      "text": "</style>\n\"\"\", unsafe_allow_html=True)",
+      "metadata": {
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "risk_domain": "general",
+        "kind": "code",
+        "language": "python",
+        "relative_path": "app.py",
+        "is_test": false,
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "module": "app",
+        "end_line": 84,
+        "tags": "kind:code,risk:general,module:app",
+        "chunk_index": 4,
+        "content_type": "code",
+        "start_line": 81
+      },
+      "score": 0.0
+    },
+    {
+      "text": "import streamlit as st\nimport requests\nimport uuid\nfrom datetime import datetime\n\n# Configure API URL\nAPI_URL = \"http://127.0.0.1:8000\"\n\n# Page setup\nst.set_page_config(\n    page_title=\"AI Travel Planner\",\n    page_icon=\"✈️\",\n    layout=\"wide\",\n    initial_sidebar_state=\"expanded\"\n)\n\n# Custom CSS for flex containers with icons (icon outside the bubble)\nst.markdown(\"\"\"\n<style>\n    /* Parent container for user messages (right-aligned with icon on the right) */\n    .user-msg-container {\n        display: flex;\n        justify-content: flex-end;\n        align-items: center;\n        margin-bottom: 10px;\n    }\n    /* Parent container for assistant messages (left-aligned with icon on top) */\n    .assistant-msg-container {\n        display: flex;\n        flex-direction: column;  /* Stack icon above the message bubble */\n        align-items: flex-start;\n        margin-bottom: 10px;\n    }\n    /* Chat bubble for user messages */\n    .user-msg {\n        display: inline-block;\n        background-color: rgba(70, 130, 180, 0.2);\n        padding: 10px 15px;\n        border-radius: 10px;\n        border-left: 4px solid #4682b4;\n        text-align: right;\n        max-width: 60%;\n        word-wrap: break-word;\n        white-space: pre-wrap;\n        margin-right: 10px;  /* space between bubble and icon */\n    }\n    /* Chat bubble for assistant messages */\n    .assistant-msg {\n        display: inline-block;\n        background-color: rgba(46, 139, 87, 0.2);\n        padding: 10px 15px;\n        border-radius: 10px;\n        border-left: 4px solid #2e8b57;\n        text-align: left;\n        max-width: 60%;\n        word-wrap: break-word;\n        white-space: pre-wrap;\n        margin-top: 5px;  /* space between icon and bubble */\n    }\n    /* Styling for icons */\n    .user-icon, .assistant-icon {\n        font-size: 24px;\n    }\n    .travel-title {\n        font-size: 24px;\n        font-weight: bold;\n        display: flex;\n        align-items: center;\n    }\n    .travel-emoji {\n        font-size: 28px;\n        margin-right: 10px;\n    }\n    /* Optional: Adjust chat input appearance */\n    .stChatInput textarea {\n        min-height: 50px !important;\n        max-height: 200px !important;\n        resize: vertical;\n    }",
+      "metadata": {
+        "kind": "code",
+        "risk_domain": "docs",
+        "is_test": false,
+        "tags": "kind:code,risk:docs,module:app",
+        "relative_path": "app.py",
+        "content_type": "code",
+        "chunk_index": 3,
+        "module": "app",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "end_line": 80,
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "language": "python",
+        "start_line": 1
+      },
+      "score": 0.0
+    }
+  ],
+  "documentation": [
+    {
+      "text": "%% Define link styles\n    linkStyle default stroke:#555555,stroke-width:1.5px;\n    \n    class User,Client,API,ChatManager,OpenAI primary;\n    class CoreFlow,ExtractorService,TravelSupervisor,Itinerary,FollowUpHandler process;\n    class Customization,CustomizerAgent,RegenerateItinerary customize;\n    class DataStore,SessionRepo,Redis,TripDetails,SavedItinerary,BudgetData,UserPrefs storage;\n    class ExternalAPIs,FlightService,HotelService,ActivityService,EventService external;\n```\n\n## Core Components\n\n### API Layer (FastAPI)\n\nThe API is built with FastAPI and provides the following endpoints:\n\n- `/chat` - Process user messages and return AI responses\n- `/chat/history/{session_id}` - Retrieve chat history for a session\n- `/reset/{session_id}` - Reset a user session\n- `/clear-user-sessions` - Clear all sessions for a specific user\n- `/events/{destination}` - Get events for a specific destination\n- `/places/{location}` - Search for places of interest\n- `/attractions/{location}` - Search for attractions\n- `/day-trips/{origin}` - Find potential day trips from an origin\n- `/trip-cost/{session_id}` - Get cost breakdown for a trip\n\n### Chat Manager\n\nThe ChatManager orchestrates the conversation flow by:\n\n1. Processing user messages\n2. Extracting trip details\n3. Managing the conversation context\n4. Generating responses using OpenAI\n5. Creating itineraries\n6. Handling follow-up questions\n\n### Entity Extraction\n\nThe system extracts travel-related information from user messages, including:\n\n- Origin and destination locations\n- Travel dates\n- Number of travelers\n- Budget\n- Activity preferences\n\n### Travel Services\n\nThe system integrates with multiple travel-related services:\n\n- **Flight Service**: Search for flights and prices\n- **Hotel Service**: Search for accommodations with customization options\n- **Activity Service**: Find activities and attractions at destinations\n- **Event Service**: Discover events happening during the trip dates\n- **Google Places Service**: Find detailed information about locations\n- **Local Search Service**: Find restaurants and other amenities\n\n### Data Storage\n\nThe system uses Redis for:\n\n- Session management with TTL expiry\n- Storing chat history\n- Persisting trip details\n- Caching itineraries and cost breakdowns\n\n## Data Flow\n\n1. User sends a message to the `/chat` endpoint\n2. The ChatManager processes the message and extracts trip details\n3. Based on conversation state and extracted data, the system:\n   - Collects missing required trip information\n   - Confirms trip details with the user\n   - Generates itineraries using the TravelSupervisor\n   - Handles follow-up questions and customization requests\n4. The response is returned to the client with:\n   - AI-generated message\n   - Updated trip details",
+      "metadata": {
+        "kind": "doc",
+        "risk_domain": "docs",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "tags": "kind:doc,risk:docs",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "relative_path": "README.md",
+        "content_type": "doc",
+        "chunk_index": 1,
+        "language": "markdown"
+      },
+      "score": 0.0
+    },
+    {
+      "text": "### Installation\n\n1. Clone the repository\n2. Install dependencies:\n   ```\n   pip install -r requirements.txt\n   ```\n3. Set up environment variables (see `.env.example`)\n4. Run the server:\n   ```\n   uvicorn main:app --reload\n   ```\n\n### Environment Variables\n\nThe following environment variables are required:\n\n- `OPENAI_API_KEY` - Your OpenAI API key\n- `REDIS_HOST` - Redis server host\n- `REDIS_PORT` - Redis server port\n- `REDIS_PASSWORD` - Redis password (if applicable)\n- `LOG_LEVEL` - Logging level (INFO, DEBUG, etc.)\n\n## Development\n\n### Project Structure\n\n```\nbackend/\n├── config/              # Configuration settings\n├── managers/            # Business logic orchestration\n│   ├── chat_manager.py  # Conversation management\n│   └── assistants_manager.py\n├── models/              # Data models\n│   ├── chat_models.py   # API request/response models\n│   └── trip_details.py  # Trip data structure\n├── repositories/        # Data access layer\n│   └── session_repository.py  # Redis interaction\n├── services/            # Core services\n│   ├── travel/          # Travel-related services\n│   ├── extraction/      # Entity extraction\n│   ├── customizers/     # Preference customization\n│   └── supervisors/     # Orchestration logic\n├── utils/               # Utility functions\n├── main.py              # FastAPI application\n├── app.py               # Streamlit frontend (optional)\n└── requirements.txt     # Dependencies\n```\n\n### Adding New Features\n\n1. Create any new models in the `models/` directory\n2. Implement service logic in the appropriate service class\n3. Update the ChatManager if needed for new conversation flows\n4. Add API endpoints in `main.py`\n\n## API Documentation\n\nWhen running the server, visit `/docs` for the Swagger UI API documentation.",
+      "metadata": {
+        "tags": "kind:doc,risk:security",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "risk_domain": "security",
+        "kind": "doc",
+        "language": "markdown",
+        "relative_path": "README.md",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "content_type": "doc",
+        "chunk_index": 3
+      },
+      "score": 0.0
+    }
+  ],
+  "best_practices": [
+    {
+      "text": "Updated line color",
+      "metadata": {
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "summary": "Updated line color",
+        "timestamp": 1745336703,
+        "sha": "b55319cd736235cd230876d484fea7bb5f891571",
+        "risk_domain": "general",
+        "tags": "kind:previous_review,risk:general",
+        "kind": "previous_review",
+        "language": "text",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "author": "parameshwarbhat411"
+      },
+      "score": 1.0
+    },
+    {
+      "text": "Updated line color",
+      "metadata": {
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "timestamp": 1745336563,
+        "author": "parameshwarbhat411",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "risk_domain": "general",
+        "kind": "previous_review",
+        "tags": "kind:previous_review,risk:general",
+        "sha": "f2b4458ed3925885eefc4ef1385a78bc3064e24e",
+        "summary": "Updated line color",
+        "language": "text"
+      },
+      "score": 1.0
+    },
+    {
+      "text": "Updated font color",
+      "metadata": {
+        "language": "text",
+        "risk_domain": "general",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "sha": "d29d449e3155a6ef369728e0d4d8eb7e1fe743c4",
+        "tags": "kind:previous_review,risk:general",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "summary": "Updated font color",
+        "author": "parameshwarbhat411",
+        "timestamp": 1745336342,
+        "kind": "previous_review"
+      },
+      "score": 0.43736302852630615
+    }
+  ]
+}

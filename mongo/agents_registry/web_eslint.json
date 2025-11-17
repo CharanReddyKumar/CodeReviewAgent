@@ -1,0 +1,12 @@
+{
+  "id": "web_eslint",
+  "languages": ["html", "css", "javascript", "typescript"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": null,
+  "class_name": null,
+  "enabled": true,
+  "implemented": false,
+  "description": "Placeholder for ESLint/TypeScript linting agent.",
+  "init_kwargs": {}
+}

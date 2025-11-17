@@ -1,0 +1,14 @@
+{
+  "id": "python_type",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.type_agent",
+  "class_name": "TypeAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs mypy or pyright for static type checking.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "python_lint",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.lint_agent",
+  "class_name": "LintAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs ruff to enforce lint rules.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

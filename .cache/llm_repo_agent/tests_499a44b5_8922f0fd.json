@@ -1,0 +1,147 @@
+{
+  "specialty": "pytest regressions and flaky test detection.",
+  "checklist": [
+    "Include failing test names / stack traces.",
+    "Note when pytest is unavailable in the environment.",
+    "Reference past failures from session memory when relevant."
+  ],
+  "signals": [
+    {
+      "tool_name": "pytest",
+      "severity": "high",
+      "message": "pytest failed. Inspect failing tests/logs.",
+      "stdout": "==================================== ERRORS ====================================\n___________ ERROR collecting test/parse_user_input_with_llm_test.py ____________\nImportError while importing test module '/Users/charanreddy/Desktop/CodeReviewAgent/.local_repos/github.com_TripTastic-AI_TripTastic-AI-Backend/test/parse_user_input_with_llm_test.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/homebrew/Cellar/python@3.12/3.12.4/Frameworks/Python.framework/Versions/3.12/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntest/parse_user_input_with_llm_test.py:2: in <module>\n    from backend.parse_user_input_with_llm import parse_user_input_with_llm\nE   ModuleNotFoundError: No module named 'backend'\n=========================== short test summary info ============================\nERROR test/parse_user_input_with_llm_test.py\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 error in 0.03s",
+      "stderr": "",
+      "returncode": 1,
+      "command": "pytest --maxfail=1 --disable-warnings -q"
+    }
+  ],
+  "commit": {
+    "hash": "499a44b5dcc4063658b913480b653017b205a0f1",
+    "summary": "Merge pull request #36 from DATS-Capstone-Project/feature_dev_Param"
+  },
+  "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+  "recent_memory": [],
+  "code_context": [
+    {
+      "text": "async def options_reset(session_id: str):\n    \"\"\"Handle OPTIONS request for /reset endpoint\"\"\"\n    return {\"message\": \"OK\"}",
+      "metadata": {
+        "start_line": 219,
+        "risk_domain": "general",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "relative_path": "main.py",
+        "is_test": false,
+        "language": "python",
+        "module": "main",
+        "kind": "code",
+        "chunk_index": 13,
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "end_line": 221,
+        "content_type": "code",
+        "tags": "kind:code,risk:general,module:main"
+      },
+      "score": 0.0
+    },
+    {
+      "text": "# Define request model for clearing user sessions",
+      "metadata": {
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "start_line": 91,
+        "is_test": false,
+        "language": "python",
+        "relative_path": "main.py",
+        "tags": "kind:code,risk:general,module:main",
+        "content_type": "code",
+        "kind": "code",
+        "module": "main",
+        "risk_domain": "general",
+        "end_line": 93,
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "chunk_index": 25
+      },
+      "score": 0.0
+    }
+  ],
+  "documentation": [
+    {
+      "text": "referencing==0.36.2\nregex==2024.11.6\nrequests==2.32.3\nrequests-toolbelt==1.0.0\nrich==13.9.4\nrpds-py==0.23.1\nsix==1.17.0\nsmmap==5.0.2\nsniffio==1.3.1\nSQLAlchemy==2.0.39\nstack-data==0.6.3\nstarlette==0.45.3\nstreamlit==1.42.2\ntenacity==9.0.0\ntiktoken==0.9.0\ntoml==0.10.2\ntornado==6.4.2\ntqdm==4.67.1\ntraitlets==5.14.3\ntyping_extensions==4.12.2\ntzdata==2025.1\nurllib3==2.3.0\nuvicorn==0.34.0\nwcwidth==0.2.13\nzstandard==0.23.0",
+      "metadata": {
+        "chunk_index": 1,
+        "content_type": "doc",
+        "risk_domain": "security",
+        "tags": "kind:doc,risk:security",
+        "language": "text",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "relative_path": "requirements.txt",
+        "kind": "doc",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend"
+      },
+      "score": 0.0
+    },
+    {
+      "text": "altair==5.5.0\namadeus==12.0.0\nannotated-types==0.7.0\nanyio==4.8.0\nasttokens==3.0.0\nasync-timeout==4.0.3\nattrs==25.1.0\nblinker==1.9.0\ncachetools==5.5.2\ncertifi==2025.1.31\ncharset-normalizer==3.4.1\nclick==8.1.8\ndecorator==5.2.1\ndistro==1.9.0\nexceptiongroup==1.2.2\nexecuting==2.2.0\nfastapi==0.115.8\ngit-filter-repo==2.47.0\ngitdb==4.0.12\nGitPython==3.1.44\nh11==0.14.0\nhttpcore==1.0.7\nhttpx==0.28.1\nidna==3.10\nipython==8.33.0\njedi==0.19.2\nJinja2==3.1.5\njiter==0.8.2\njsonpatch==1.33\njsonpointer==3.0.0\njsonschema==4.23.0\njsonschema-specifications==2024.10.1\nlangchain==0.3.20\nlangchain-core==0.3.41\nlangchain-openai==0.3.7\nlangchain-text-splitters==0.3.6\nlanggraph==0.3.5\nlanggraph-checkpoint==2.0.17\nlanggraph-prebuilt==0.1.2\nlanggraph-sdk==0.1.55\nlanggraph-supervisor==0.0.8\nlangsmith==0.3.12\nload-dotenv==0.1.0\nmarkdown-it-py==3.0.0\nMarkupSafe==3.0.2\nmatplotlib-inline==0.1.7\nmdurl==0.1.2\nmsgpack==1.1.0\nnarwhals==1.27.1\nnumpy==2.2.3\nopenai==1.64.0\norjson==3.10.15\npackaging==24.2\npandas==2.2.3\nparso==0.8.4\npexpect==4.9.0\npillow==11.1.0\nprompt_toolkit==3.0.50\nprotobuf==5.29.3\nptyprocess==0.7.0\npure_eval==0.2.3\npyarrow==19.0.1\npydantic==2.10.6\npydantic_core==2.27.2\npydeck==0.9.1\nPygments==2.19.1\npython-dateutil==2.9.0.post0\npython-dotenv==1.0.1\npytz==2025.1\nPyYAML==6.0.2\nreferencing==0.36.2\nregex==2024.11.6\nrequests==2.32.3\nrequests-toolbelt==1.0.0\nrich==13.9.4\nrpds-py==0.23.1\nsix==1.17.0\nsmmap==5.0.2\nsniffio==1.3.1\nSQLAlchemy==2.0.39",
+      "metadata": {
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "tags": "kind:doc,risk:security",
+        "content_type": "doc",
+        "relative_path": "requirements.txt",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "kind": "doc",
+        "chunk_index": 0,
+        "risk_domain": "security",
+        "language": "text"
+      },
+      "score": 0.0
+    }
+  ],
+  "best_practices": [
+    {
+      "text": "Merge pull request #35 from DATS-Capstone-Project/feature_dev_Param\n\nFeature dev param",
+      "metadata": {
+        "risk_domain": "general",
+        "language": "text",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "author": "Parameshwar Bhat",
+        "sha": "fef91cbfc81da76c2353fb01148b283a2160ed55",
+        "timestamp": 1745336763,
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "kind": "previous_review",
+        "summary": "Merge pull request #35 from DATS-Capstone-Project/feature_dev_Param",
+        "tags": "kind:previous_review,risk:general"
+      },
+      "score": 0.969730768352747
+    },
+    {
+      "text": "Merge pull request #28 from DATS-Capstone-Project/feature_dev_Param\n\nFeature dev param",
+      "metadata": {
+        "sha": "2c1abe924aae3fcda1294be8f57c84688bf8a58e",
+        "timestamp": 1744070452,
+        "risk_domain": "general",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "kind": "previous_review",
+        "author": "Parameshwar Bhat",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "language": "text",
+        "tags": "kind:previous_review,risk:general",
+        "summary": "Merge pull request #28 from DATS-Capstone-Project/feature_dev_Param"
+      },
+      "score": 0.9684058949351311
+    },
+    {
+      "text": "Merge pull request #2 from DATS-Capstone-Project/feature_dev_Param\n\nFeature dev param",
+      "metadata": {
+        "timestamp": 1740335510,
+        "author": "tanmay8103",
+        "kind": "previous_review",
+        "risk_domain": "general",
+        "repo_slug": "github.com_TripTastic-AI_TripTastic-AI-Backend",
+        "language": "text",
+        "repo_reference": "github.com/TripTastic-AI/TripTastic-AI-Backend",
+        "sha": "a853ce49e5b6d06ef4bbbab008ec23a7493a6d72",
+        "tags": "kind:previous_review,risk:general",
+        "summary": "Merge pull request #2 from DATS-Capstone-Project/feature_dev_Param"
+      },
+      "score": 0.9461098834872246
+    }
+  ]
+}

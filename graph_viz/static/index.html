@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph Visualization</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Repo Graph Explorer</h1>
+      <form id="graph-form">
+        <label>
+          Repository
+          <input
+            type="text"
+            id="repo-input"
+            placeholder="github.com/owner/repo"
+            required
+          />
+        </label>
+        <label>
+          Layer
+          <select id="layer-input">
+            <option value="code">code</option>
+            <option value="history">history</option>
+            <option value="policy">policy</option>
+            <option value="import">import</option>
+          </select>
+        </label>
+        <button type="submit">Load Graph</button>
+      </form>
+      <div id="status"></div>
+    </header>
+
+    <main>
+      <svg id="graph"></svg>
+    </main>
+
+    <template id="tooltip-template">
+      <div class="tooltip"></div>
+    </template>
+
+    <script>
+      const form = document.getElementById('graph-form');
+      const repoInput = document.getElementById('repo-input');
+      const layerInput = document.getElementById('layer-input');
+      const statusEl = document.getElementById('status');
+      const svg = d3.select('#graph');
+      const width = window.innerWidth;
+      const height = window.innerHeight - 160;
+      svg.attr('width', width).attr('height', height);
+
+      const tooltipTemplate = document.getElementById('tooltip-template');
+      const tooltip = tooltipTemplate.content.firstElementChild.cloneNode(true);
+      document.body.appendChild(tooltip);
+
+      function setStatus(message, type = 'info') {
+        statusEl.textContent = message;
+        statusEl.dataset.state = type;
+      }
+
+      async function fetchGraph(repo, layer) {
+        const params = new URLSearchParams({ repo, layer });
+        const response = await fetch(`/graph-data?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error(`Graph request failed (${response.status})`);
+        }
+        return response.json();
+      }
+
+      function renderGraph(data) {
+        svg.selectAll('*').remove();
+        const links = data.edges.map((d) => Object.assign({}, d));
+        const nodes = data.nodes.map((d) => Object.assign({}, d));
+
+        const simulation = d3
+          .forceSimulation(nodes)
+          .force(
+            'link',
+            d3
+              .forceLink(links)
+              .id((d) => d.id)
+              .distance(120)
+              .strength(0.4)
+          )
+          .force('charge', d3.forceManyBody().strength(-220))
+          .force('center', d3.forceCenter(width / 2, height / 2));
+
+        const link = svg
+          .append('g')
+          .attr('stroke', '#999')
+          .attr('stroke-opacity', 0.6)
+          .selectAll('line')
+          .data(links)
+          .join('line')
+          .attr('stroke-width', 1.5);
+
+        const node = svg
+          .append('g')
+          .attr('stroke', '#fff')
+          .attr('stroke-width', 1.5)
+          .selectAll('circle')
+          .data(nodes)
+          .join('circle')
+          .attr('r', 10)
+          .attr('fill', (d) => colorForGroup(d.group))
+          .call(
+            d3
+              .drag()
+              .on('start', dragstarted)
+              .on('drag', dragged)
+              .on('end', dragended)
+          )
+          .on('mouseenter', (event, d) => {
+            tooltip.textContent = `${d.label} (${d.group})`;
+            tooltip.style.display = 'block';
+          })
+          .on('mousemove', (event) => {
+            tooltip.style.left = `${event.pageX + 12}px`;
+            tooltip.style.top = `${event.pageY + 12}px`;
+          })
+          .on('mouseleave', () => {
+            tooltip.style.display = 'none';
+          });
+
+        const label = svg
+          .append('g')
+          .selectAll('text')
+          .data(nodes)
+          .join('text')
+          .text((d) => d.label)
+          .attr('font-size', 10)
+          .attr('fill', '#222')
+          .attr('text-anchor', 'middle');
+
+        simulation.on('tick', () => {
+          link
+            .attr('x1', (d) => d.source.x)
+            .attr('y1', (d) => d.source.y)
+            .attr('x2', (d) => d.target.x)
+            .attr('y2', (d) => d.target.y);
+
+          node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+          label.attr('x', (d) => d.x).attr('y', (d) => d.y - 14);
+        });
+
+        function dragstarted(event) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        }
+      }
+
+      function colorForGroup(group = 'node') {
+        const palette = {
+          file: '#6366f1',
+          class: '#16a34a',
+          function: '#0ea5e9',
+          async_function: '#14b8a6',
+          policy: '#f87171',
+          history: '#fbbf24',
+        };
+        return palette[group] || '#94a3b8';
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const repo = repoInput.value.trim();
+        const layer = layerInput.value.trim();
+        if (!repo) {
+          setStatus('Enter a repository reference.', 'error');
+          return;
+        }
+        setStatus('Loading graph...', 'info');
+        try {
+          const data = await fetchGraph(repo, layer);
+          renderGraph(data);
+          setStatus(`Loaded ${data.nodes.length} nodes / ${data.edges.length} edges`, 'success');
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const defaultRepo = params.get('repo');
+      const defaultLayer = params.get('layer');
+      if (defaultRepo) {
+        repoInput.value = defaultRepo;
+      }
+      if (defaultLayer) {
+        layerInput.value = defaultLayer;
+      }
+      if (defaultRepo) {
+        form.requestSubmit();
+      }
+    </script>
+  </body>
+</html>

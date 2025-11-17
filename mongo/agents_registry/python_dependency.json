@@ -1,0 +1,14 @@
+{
+  "id": "python_dependency",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.dependency_agent",
+  "class_name": "DependencyAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs pip-audit and pip-licenses.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

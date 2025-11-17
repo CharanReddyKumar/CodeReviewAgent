@@ -1,0 +1,14 @@
+{
+  "id": "python_format",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.format_agent",
+  "class_name": "FormatAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs black/isort in check mode.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

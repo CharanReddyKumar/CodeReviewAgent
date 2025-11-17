@@ -1,0 +1,14 @@
+{
+  "id": "python_complexity",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.complexity_agent",
+  "class_name": "ComplexityAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs radon and vulture.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

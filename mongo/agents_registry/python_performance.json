@@ -1,0 +1,14 @@
+{
+  "id": "python_performance",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.performance_agent",
+  "class_name": "PerformanceAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs pytest-benchmark smoke tests.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "python_tests",
+  "languages": ["python"],
+  "scope": "repo",
+  "kind": "tool",
+  "module": "agents.test_agent",
+  "class_name": "TestAgent",
+  "enabled": true,
+  "implemented": true,
+  "description": "Runs pytest with quick settings.",
+  "init_kwargs": {
+    "repo_path": "__REPO_PATH__"
+  }
+}
