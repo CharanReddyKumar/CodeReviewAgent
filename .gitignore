@@ -14,5 +14,20 @@ __pycache__/
 reports/
 agentic-review-trace.jsonl
 
+# Dependency / build folders
+node_modules/
+.npm/
+dist/
+build/
+
+# Common large/binary artifacts
+*.log
+*.db
+*.sqlite
+*.pkl
+*.bin
+*.pt
+*.ckpt
+
 # Operating system cruft
 .DS_Store
