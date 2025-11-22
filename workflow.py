@@ -25,6 +25,8 @@ class ReviewState(TypedDict, total=False):
     _supervisor: Any
     _commit: Any
     _progress_callback: Optional[Callable[[str, Dict[str, Any]], None]]
+    replanning_needed: bool
+    loop_count: int
 
 
 _GRAPH_CACHE: Dict[str, Any] = {}
@@ -260,6 +262,19 @@ def build_review_graph():
         _notify_progress(state, "node_complete", {"node": "finalize", "findings": len(review["findings"])})
         return state
 
+    def should_replan(state: ReviewState) -> str:
+        # Check if we need to loop back to planner
+        if state.get("replanning_needed"):
+            return "planner"
+        return "synthesis"
+
+    def should_fix_critique(state: ReviewState) -> str:
+        # Check if critic rejected findings and we need to retry
+        critic = state.get("critic_output", {})
+        if critic.get("requires_correction"):
+            return "tasks"
+        return "memory"
+
     builder.add_node("intake", intake_node)
     builder.add_node("context", context_node)
     builder.add_node("triage", triage_node)
@@ -269,18 +284,49 @@ def build_review_graph():
     builder.add_node("critic", critic_node)
     builder.add_node("memory", memory_node)
     builder.add_node("finalize", finalize_node)
+    
     builder.set_entry_point("intake")
     builder.add_edge("intake", "context")
     builder.add_edge("context", "triage")
     builder.add_edge("triage", "planner")
     builder.add_edge("planner", "tasks")
-    builder.add_edge("tasks", "synthesis")
+    
+    # Conditional edge from tasks -> synthesis OR planner
+    builder.add_conditional_edges(
+        "tasks",
+        should_replan,
+        {
+            "planner": "planner",
+            "synthesis": "synthesis"
+        }
+    )
+    
     builder.add_edge("synthesis", "critic")
-    builder.add_edge("critic", "memory")
+    
+    # Conditional edge from critic -> memory OR tasks (for correction)
+    builder.add_conditional_edges(
+        "critic",
+        should_fix_critique,
+        {
+            "tasks": "tasks",
+            "memory": "memory"
+        }
+    )
+    
     builder.add_edge("memory", "finalize")
     builder.add_edge("finalize", END)
 
-    graph = builder.compile()
+    from langgraph.checkpoint.sqlite import SqliteSaver
+    import sqlite3
+
+    # Use a persistent checkpointer
+    conn = sqlite3.connect("checkpoints.sqlite", check_same_thread=False)
+    memory = SqliteSaver(conn)
+
+    graph = builder.compile(
+        checkpointer=memory,
+        interrupt_before=["finalize"]
+    )
     _GRAPH_CACHE[key] = graph
     return graph
 
@@ -326,7 +372,9 @@ def execute_review_workflow(
         supervisor.tracer.end_run(commit_run, outputs={"review": review})
         return initial_state
     try:
-        final_state = graph.invoke(initial_state)
+        # Use a consistent thread_id for the session
+        config = {"configurable": {"thread_id": getattr(commit, "hexsha", "default")}}
+        final_state = graph.invoke(initial_state, config=config)
         supervisor.tracer.end_run(commit_run, outputs={"review": final_state.get("review", {})})
         return final_state
     except Exception as exc:

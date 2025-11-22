@@ -74,9 +74,15 @@ class Supervisor:
         self.context_agent = ContextAgent(self.repo_reference, self.retriever, repo_path=self.repo_path)
         self.planner_agent = PlannerAgent()
         self.synthesis_agent = SynthesisAgent()
-        self.critic_agent = CriticAgent()
+        self.critic_agent = CriticAgent(repo_path=self.repo_path)
         self.memory_agent = MemoryAgent()
         self.executor_agent = ActionExecutor()
+        
+        # Initialize Graph Components
+        from knowledge_graph.graph_store import GraphStore
+        from agents.cartographer_agent import CartographerAgent
+        self.graph_store = GraphStore()
+        self.cartographer_agent = CartographerAgent(self.graph_store)
 
         self.tool_specs = self._load_tool_specs()
         self.tool_instances = self._instantiate_tool_instances()
@@ -401,6 +407,8 @@ class Supervisor:
         commit_run,
         manifest: Optional[ReviewManifest] = None,
     ) -> TaskReport:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         task_run = self.tracer.child_run(
             commit_run,
             name=f"task:{task.get('id')}",
@@ -426,6 +434,7 @@ class Supervisor:
                 "commit": commit.hexsha,
             },
         )
+        
         for idx, action in enumerate(action_plan, start=1):
             action_type = str(action.get("type", "analysis")).lower()
             description = action.get("description") or f"Action {idx}"
@@ -448,6 +457,7 @@ class Supervisor:
                 name=f"action:{task.get('id')}:{idx}",
                 inputs={"type": action_type, "description": description},
             )
+            
             if action_type == "note":
                 output = action.get("instructions") or description
                 reasoning_notes.append(f"{description}: {output}")
@@ -482,68 +492,112 @@ class Supervisor:
                 self._emit_progress("task_action", {**action_payload, "status": "complete", "output": output})
                 continue
 
+            if action_type == "graph_query":
+                query = action.get("query")
+                output = self.cartographer_agent.act({"type": "tool", "tool": "run_cypher", "args": {"query": query}})
+                reasoning_notes.append(f"{description}: {output}")
+                action_results.append(
+                    {
+                        "type": action_type,
+                        "description": description,
+                        "output": str(output),
+                        "tool_ids": [],
+                        "files": action_files,
+                        "findings": 0,
+                    }
+                )
+                self.tracer.end_run(action_run, outputs={"graph_result": str(output)})
+                self._emit_progress("task_action", {**action_payload, "status": "complete", "output": str(output)})
+                continue
+
             selected_tools = self._resolve_action_tools(action, tool_ids)
             action_finding_count = 0
-            for tool_id in selected_tools:
-                tool = self.tool_instances.get(tool_id)
-                spec = self.tool_specs.get(tool_id)
-                if tool is None or spec is None:
-                    findings.append(
-                        self._normalize_finding(
-                            {
-                                "agent": tool_id,
-                                "message": f"Tool '{tool_id}' is not available for this repo.",
-                                "severity": "info",
-                                "rule_id": "MISSING_TOOL",
-                            },
-                            tool_id,
+            
+            # Parallel Execution Logic
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                future_to_tool = {}
+                for tool_id in selected_tools:
+                    tool = self.tool_instances.get(tool_id)
+                    spec = self.tool_specs.get(tool_id)
+                    if tool is None or spec is None:
+                        findings.append(
+                            self._normalize_finding(
+                                {
+                                    "agent": tool_id,
+                                    "message": f"Tool '{tool_id}' is not available for this repo.",
+                                    "severity": "info",
+                                    "rule_id": "MISSING_TOOL",
+                                },
+                                tool_id,
+                            )
                         )
-                    )
-                    continue
-                tool_run = self.tracer.child_run(
-                    task_run,
-                    name=f"tool:{tool_id}",
-                    inputs={"scope": spec.scope},
-                )
-                tool_findings: List[SpecialistFinding] = []
-                self._emit_progress(
-                    "tool_start",
-                    {
-                        "tool": tool_id,
-                        "scope": spec.scope,
-                        "task": task.get("id"),
-                        "commit": commit.hexsha,
-                    },
-                )
-                if spec.scope == "file":
-                    scoped_contexts = targeted_contexts or contexts
-                    tool_findings = self._run_file_tool(tool, scoped_contexts, tool_id)
-                else:
-                    tool_findings = self._run_repo_tool(tool, commit, tool_id)
-                findings.extend(tool_findings)
-                self.tracer.end_run(tool_run, outputs={"finding_count": len(tool_findings)})
-                self._emit_progress(
-                    "tool_complete",
-                    {
-                        "tool": tool_id,
-                        "task": task.get("id"),
-                        "findings": len(tool_findings),
-                        "commit": commit.hexsha,
-                    },
-                )
-                if tool_findings:
-                    preview = tool_findings[:5]
+                        continue
+                    
                     self._emit_progress(
-                        "tool_findings",
+                        "tool_start",
                         {
                             "tool": tool_id,
+                            "scope": spec.scope,
                             "task": task.get("id"),
-                            "findings": preview,
-                            "total_findings": len(tool_findings),
                             "commit": commit.hexsha,
                         },
                     )
-                action_finding_count += len(tool_findings)
+                    
+                    if spec.scope == "file":
+                        scoped_contexts = targeted_contexts or contexts
+                        future = executor.submit(self._run_file_tool, tool, scoped_contexts, tool_id)
+                    else:
+                        future = executor.submit(self._run_repo_tool, tool, commit, tool_id)
+                    
+                    future_to_tool[future] = (tool_id, spec)
+
+                for future in as_completed(future_to_tool):
+                    tool_id, spec = future_to_tool[future]
+                    tool_findings = []
+                    try:
+                        tool_findings = future.result()
+                    except Exception as exc:
+                        logger.error(f"Tool {tool_id} failed: {exc}")
+                        tool_findings = [
+                            self._normalize_finding(
+                                {
+                                    "agent": tool_id,
+                                    "message": f"Tool execution failed: {exc}",
+                                    "severity": "info",
+                                    "rule_id": "EXECUTION_ERROR",
+                                },
+                                tool_id
+                            )
+                        ]
+                    
+                    findings.extend(tool_findings)
+                    
+                    # Tracer update (simplified as we can't easily nest async in sync tracer)
+                    # self.tracer.end_run(tool_run, outputs={"finding_count": len(tool_findings)})
+                    
+                    self._emit_progress(
+                        "tool_complete",
+                        {
+                            "tool": tool_id,
+                            "task": task.get("id"),
+                            "findings": len(tool_findings),
+                            "commit": commit.hexsha,
+                        },
+                    )
+                    if tool_findings:
+                        preview = tool_findings[:5]
+                        self._emit_progress(
+                            "tool_findings",
+                            {
+                                "tool": tool_id,
+                                "task": task.get("id"),
+                                "findings": preview,
+                                "total_findings": len(tool_findings),
+                                "commit": commit.hexsha,
+                            },
+                        )
+                    action_finding_count += len(tool_findings)
+
             executed_tools.extend(selected_tools)
             action_results.append(
                 {
@@ -699,7 +753,18 @@ class Supervisor:
             inputs={"finding_count": len(findings)},
         )
         try:
-            output = self.critic_agent.critique(commit_summary, diff_excerpt, findings)
+            # Use the new CriticAgent's validation logic
+            critique_result = self.critic_agent.critique_all(findings)
+            
+            # Construct the CriticOutput expected by the workflow
+            output = {
+                "executive_summary": f"Critique complete. Approved: {len(critique_result['approved'])}, Rejected: {len(critique_result['rejected'])}",
+                "follow_ups": [], # Could be populated if we had a follow-up generation step
+                "grouped_comments": critique_result['approved'], # We only pass approved findings forward
+                "requires_correction": critique_result['requires_correction'],
+                "rejected_findings": critique_result['rejected']
+            }
+            
             self.tracer.end_run(critic_run, outputs={"exec_summary": output.get("executive_summary", "")})
             return output
         except Exception as exc:

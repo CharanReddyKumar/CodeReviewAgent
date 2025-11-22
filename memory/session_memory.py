@@ -33,5 +33,25 @@ def load_recent(repo_reference: str, limit: int = 5) -> List[Dict]:
 def append_memory(repo_reference: str, entry: Dict) -> None:
     path = _memory_path(repo_reference)
     path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Add timestamp if missing
+    if "timestamp" not in entry:
+        from datetime import datetime, timezone
+        entry["timestamp"] = datetime.now(timezone.utc).isoformat()
+        
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
+
+
+def store_reflection(repo_reference: str, commit_sha: str, decision: str, reasoning: str) -> None:
+    """
+    Store a reflection on a decision made during review.
+    """
+    entry = {
+        "type": "reflection",
+        "commit": commit_sha,
+        "decision": decision,
+        "reasoning": reasoning,
+    }
+    append_memory(repo_reference, entry)
+
