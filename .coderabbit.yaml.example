@@ -1,0 +1,87 @@
+# Custom Code Review Rules
+# Place this file in your repository root as .coderabbit.yaml or .codereview.yaml
+
+rules:
+  # Python Style Rules
+  - id: no-print-statements
+    name: "No Print Statements"
+    pattern: "print("
+    message: "Use logging instead of print statements for production code"
+    severity: medium
+    category: style
+    languages: ["python"]
+    enabled: true
+    auto_fix: "logging.info("
+
+  - id: no-todo-comments
+    name: "No TODO Comments"
+    pattern: "# TODO"
+    message: "Create a GitHub issue instead of leaving TODO comments in code"
+    severity: low
+    category: documentation
+    languages: ["*"]
+    enabled: true
+
+  # Security Rules
+  - id: no-hardcoded-passwords
+    name: "No Hardcoded Passwords"
+    pattern: 'password = "'
+    message: "Avoid hardcoding passwords; use environment variables or secrets management"
+    severity: critical
+    category: security
+    languages: ["*"]
+    enabled: true
+
+  - id: no-eval
+    name: "No eval() Usage"
+    pattern: "eval("
+    message: "Using eval() is dangerous and can lead to code injection vulnerabilities"
+    severity: high
+    category: security
+    languages: ["python"]
+    enabled: true
+
+  # Code Quality Rules
+  - id: no-bare-except
+    name: "No Bare Except"
+    pattern: "except:"
+    message: "Avoid bare except clauses; catch specific exceptions"
+    severity: medium
+    category: best-practice
+    languages: ["python"]
+    enabled: true
+
+  - id: no-magic-numbers
+    name: "No Magic Numbers"
+    pattern: "= 3.14159"
+    message: "Define magic numbers as named constants"
+    severity: low
+    category: maintainability
+    languages: ["*"]
+    enabled: false  # Disabled by default as it can be noisy
+
+  # JavaScript/TypeScript Rules
+  - id: no-console-log
+    name: "No console.log"
+    pattern: "console.log("
+    message: "Remove console.log statements from production code"
+    severity: medium
+    category: style
+    languages: ["javascript", "typescript"]
+    enabled: true
+
+  - id: use-strict-equality
+    name: "Use Strict Equality"
+    pattern: " == "
+    message: "Use === instead of == for strict equality checks"
+    severity: low
+    category: best-practice
+    languages: ["javascript", "typescript"]
+    enabled: true
+
+# Configuration Tips:
+# - Set 'enabled: false' to disable a rule
+# - Add 'auto_fix' to provide automatic fix suggestions
+# - Use '*' in languages to apply to all file types
+# - Severity levels: critical, high, medium, low
+# - Categories help organize findings in reports

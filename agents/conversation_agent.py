@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from pathlib import Path
 
 from agents.base_agent import BaseAutonomousAgent
-from llm_utils import build_chat_model, safe_parse_json
+from llm_utils import build_chat_model
 from memory import session_memory
 
 logger = logging.getLogger(__name__)

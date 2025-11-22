@@ -83,6 +83,19 @@ class Supervisor:
         from agents.cartographer_agent import CartographerAgent
         self.graph_store = GraphStore()
         self.cartographer_agent = CartographerAgent(self.graph_store)
+        
+        # Initialize Phase 6 Agents (Functional Supremacy)
+        from agents.conversation_agent import ConversationAgent
+        from agents.autofix_agent import AutofixAgent
+        from agents.security_scanner import SecurityScanner
+        from agents.test_generator_agent import TestGeneratorAgent
+        from knowledge_graph.custom_rules import CustomRuleEngine
+        
+        self.conversation_agent = ConversationAgent(self.repo_path, self.graph_store)
+        self.autofix_agent = AutofixAgent(self.repo_path)
+        self.security_scanner = SecurityScanner(self.repo_path, self.graph_store)
+        self.test_generator = TestGeneratorAgent(self.repo_path, self.graph_store)
+        self.custom_rules = CustomRuleEngine(self.repo_path)
 
         self.tool_specs = self._load_tool_specs()
         self.tool_instances = self._instantiate_tool_instances()
