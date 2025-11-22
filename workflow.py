@@ -201,16 +201,51 @@ def build_review_graph():
         tasks = state.get("tasks") or []
         file_contexts = state.get("file_contexts") or []
         reports: List[TaskReport] = []
-        for task in tasks:
-            reports.append(
-                supervisor.run_task(
+        
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        
+        # Execute tasks in parallel
+        # We use a max_workers limit to avoid overwhelming the system/LLM rate limits
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            future_to_task = {
+                executor.submit(
+                    supervisor.run_task,
                     task,
                     file_contexts,
                     state["_commit"],
                     state.get("commit_run"),
                     state.get("manifest"),
-                )
-            )
+                ): task for task in tasks
+            }
+            
+            for future in as_completed(future_to_task):
+                task = future_to_task[future]
+                try:
+                    report = future.result()
+                    reports.append(report)
+                except Exception as exc:
+                    # Log failure but don't crash the whole review
+                    # Create a dummy failure report
+                    reports.append(
+                        TaskReport(
+                            task_id=task.get("id", "unknown"),
+                            title=task.get("title", "Failed Task"),
+                            tool_ids=[],
+                            findings=[
+                                {
+                                    "agent": "system",
+                                    "rule_id": "TASK_EXECUTION_ERROR",
+                                    "severity": "info",
+                                    "message": f"Task execution failed: {exc}",
+                                    "file_path": "",
+                                    "line": 0,
+                                }
+                            ],
+                            notes=f"Execution failed: {exc}",
+                            action_results=[],
+                        )
+                    )
+
         state["task_reports"] = reports
         state.setdefault("node_outputs", {})["tasks"] = {"task_count": len(reports)}
         _notify_progress(state, "node_complete", {"node": "tasks", "reports": len(reports)})

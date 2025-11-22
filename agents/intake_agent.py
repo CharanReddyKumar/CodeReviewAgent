@@ -31,7 +31,10 @@ class IntakeAgent:
         system_prompt = (
             "You are the IntakeAgent for a multi-LLM review crew. "
             "Summarize the change set, classify frameworks, and tag high-risk areas (auth, data, crypto, network, performance). "
-            "Return JSON with fields: summary, description, files, languages, frameworks, high_risk_tags, size (tiny|small|medium|large|mega), priority (low|medium|high|urgent)."
+            "Analyze the 'Blast Radius' of the changes - which components might be affected? "
+            "Return JSON with fields: summary, description, files, languages, frameworks, high_risk_tags, "
+            "size (tiny|small|medium|large|mega), priority (low|medium|high|urgent), "
+            "blast_radius (low|medium|high), risk_score (1-10)."
         )
         response = self.chat.invoke(
             [

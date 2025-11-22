@@ -5,19 +5,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
 import tree_sitter
-import tree_sitter_python
-import tree_sitter_javascript
-import tree_sitter_typescript
-import tree_sitter_java
-import tree_sitter_go
-import tree_sitter_rust
-import tree_sitter_c
-import tree_sitter_cpp
-import tree_sitter_c_sharp
-import tree_sitter_ruby
-import tree_sitter_php
-import tree_sitter_swift
-import tree_sitter_kotlin
 
 logger = logging.getLogger(__name__)
 
@@ -29,25 +16,40 @@ class TreeSitterParser:
 
     def __init__(self):
         # Initialize all language parsers
-        self.languages = {
-            # Already supported
-            "python": tree_sitter.Language(tree_sitter_python.language()),
-            "javascript": tree_sitter.Language(tree_sitter_javascript.language()),
-            "typescript": tree_sitter.Language(tree_sitter_typescript.language_typescript()),
-            "tsx": tree_sitter.Language(tree_sitter_typescript.language_tsx()),
-            
-            # Newly added
-            "java": tree_sitter.Language(tree_sitter_java.language()),
-            "go": tree_sitter.Language(tree_sitter_go.language()),
-            "rust": tree_sitter.Language(tree_sitter_rust.language()),
-            "c": tree_sitter.Language(tree_sitter_c.language()),
-            "cpp": tree_sitter.Language(tree_sitter_cpp.language()),
-            "csharp": tree_sitter.Language(tree_sitter_c_sharp.language()),
-            "ruby": tree_sitter.Language(tree_sitter_ruby.language()),
-            "php": tree_sitter.Language(tree_sitter_php.language_php()),
-            "swift": tree_sitter.Language(tree_sitter_swift.language()),
-            "kotlin": tree_sitter.Language(tree_sitter_kotlin.language()),
-        }
+        self.languages = {}
+        
+        # Helper to safely load languages
+        def load_lang(name, module_name, func_name='language'):
+            try:
+                mod = __import__(module_name)
+                # Handle nested modules if necessary (e.g. tree_sitter_typescript.language_typescript)
+                if '.' in func_name:
+                    parts = func_name.split('.')
+                    obj = mod
+                    for part in parts:
+                        obj = getattr(obj, part)
+                    lang_obj = obj()
+                else:
+                    lang_obj = getattr(mod, func_name)()
+                self.languages[name] = tree_sitter.Language(lang_obj)
+            except (ImportError, AttributeError) as e:
+                logger.debug(f"Could not load tree-sitter language {name}: {e}")
+
+        # Load languages
+        load_lang("python", "tree_sitter_python")
+        load_lang("javascript", "tree_sitter_javascript")
+        load_lang("typescript", "tree_sitter_typescript", "language_typescript")
+        load_lang("tsx", "tree_sitter_typescript", "language_tsx")
+        load_lang("java", "tree_sitter_java")
+        load_lang("go", "tree_sitter_go")
+        load_lang("rust", "tree_sitter_rust")
+        load_lang("c", "tree_sitter_c")
+        load_lang("cpp", "tree_sitter_cpp")
+        load_lang("csharp", "tree_sitter_c_sharp")
+        load_lang("ruby", "tree_sitter_ruby")
+        load_lang("php", "tree_sitter_php", "language_php")
+        load_lang("swift", "tree_sitter_swift")
+        load_lang("kotlin", "tree_sitter_kotlin")
         
         self.parsers = {}
         for lang_name, lang_obj in self.languages.items():

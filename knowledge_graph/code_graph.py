@@ -142,20 +142,32 @@ def build_code_structure_graph(
 
     file_nodes: Dict[str, str] = {}
     module_symbols: Dict[str, Dict[str, SymbolInfo]] = {}
+    
+    # Initialize TreeSitterParser
+    from .tree_sitter_parser import TreeSitterParser
+    ts_parser = TreeSitterParser()
+    supported_extensions = set(ts_parser.get_supported_extensions())
 
-    for file_path in repo_root.rglob("*.py"):
+    # Walk all files
+    for file_path in repo_root.rglob("*"):
+        if file_path.is_dir():
+            continue
         if should_skip_path(file_path.parts):
             continue
+        
+        ext = file_path.suffix.lower()
+        if ext not in supported_extensions and ext != '.py':
+            continue
+
         rel_path = file_path.relative_to(repo_root).as_posix()
         file_id = f"file::{rel_path}"
-        module_name = rel_path.replace("/", ".").rsplit(".py", 1)[0]
+        module_name = rel_path.replace("/", ".").rsplit(ext, 1)[0]
         is_test = "tests" in file_path.parts or rel_path.startswith("tests/") or file_path.name.startswith("test_")
+        
         try:
             file_hash = _file_hash(file_path)
-            source_text = file_path.read_text(encoding="utf-8", errors="ignore")
-            tree = ast.parse(source_text, filename=str(file_path))
         except Exception as exc:
-            print(f"[knowledge_graph] Skipping {rel_path}: {exc}")
+            logger.warning(f"Failed to hash {rel_path}: {exc}")
             continue
 
         graph.add_node(
@@ -165,16 +177,51 @@ def build_code_structure_graph(
             module=module_name,
             sha256=file_hash,
             is_test=is_test,
+            language=ts_parser._get_language_for_file(file_path) or "python"
         )
         file_nodes[rel_path] = file_id
 
-        symbol_nodes, symbol_index = _collect_symbols(tree, module_name, file_id, rel_path)
-        module_symbols[module_name] = symbol_index
-        for node_id, attrs in symbol_nodes:
-            graph.add_node(node_id, **attrs)
-            graph.add_edge(file_id, node_id, kind="defines")
+        # Python specific AST parsing (keeps existing rich features)
+        if ext == '.py':
+            try:
+                source_text = file_path.read_text(encoding="utf-8", errors="ignore")
+                tree = ast.parse(source_text, filename=str(file_path))
+                symbol_nodes, symbol_index = _collect_symbols(tree, module_name, file_id, rel_path)
+                module_symbols[module_name] = symbol_index
+                for node_id, attrs in symbol_nodes:
+                    graph.add_node(node_id, **attrs)
+                    graph.add_edge(file_id, node_id, kind="defines")
+            except Exception as exc:
+                print(f"[knowledge_graph] Skipping Python parse for {rel_path}: {exc}")
+                continue
+        
+        # Other languages using TreeSitter
+        elif ts_parser.is_supported(file_path):
+            try:
+                definitions = ts_parser.extract_definitions(file_path)
+                for defn in definitions:
+                    node_name = defn['name']
+                    # Construct a symbol ID similar to Python ones
+                    symbol_id = f"symbol::{module_name}.{node_name}"
+                    
+                    attrs = {
+                        "type": defn['type'], # e.g. function_definition, class_declaration
+                        "name": node_name,
+                        "qualified_name": f"{module_name}.{node_name}",
+                        "file_path": rel_path,
+                        "module": module_name,
+                        "span": (defn['start_line'], defn['end_line']),
+                        "defined_in": file_id,
+                        "language": defn['language']
+                    }
+                    
+                    graph.add_node(symbol_id, **attrs)
+                    graph.add_edge(file_id, symbol_id, kind="defines")
+            except Exception as exc:
+                print(f"[knowledge_graph] Skipping TreeSitter parse for {rel_path}: {exc}")
+                continue
 
-    # Build call edges
+    # Build call edges (Python only for now)
     for file_path in repo_root.rglob("*.py"):
         if should_skip_path(file_path.parts):
             continue

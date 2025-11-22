@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
+from agents.critic_agent import CodeIssue
 from agents.evidence_guard import enforce_evidence
 from llm_utils import build_chat_model, extract_json_response
 from memory import session_memory
@@ -45,7 +46,8 @@ class LLMCriticAgent:
         }
         instruction = (
             "Given the JSON context above, produce a JSON list where each item has:\n"
-            "severity (high|medium|low|info), title, message, recommended_fix, references (list of strings).\n"
+            "severity (high|medium|low|info), title, message, recommended_fix, references (list of strings), "
+            "file_path, line_number, code_snippet, reasoning, rule_id, confidence.\n"
             "Focus only on real issues. If no issues, return an empty list."
         )
         human = HumanMessage(content=f"Context:\n```json\n{json.dumps(context, indent=2)}\n```\n{instruction}")
@@ -90,42 +92,52 @@ class LLMCriticAgent:
         if isinstance(findings, dict):
             findings = [findings]
         if not isinstance(findings, list):
-            findings = [
-                {
-                    "severity": "info",
-                    "title": "LLM Review Summary",
-                    "message": (response or "").strip(),
-                    "recommended_fix": "",
-                    "references": [],
-                }
-            ]
+            findings = []
 
         normalized = []
         for item in findings:
-            file_path = item.get("file_path") or item.get("file") or ""
-            line_start = item.get("line_start", item.get("line", 0))
-            line_end = item.get("line_end", line_start)
-            references = item.get("references") or []
-            normalized.append(
-                {
-                    "agent": self.name,
-                    "rule_id": "LLM_REVIEW",
-                    "title": item.get("title", "LLM Review"),
-                    "severity": item.get("severity", "low"),
-                    "file": file_path,
-                    "file_path": file_path,
-                    "line_start": line_start,
-                    "line_end": line_end,
-                    "line": line_start,
-                    "category": item.get("category", "style"),
-                    "description": item.get("description", item.get("message", "")),
-                    "message": item.get("title", "LLM Review"),
-                    "code_line": item.get("message", ""),
-                    "suggested_patch": item.get("suggested_patch") or item.get("recommended_fix"),
-                    "recommended_fix": item.get("recommended_fix", ""),
-                    "evidence": item.get("evidence"),
-                    "references": references if isinstance(references, list) else [references],
+            # Map LLM output to CodeIssue fields
+            try:
+                # Ensure required fields are present or defaulted
+                issue_data = {
+                    "file_path": item.get("file_path") or item.get("file") or "",
+                    "line_number": int(item.get("line_number") or item.get("line") or item.get("line_start") or 0),
+                    "code_snippet": item.get("code_snippet") or item.get("code_line") or item.get("message", "")[:50],
+                    "confidence": float(item.get("confidence", 0.5)),
+                    "reasoning": item.get("reasoning") or item.get("description") or item.get("message", ""),
+                    "severity": item.get("severity", "info"),
+                    "rule_id": item.get("rule_id", "LLM_REVIEW"),
                 }
-            )
+                
+                # Validate with CodeIssue
+                issue = CodeIssue(**issue_data)
+                
+                # If valid, add to normalized list (converting back to dict for compatibility)
+                normalized.append(
+                    {
+                        "agent": self.name,
+                        "rule_id": issue.rule_id,
+                        "title": item.get("title", "LLM Review"),
+                        "severity": issue.severity,
+                        "file": issue.file_path,
+                        "file_path": issue.file_path,
+                        "line_start": issue.line_number,
+                        "line_end": issue.line_number,
+                        "line": issue.line_number,
+                        "category": item.get("category", "style"),
+                        "description": issue.reasoning,
+                        "message": item.get("title", "LLM Review"),
+                        "code_line": issue.code_snippet,
+                        "suggested_patch": item.get("suggested_patch") or item.get("recommended_fix"),
+                        "recommended_fix": item.get("recommended_fix", ""),
+                        "evidence": item.get("evidence"),
+                        "references": item.get("references") or [],
+                        "confidence": issue.confidence,
+                    }
+                )
+            except Exception as e:
+                # Skip invalid items or log them
+                print(f"Skipping invalid finding: {e}")
+                continue
 
         return enforce_evidence(normalized)

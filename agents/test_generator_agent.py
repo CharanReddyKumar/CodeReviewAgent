@@ -152,6 +152,9 @@ class TestGeneratorAgent:
         # Determine test framework
         test_framework = "pytest" if file_path.endswith('.py') else "jest"
         
+        default_edge_cases = '- Standard happy path\n- Error cases\n- Boundary conditions'
+        edge_cases_str = chr(10).join(f'- {case}' for case in edge_cases) if edge_cases else default_edge_cases
+        
         prompt = f"""Generate comprehensive unit tests for the following function:
 
 **File:** {file_path}
@@ -163,7 +166,7 @@ class TestGeneratorAgent:
 ```
 
 **Edge Cases to Cover:**
-{chr(10).join(f'- {case}' for case in edge_cases) if edge_cases else '- Standard happy path\n- Error cases\n- Boundary conditions'}
+{edge_cases_str}
 
 Generate {test_framework} tests that:
 1. Cover all identified edge cases
