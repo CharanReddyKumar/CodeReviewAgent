@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 
 import asyncio
 import json
+from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,8 +31,23 @@ class ReviewRequest(BaseModel):
     base: Optional[str] = Field(None, description="Optional base ref for diffing")
 
 
+JobStatus = Literal["pending", "running", "complete", "error"]
+
+
 class ReviewResponse(BaseModel):
     runs: List[Dict[str, Any]]
+
+
+class ReviewJobSubmission(BaseModel):
+    job_id: str
+    status: JobStatus
+
+
+class ReviewJobStatus(BaseModel):
+    job_id: str
+    status: JobStatus
+    runs: Optional[List[Dict[str, Any]]] = None
+    error: Optional[str] = None
 
 
 app = FastAPI(title="Agentic Reviewer API", version="0.1.0")
@@ -43,29 +59,56 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+_jobs: Dict[str, Dict[str, Any]] = {}
+_jobs_lock = asyncio.Lock()
+
+
+def _build_run_review_kwargs(payload: ReviewRequest) -> Dict[str, Any]:
+    return {
+        "repo": payload.repo,
+        "branch": payload.branch,
+        "max_commits": payload.max_commits,
+        "refresh_artifacts": payload.refresh_artifacts,
+        "refresh_best_practices": payload.refresh_best_practices,
+        "best_practices_docs": Path(payload.best_practices_docs)
+        if payload.best_practices_docs
+        else None,
+        "force_artifacts": payload.force_artifacts,
+        "pr": payload.pr,
+        "base": payload.base,
+    }
+
+
+async def _update_job(job_id: str, **updates: Any) -> None:
+    async with _jobs_lock:
+        job = _jobs.get(job_id)
+        if not job:
+            return
+        job.update(updates)
+
+
+async def _run_review_job(job_id: str, payload_data: Dict[str, Any]) -> None:
+    request = ReviewRequest(**payload_data)
+    await _update_job(job_id, status="running")
+    try:
+        results = await asyncio.to_thread(run_review, **_build_run_review_kwargs(request))
+        await _update_job(job_id, status="complete", runs=results, error=None)
+    except Exception as exc:  # pragma: no cover - surfaced through polling endpoint
+        await _update_job(job_id, status="error", error=str(exc))
+
 
 @app.get("/healthz")
 def health_check() -> Dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/review", response_model=ReviewResponse)
-def review_repo(payload: ReviewRequest) -> ReviewResponse:
-    try:
-        results = run_review(
-            payload.repo,
-            payload.branch,
-            max_commits=payload.max_commits,
-            refresh_artifacts=payload.refresh_artifacts,
-            refresh_best_practices=payload.refresh_best_practices,
-            best_practices_docs=Path(payload.best_practices_docs) if payload.best_practices_docs else None,
-            force_artifacts=payload.force_artifacts,
-            pr=payload.pr,
-            base=payload.base,
-        )
-    except Exception as exc:  # pragma: no cover - surface errors to client
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return ReviewResponse(runs=results)
+@app.post("/review", response_model=ReviewJobSubmission)
+async def review_repo(payload: ReviewRequest) -> ReviewJobSubmission:
+    job_id = uuid4().hex
+    async with _jobs_lock:
+        _jobs[job_id] = {"status": "pending", "runs": None, "error": None}
+    asyncio.create_task(_run_review_job(job_id, payload.model_dump()))
+    return ReviewJobSubmission(job_id=job_id, status="pending")
 
 
 @app.get("/review/stream")
@@ -112,3 +155,17 @@ async def review_stream(
             await worker_task
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@app.get("/review/{job_id}", response_model=ReviewJobStatus)
+async def review_status(job_id: str) -> ReviewJobStatus:
+    async with _jobs_lock:
+        job = _jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return ReviewJobStatus(
+        job_id=job_id,
+        status=job["status"],
+        runs=job.get("runs"),
+        error=job.get("error"),
+    )

@@ -1,489 +1,792 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agentic Reviewer</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; color: #111; background: #f6f7fb; }
-    h1 { margin-bottom: 0.5rem; }
-    form { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 640px; }
-    label { display: block; margin-top: 1rem; font-weight: 600; }
-    input, button { width: 100%; padding: 0.75rem; margin-top: 0.35rem; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
-    button { background: #2563eb; color: #fff; border: none; cursor: pointer; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    #status { margin: 1rem 0; font-style: italic; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1.25rem; }
-    .panel { background: #fff; border-radius: 8px; padding: 1rem 1.25rem; box-shadow: 0 2px 6px rgba(15,23,42,0.15); min-height: 220px; }
-    .panel h2 { margin-top: 0; font-size: 1.1rem; }
-    .timeline { list-style: none; padding: 0; margin: 0; max-height: 260px; overflow-y: auto; }
-    .timeline li { padding: 0.4rem 0; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; display: flex; gap: 0.5rem; }
-    .timeline li:last-child { border-bottom: none; }
-    .timestamp { font-size: 0.8rem; color: #475569; min-width: 72px; }
-    .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: #e0e7ff; color: #3730a3; margin-right: 0.35rem; }
-    .results { margin-top: 2rem; }
-    .card { background: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-    .findings { margin-top: 0.75rem; padding-left: 1rem; }
-    .finding { margin-bottom: 0.5rem; }
-    code { background: #f2f2f2; padding: 0.15rem 0.3rem; border-radius: 4px; }
-    .log { margin-top: 1.5rem; background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; min-height: 120px; font-family: Menlo, monospace; white-space: pre-line; }
-    .stack { display: flex; flex-direction: column; gap: 0.75rem; }
-    .plan-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem; }
-    .plan-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
-    .plan-meta { font-size: 0.85rem; color: #475569; margin-top: 0.25rem; }
-    .muted { color: #64748b; font-style: italic; }
-    .plan-steps, .action-results { margin: 0.4rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; color: #111827; }
-    .plan-steps li, .action-results li { margin-bottom: 0.2rem; }
-    .action-results { border-top: 1px solid #e2e8f0; padding-top: 0.5rem; margin-top: 0.6rem; }
-    .code-snippet { background: #0f172a0d; border-left: 3px solid #2563eb; padding: 0.4rem 0.6rem; border-radius: 4px; font-family: Menlo, monospace; font-size: 0.9rem; white-space: pre-wrap; color: #0f172a; }
-    .citations { font-size: 0.85rem; color: #475569; margin-top: 0.15rem; }
-  </style>
-</head>
-<body>
-  <h1>Agentic Reviewer</h1>
-  <p>Enter a git repository and branch to run the agentic review pipeline.</p>
-
-  <form id="review-form">
-    <label>
-      Repository URL or Path
-      <input type="text" id="repo" value="https://github.com/astral-sh/uv" required />
-    </label>
-    <label>
-      Branch
-      <input type="text" id="branch" value="main" required />
-    </label>
-    <label>
-      Max Commits
-      <input type="number" id="max-commits" value="1" min="1" max="5" required />
-    </label>
-    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-      <button type="submit" style="flex:1 1 180px;">Run Review</button>
-      <button type="button" id="stop-btn" style="flex:1 1 180px;" disabled>End Review</button>
-    </div>
-  </form>
-
-  <div id="status"></div>
-  <section class="grid">
-    <div class="panel">
-      <h2>Thought Process</h2>
-      <ul class="timeline" id="thought-log"></ul>
-    </div>
-    <div class="panel">
-      <h2>Tool Activity</h2>
-      <ul class="timeline" id="tool-log"></ul>
-    </div>
-    <div class="panel">
-      <h2>Planner</h2>
-      <div class="stack" id="plan-board"><span class="muted">Planner output will appear here.</span></div>
-    </div>
-    <div class="panel">
-      <h2>Execution Summary</h2>
-      <div class="stack" id="execution-board"><span class="muted">Waiting for execution...</span></div>
-    </div>
-    <div class="panel">
-      <h2>Reflection</h2>
-      <div class="stack" id="reflection-board"><span class="muted">Critic insights will land here.</span></div>
-    </div>
-  </section>
-  <div id="log" class="log"></div>
-  <section class="results" id="results"></section>
-
-  <script>
-    const form = document.getElementById('review-form');
-    const statusEl = document.getElementById('status');
-    const logEl = document.getElementById('log');
-    const resultsEl = document.getElementById('results');
-    const thoughtLogEl = document.getElementById('thought-log');
-    const toolLogEl = document.getElementById('tool-log');
-    const planBoard = document.getElementById('plan-board');
-    const executionBoard = document.getElementById('execution-board');
-    const reflectionBoard = document.getElementById('reflection-board');
-    const stopBtn = document.getElementById('stop-btn');
-    let hasThoughtEvents = false;
-    let hasToolEvents = false;
-    let hasPlanData = false;
-    let hasExecutionData = false;
-    let hasReflectionData = false;
-    let eventSource = null;
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      statusEl.textContent = 'Submitting review job...';
-      resultsEl.innerHTML = '';
-      logEl.textContent = '';
-      thoughtLogEl.innerHTML = '';
-      toolLogEl.innerHTML = '';
-      planBoard.innerHTML = '<span class="muted">Planner output will appear here.</span>';
-      executionBoard.innerHTML = '<span class="muted">Waiting for execution...</span>';
-      reflectionBoard.innerHTML = '<span class="muted">Critic insights will land here.</span>';
-      hasThoughtEvents = false;
-      hasToolEvents = false;
-      hasPlanData = false;
-      hasExecutionData = false;
-      hasReflectionData = false;
-      form.querySelector('button[type="submit"]').disabled = true;
-      stopBtn.disabled = false;
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agentic Reviewer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 2rem;
+        color: #111;
+        background: #f6f7fb;
       }
+      h1 {
+        margin-bottom: 0.5rem;
+      }
+      form {
+        background: #fff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 640px;
+      }
+      label {
+        display: block;
+        margin-top: 1rem;
+        font-weight: 600;
+      }
+      input,
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 0.35rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+      }
+      button {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      #status {
+        margin: 1rem 0;
+        font-style: italic;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+      }
+      .panel {
+        background: #fff;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+        min-height: 220px;
+      }
+      .panel h2 {
+        margin-top: 0;
+        font-size: 1.1rem;
+      }
+      .timeline {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 260px;
+        overflow-y: auto;
+      }
+      .timeline li {
+        padding: 0.4rem 0;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.95rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+      .timeline li:last-child {
+        border-bottom: none;
+      }
+      .timestamp {
+        font-size: 0.8rem;
+        color: #475569;
+        min-width: 72px;
+      }
+      .badge {
+        display: inline-block;
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        background: #e0e7ff;
+        color: #3730a3;
+        margin-right: 0.35rem;
+      }
+      .results {
+        margin-top: 2rem;
+      }
+      .card {
+        background: #fff;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+      .findings {
+        margin-top: 0.75rem;
+        padding-left: 1rem;
+      }
+      .finding {
+        margin-bottom: 0.5rem;
+      }
+      code {
+        background: #f2f2f2;
+        padding: 0.15rem 0.3rem;
+        border-radius: 4px;
+      }
+      .log {
+        margin-top: 1.5rem;
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 8px;
+        min-height: 120px;
+        font-family: Menlo, monospace;
+        white-space: pre-line;
+      }
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .panel-scroll {
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: 0.4rem;
+      }
+      .panel-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .panel-scroll::-webkit-scrollbar-thumb {
+        background: rgba(15, 23, 42, 0.25);
+        border-radius: 999px;
+      }
+      .panel-scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .plan-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 0.75rem;
+      }
+      .plan-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.95rem;
+      }
+      .plan-meta {
+        font-size: 0.85rem;
+        color: #475569;
+        margin-top: 0.25rem;
+      }
+      .muted {
+        color: #64748b;
+        font-style: italic;
+      }
+      .plan-steps,
+      .action-results {
+        margin: 0.4rem 0 0;
+        padding-left: 1.1rem;
+        font-size: 0.9rem;
+        color: #111827;
+      }
+      .plan-steps li,
+      .action-results li {
+        margin-bottom: 0.2rem;
+      }
+      .action-results {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 0.5rem;
+        margin-top: 0.6rem;
+      }
+      .code-snippet {
+        background: #0f172a0d;
+        border-left: 3px solid #2563eb;
+        padding: 0.4rem 0.6rem;
+        border-radius: 4px;
+        font-family: Menlo, monospace;
+        font-size: 0.9rem;
+        white-space: pre-wrap;
+        color: #0f172a;
+      }
+      .citations {
+        font-size: 0.85rem;
+        color: #475569;
+        margin-top: 0.15rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Agentic Reviewer</h1>
+    <p>Enter a git repository and branch to run the agentic review pipeline.</p>
 
-      try {
-        const payload = {
-          repo: document.getElementById('repo').value.trim(),
-          branch: document.getElementById('branch').value.trim(),
-          max_commits: parseInt(document.getElementById('max-commits').value, 10)
+    <form id="review-form">
+      <label>
+        Repository URL or Path
+        <input
+          type="text"
+          id="repo"
+          value="https://github.com/astral-sh/uv"
+          required
+        />
+      </label>
+      <label>
+        Branch
+        <input type="text" id="branch" value="main" required />
+      </label>
+      <label>
+        Max Commits
+        <input
+          type="number"
+          id="max-commits"
+          value="1"
+          min="1"
+          max="5"
+          required
+        />
+      </label>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap">
+        <button type="submit" style="flex: 1 1 180px">Run Review</button>
+        <button type="button" id="stop-btn" style="flex: 1 1 180px" disabled>
+          End Review
+        </button>
+      </div>
+    </form>
+
+    <div id="status"></div>
+    <section class="grid">
+      <div class="panel">
+        <h2>Thought Process</h2>
+        <ul class="timeline" id="thought-log"></ul>
+      </div>
+      <div class="panel">
+        <h2>Tool Activity</h2>
+        <ul class="timeline" id="tool-log"></ul>
+      </div>
+      <div class="panel">
+        <h2>Planner</h2>
+        <div class="stack panel-scroll" id="plan-board">
+          <span class="muted">Planner output will appear here.</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Execution Summary</h2>
+        <div class="stack panel-scroll" id="execution-board">
+          <span class="muted">Waiting for execution...</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Reflection</h2>
+        <div class="stack panel-scroll" id="reflection-board">
+          <span class="muted">Critic insights will land here.</span>
+        </div>
+      </div>
+    </section>
+    <div id="log" class="log"></div>
+    <section class="results" id="results"></section>
+
+    <script>
+      const form = document.getElementById("review-form");
+      const statusEl = document.getElementById("status");
+      const logEl = document.getElementById("log");
+      const resultsEl = document.getElementById("results");
+      const thoughtLogEl = document.getElementById("thought-log");
+      const toolLogEl = document.getElementById("tool-log");
+      const planBoard = document.getElementById("plan-board");
+      const executionBoard = document.getElementById("execution-board");
+      const reflectionBoard = document.getElementById("reflection-board");
+      const stopBtn = document.getElementById("stop-btn");
+      let hasThoughtEvents = false;
+      let hasToolEvents = false;
+      let hasPlanData = false;
+      let hasExecutionData = false;
+      let hasReflectionData = false;
+      let eventSource = null;
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        statusEl.textContent = "Submitting review job...";
+        resultsEl.innerHTML = "";
+        logEl.textContent = "";
+        thoughtLogEl.innerHTML = "";
+        toolLogEl.innerHTML = "";
+        planBoard.innerHTML =
+          '<span class="muted">Planner output will appear here.</span>';
+        executionBoard.innerHTML =
+          '<span class="muted">Waiting for execution...</span>';
+        reflectionBoard.innerHTML =
+          '<span class="muted">Critic insights will land here.</span>';
+        hasThoughtEvents = false;
+        hasToolEvents = false;
+        hasPlanData = false;
+        hasExecutionData = false;
+        hasReflectionData = false;
+        form.querySelector('button[type="submit"]').disabled = true;
+        stopBtn.disabled = false;
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+
+        try {
+          const payload = {
+            repo: document.getElementById("repo").value.trim(),
+            branch: document.getElementById("branch").value.trim(),
+            max_commits: parseInt(
+              document.getElementById("max-commits").value,
+              10
+            ),
+          };
+
+          runStreamingReview(payload);
+        } catch (error) {
+          statusEl.textContent = `Error: ${error.message}`;
+          form.querySelector('button[type="submit"]').disabled = false;
+          stopBtn.disabled = true;
+        }
+      });
+
+      stopBtn.addEventListener("click", () => {
+        appendLog("Stopping review (user requested).");
+        statusEl.textContent = "Review cancelled.";
+        cleanupStream();
+      });
+
+      function runStreamingReview(payload) {
+        const params = new URLSearchParams({
+          repo: payload.repo,
+          branch: payload.branch,
+          max_commits: payload.max_commits.toString(),
+        });
+
+        statusEl.textContent = "Review in progress...";
+        appendLog("Starting review...");
+
+        eventSource = new EventSource(
+          `http://127.0.0.1:8000/review/stream?${params.toString()}`
+        );
+
+        const handlers = {
+          repo_ready: (data) => appendLog(`Repository ready at ${data.path}`),
+          vector_store: (data) => appendLog(`Vector store: ${data.status}`),
+          import_graph: (data) => appendLog(`Import graph: ${data.status}`),
+          code_graph: () => appendLog("Building code structure graph..."),
+          best_practices: (data) =>
+            appendLog(`Best practices store: ${data.status}`),
+          best_practices_progress: (data) =>
+            addThought(`Best practices indexing ${formatProgress(data)}`),
+          file_contexts_start: (data) =>
+            addThought(
+              `Collecting file contexts for ${data.file_count ?? 0} files`
+            ),
+          file_contexts_ready: (data) =>
+            addThought(`Context ready for ${data.contexts ?? 0} files`),
+          commit_start: (data) =>
+            appendLog(`Reviewing ${data.commit.slice(0, 7)} – ${data.summary}`),
+          commit_complete: (data) =>
+            appendLog(
+              `Completed ${data.commit.slice(0, 7)} (${data.findings} findings)`
+            ),
+          node_start: (data) =>
+            addThought(`▶️ ${formatNode(data.node)} started`),
+          node_complete: (data) =>
+            addThought(
+              `✅ ${formatNode(data.node)} finished${summarizeNodeMetadata(
+                data
+              )}`
+            ),
+          task_start: (data) =>
+            addThought(
+              `📋 Task ${data.task || ""} "${data.title || ""}" (${
+                (data.tools || []).length || 0
+              } tools)`
+            ),
+          task_complete: (data) =>
+            addThought(
+              `🗂 Task ${data.task || ""} completed with ${
+                data.findings ?? 0
+              } findings`
+            ),
+          tool_start: (data) =>
+            addToolEvent(
+              `🚀 ${badge(data.tool)} started on task ${data.task || ""}`
+            ),
+          tool_complete: (data) =>
+            addToolEvent(
+              `🧮 ${badge(data.tool)} finished with ${
+                data.findings ?? 0
+              } findings`
+            ),
+          tool_findings: (data) =>
+            addToolEvent(
+              `📌 ${badge(data.tool)} highlighted ${
+                data.total_findings ?? 0
+              } findings`
+            ),
+          plan_update: (data) => renderPlan(data.tasks || []),
+          execution_update: (data) => renderExecution(data.reports || []),
+          task_action: (data) => {
+            const status = (data.status || "").toLowerCase();
+            const base = data.description || data.type || "Action";
+            if (status === "start") {
+              addThought(`🧠 ${base} started`);
+              return;
+            }
+            let detail = "";
+            if (typeof data.findings === "number") {
+              detail = ` (${data.findings} finding${
+                data.findings === 1 ? "" : "s"
+              })`;
+            }
+            if (data.output) {
+              detail = ` – ${data.output.slice(0, 160)}`;
+            }
+            addThought(`✅ ${base} completed${detail}`);
+          },
+          reflection_update: (data) => renderReflection(data),
+          complete: (data) => {
+            renderResults(data.runs || []);
+            hydrateFromResults(data.runs || []);
+            appendLog("Review complete.");
+            statusEl.textContent = "Review complete.";
+            cleanupStream();
+          },
+          error: (data) => {
+            appendLog(`Error: ${data.detail || "Unknown error"}`);
+            statusEl.textContent = "Error during review.";
+            cleanupStream();
+          },
         };
 
-        runStreamingReview(payload);
-      } catch (error) {
-        statusEl.textContent = `Error: ${error.message}`;
-        form.querySelector('button[type="submit"]').disabled = false;
+        Object.keys(handlers).forEach((event) => {
+          eventSource.addEventListener(event, (message) => {
+            const data = JSON.parse(message.data || "{}");
+            handlers[event](data);
+          });
+        });
+
+        eventSource.onerror = () => {
+          appendLog("Connection error. Check backend logs.");
+          statusEl.textContent = "Connection error.";
+          cleanupStream();
+        };
+      }
+
+      function cleanupStream() {
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+        form.querySelector("button").disabled = false;
         stopBtn.disabled = true;
       }
-    });
 
-    stopBtn.addEventListener('click', () => {
-      appendLog('Stopping review (user requested).');
-      statusEl.textContent = 'Review cancelled.';
-      cleanupStream();
-    });
+      function appendLog(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        logEl.textContent += `[${timestamp}] ${message}\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
 
-    function runStreamingReview(payload) {
-      const params = new URLSearchParams({
-        repo: payload.repo,
-        branch: payload.branch,
-        max_commits: payload.max_commits.toString()
-      });
-
-      statusEl.textContent = 'Review in progress...';
-      appendLog('Starting review...');
-
-      eventSource = new EventSource(`http://127.0.0.1:8000/review/stream?${params.toString()}`);
-
-      const handlers = {
-        repo_ready: (data) => appendLog(`Repository ready at ${data.path}`),
-        vector_store: (data) => appendLog(`Vector store: ${data.status}`),
-        import_graph: (data) => appendLog(`Import graph: ${data.status}`),
-        code_graph: () => appendLog('Building code structure graph...'),
-        best_practices: (data) => appendLog(`Best practices store: ${data.status}`),
-        best_practices_progress: (data) => addThought(`Best practices indexing ${formatProgress(data)}`),
-        file_contexts_start: (data) => addThought(`Collecting file contexts for ${data.file_count ?? 0} files`),
-        file_contexts_ready: (data) => addThought(`Context ready for ${data.contexts ?? 0} files`),
-        commit_start: (data) => appendLog(`Reviewing ${data.commit.slice(0, 7)} – ${data.summary}`),
-        commit_complete: (data) => appendLog(`Completed ${data.commit.slice(0, 7)} (${data.findings} findings)`),
-        node_start: (data) => addThought(`▶️ ${formatNode(data.node)} started`),
-        node_complete: (data) => addThought(`✅ ${formatNode(data.node)} finished${summarizeNodeMetadata(data)}`),
-        task_start: (data) => addThought(`📋 Task ${data.task || ''} "${data.title || ''}" (${(data.tools || []).length || 0} tools)`),
-        task_complete: (data) => addThought(`🗂 Task ${data.task || ''} completed with ${data.findings ?? 0} findings`),
-        tool_start: (data) => addToolEvent(`🚀 ${badge(data.tool)} started on task ${data.task || ''}`),
-        tool_complete: (data) => addToolEvent(`🧮 ${badge(data.tool)} finished with ${data.findings ?? 0} findings`),
-        tool_findings: (data) => addToolEvent(`📌 ${badge(data.tool)} highlighted ${data.total_findings ?? 0} findings`),
-        plan_update: (data) => renderPlan(data.tasks || []),
-        execution_update: (data) => renderExecution(data.reports || []),
-        task_action: (data) => {
-          const status = (data.status || '').toLowerCase();
-          const base = data.description || data.type || 'Action';
-          if (status === 'start') {
-            addThought(`🧠 ${base} started`);
-            return;
-          }
-          let detail = '';
-          if (typeof data.findings === 'number') {
-            detail = ` (${data.findings} finding${data.findings === 1 ? '' : 's'})`;
-          }
-          if (data.output) {
-            detail = ` – ${data.output.slice(0, 160)}`;
-          }
-          addThought(`✅ ${base} completed${detail}`);
-        },
-        reflection_update: (data) => renderReflection(data),
-        complete: (data) => {
-          renderResults(data.runs || []);
-          hydrateFromResults(data.runs || []);
-          appendLog('Review complete.');
-          statusEl.textContent = 'Review complete.';
-          cleanupStream();
-        },
-        error: (data) => {
-          appendLog(`Error: ${data.detail || 'Unknown error'}`);
-          statusEl.textContent = 'Error during review.';
-          cleanupStream();
+      function appendTimelineItem(listEl, message) {
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span><span>${message}</span>`;
+        listEl.appendChild(li);
+        if (listEl.children.length > 80) {
+          listEl.removeChild(listEl.firstChild);
         }
-      };
+        listEl.scrollTop = listEl.scrollHeight;
+      }
 
-      Object.keys(handlers).forEach((event) => {
-        eventSource.addEventListener(event, (message) => {
-          const data = JSON.parse(message.data || '{}');
-          handlers[event](data);
+      function addThought(message) {
+        hasThoughtEvents = true;
+        appendTimelineItem(thoughtLogEl, message);
+      }
+
+      function addToolEvent(message) {
+        hasToolEvents = true;
+        appendTimelineItem(toolLogEl, message);
+      }
+
+      function badge(text = "") {
+        if (!text) return "";
+        return `<span class="badge">${text}</span>`;
+      }
+
+      function formatNode(node = "") {
+        if (!node) return "Node";
+        return node.charAt(0).toUpperCase() + node.slice(1);
+      }
+
+      function summarizeNodeMetadata(data = {}) {
+        if (data.lanes && data.lanes.length) {
+          return ` (lanes: ${data.lanes.join(", ")})`;
+        }
+        if (data.tasks) {
+          return ` (${data.tasks} tasks)`;
+        }
+        return "";
+      }
+
+      function formatProgress(data = {}) {
+        const total = data.total ?? 0;
+        const processed = data.processed ?? data.end ?? 0;
+        if (!total) {
+          return `${processed} items`;
+        }
+        const percent = Math.min(100, Math.round((processed / total) * 100));
+        return `${processed}/${total} (${percent}%)`;
+      }
+
+      function scrollPanel(el) {
+        if (!el) return;
+        requestAnimationFrame(() => {
+          el.scrollTop = el.scrollHeight;
         });
-      });
-
-      eventSource.onerror = () => {
-        appendLog('Connection error. Check backend logs.');
-        statusEl.textContent = 'Connection error.';
-        cleanupStream();
-      };
-    }
-
-    function cleanupStream() {
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
       }
-      form.querySelector('button').disabled = false;
-      stopBtn.disabled = true;
-    }
 
-    function appendLog(message) {
-      const timestamp = new Date().toLocaleTimeString();
-      logEl.textContent += `[${timestamp}] ${message}\n`;
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    function appendTimelineItem(listEl, message) {
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span><span>${message}</span>`;
-      listEl.appendChild(li);
-      if (listEl.children.length > 80) {
-        listEl.removeChild(listEl.firstChild);
-      }
-      listEl.scrollTop = listEl.scrollHeight;
-    }
-
-    function addThought(message) {
-      hasThoughtEvents = true;
-      appendTimelineItem(thoughtLogEl, message);
-    }
-
-    function addToolEvent(message) {
-      hasToolEvents = true;
-      appendTimelineItem(toolLogEl, message);
-    }
-
-    function badge(text = '') {
-      if (!text) return '';
-      return `<span class="badge">${text}</span>`;
-    }
-
-    function formatNode(node = '') {
-      if (!node) return 'Node';
-      return node.charAt(0).toUpperCase() + node.slice(1);
-    }
-
-    function summarizeNodeMetadata(data = {}) {
-      if (data.lanes && data.lanes.length) {
-        return ` (lanes: ${data.lanes.join(', ')})`;
-      }
-      if (data.tasks) {
-        return ` (${data.tasks} tasks)`;
-      }
-      return '';
-    }
-
-    function formatProgress(data = {}) {
-      const total = data.total ?? 0;
-      const processed = data.processed ?? data.end ?? 0;
-      if (!total) {
-        return `${processed} items`;
-      }
-      const percent = Math.min(100, Math.round((processed / total) * 100));
-      return `${processed}/${total} (${percent}%)`;
-    }
-
-    function renderResults(runs) {
-      if (!runs.length) {
-        resultsEl.innerHTML = '<p>No commits were reviewed.</p>';
-        return;
-      }
-      resultsEl.innerHTML = '';
-      runs.forEach((run) => {
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
+      function renderResults(runs) {
+        if (!runs.length) {
+          resultsEl.innerHTML = "<p>No commits were reviewed.</p>";
+          return;
+        }
+        resultsEl.innerHTML = "";
+        runs.forEach((run) => {
+          const card = document.createElement("article");
+          card.className = "card";
+          card.innerHTML = `
           <h2>Commit ${run.commit.slice(0, 7)}</h2>
           <p><strong>Summary:</strong> ${run.summary}</p>
-          <p><strong>Author:</strong> ${run.author ?? 'unknown'}</p>
+          <p><strong>Author:</strong> ${run.author ?? "unknown"}</p>
           <p><strong>Report:</strong> <code>${run.report_path}</code></p>
         `;
 
-        const findings = run.review?.findings || [];
-        const findingsList = document.createElement('div');
-        findingsList.className = 'findings';
-        if (!findings.length) {
-          findingsList.innerHTML = '<em>No issues detected.</em>';
-        } else {
-          findings.forEach((finding, idx) => {
-            const div = document.createElement('div');
-            div.className = 'finding';
-            const citations = Object.entries(finding.references || {}).map(([key, value]) => `${key}: ${value}`);
-            const fallbackCitations = finding.citations || [];
-            const combinedCitations = citations.concat(fallbackCitations).filter(Boolean);
-            const snippet = finding.code_line ? `<pre class="code-snippet">${finding.code_line}</pre>` : '';
-            const recommendation = finding.recommended_fix
-              ? `<p><strong>Recommendation:</strong> ${finding.recommended_fix}</p>`
-              : '';
-            const citationBlock = combinedCitations.length
-              ? `<div class="citations">${combinedCitations.map((item) => `• ${item}`).join('<br />')}</div>`
-              : '';
-            const confidence = finding.confidence ? finding.confidence.toUpperCase() : 'UNSPECIFIED';
-            div.innerHTML = `
-              <strong>${idx + 1}. [${finding.severity}] ${finding.file_path || 'repo'}:${finding.line || '?'}:</strong>
+          const findings = run.review?.findings || [];
+          const findingsList = document.createElement("div");
+          findingsList.className = "findings";
+          if (!findings.length) {
+            findingsList.innerHTML = "<em>No issues detected.</em>";
+          } else {
+            findings.forEach((finding, idx) => {
+              const div = document.createElement("div");
+              div.className = "finding";
+              const citations = Object.entries(finding.references || {}).map(
+                ([key, value]) => `${key}: ${value}`
+              );
+              const fallbackCitations = finding.citations || [];
+              const combinedCitations = citations
+                .concat(fallbackCitations)
+                .filter(Boolean);
+              const snippet = finding.code_line
+                ? `<pre class="code-snippet">${finding.code_line}</pre>`
+                : "";
+              const recommendation = finding.recommended_fix
+                ? `<p><strong>Recommendation:</strong> ${finding.recommended_fix}</p>`
+                : "";
+              const citationBlock = combinedCitations.length
+                ? `<div class="citations">${combinedCitations
+                    .map((item) => `• ${item}`)
+                    .join("<br />")}</div>`
+                : "";
+              const confidence = finding.confidence
+                ? finding.confidence.toUpperCase()
+                : "UNSPECIFIED";
+              div.innerHTML = `
+              <strong>${idx + 1}. [${finding.severity}] ${
+                finding.file_path || "repo"
+              }:${finding.line || "?"}:</strong>
               <p>${finding.message}</p>
               ${snippet}
               ${recommendation}
               <p><strong>Confidence:</strong> ${confidence}</p>
               ${citationBlock}
             `;
-            findingsList.appendChild(div);
-          });
-        }
-        card.appendChild(findingsList);
-        resultsEl.appendChild(card);
-      });
-    }
-
-    function renderPlan(tasks = []) {
-      if (!tasks.length) {
-        planBoard.innerHTML = '<span class="muted">Planner did not produce any tasks.</span>';
-        hasPlanData = false;
-        return;
+              findingsList.appendChild(div);
+            });
+          }
+          card.appendChild(findingsList);
+          resultsEl.appendChild(card);
+        });
       }
-      hasPlanData = true;
-      const items = tasks.map((task) => {
-        const files = (task.files || []).length ? task.files.join(', ') : 'All files';
-        const tools = (task.tools || []).length ? `${task.tools.length} tool(s)` : 'all tools';
-        const specialist = task.specialist ? task.specialist : 'generalist';
-        const steps = (task.actions || [])
-          .map((action) => {
-            const label = (action.type || 'step').toUpperCase();
-            const desc = action.description || action.instructions || '';
-            return `<li><strong>${label}:</strong> ${desc}</li>`;
-          })
-          .join('');
-        return `
+
+      function renderPlan(tasks = []) {
+        if (!tasks.length) {
+          planBoard.innerHTML =
+            '<span class="muted">Planner did not produce any tasks.</span>';
+          hasPlanData = false;
+          return;
+        }
+        hasPlanData = true;
+        const items = tasks
+          .map((task) => {
+            const files = (task.files || []).length
+              ? task.files.join(", ")
+              : "All files";
+            const tools = (task.tools || []).length
+              ? `${task.tools.length} tool(s)`
+              : "all tools";
+            const specialist = task.specialist ? task.specialist : "generalist";
+            const steps = (task.actions || [])
+              .map((action) => {
+                const label = (action.type || "step").toUpperCase();
+                const desc = action.description || action.instructions || "";
+                return `<li><strong>${label}:</strong> ${desc}</li>`;
+              })
+              .join("");
+            return `
           <div class="plan-item">
             <div class="plan-header">
-              <strong>${task.title || task.id || 'Task'}</strong>
-              <span class="badge">${(task.priority || 'medium').toUpperCase()}</span>
+              <strong>${task.title || task.id || "Task"}</strong>
+              <span class="badge">${(
+                task.priority || "medium"
+              ).toUpperCase()}</span>
             </div>
             <div class="plan-meta">${specialist} · ${tools}</div>
             <div class="plan-meta">${files}</div>
-            ${steps ? `<ol class="plan-steps">${steps}</ol>` : ''}
+            ${steps ? `<ol class="plan-steps">${steps}</ol>` : ""}
           </div>
         `;
-      }).join('');
-      planBoard.innerHTML = items;
-    }
-
-    function renderExecution(reports = []) {
-      if (!reports.length) {
-        executionBoard.innerHTML = '<span class="muted">No execution results yet.</span>';
-        hasExecutionData = false;
-        return;
-      }
-      hasExecutionData = true;
-      const items = reports.map((report) => {
-        const actions = (report.action_results || [])
-          .map((action) => {
-            if (action.type === 'tool') {
-              const toolList = (action.tool_ids || []).join(', ') || 'tools';
-              return `<li><strong>${action.description || 'Tools'}:</strong> ${toolList} (${action.findings ?? 0} finding(s))</li>`;
-            }
-            if (action.output) {
-              return `<li><strong>${action.description || action.type}:</strong> ${action.output}</li>`;
-            }
-            return '';
           })
-          .filter(Boolean)
-          .join('');
-        return `
-          <div class="plan-item">
-            <div class="plan-header">
-              <strong>${report.title || report.task_id || 'Task'}</strong>
-              <span class="badge">${(report.top_severity || 'info').toUpperCase()}</span>
-            </div>
-            <div class="plan-meta">${report.findings ?? 0} finding(s) · ${(report.tools || []).length} tool(s)</div>
-            ${report.sample ? `<p>${report.sample}</p>` : ''}
-            ${actions ? `<ul class="action-results">${actions}</ul>` : ''}
-          </div>
-        `;
-      }).join('');
-      executionBoard.innerHTML = items;
-    }
+          .join("");
+        planBoard.innerHTML = items;
+        scrollPanel(planBoard);
+      }
 
-    function renderReflection(data = {}) {
-      const summary = data.executive_summary || '<span class="muted">No executive summary yet.</span>';
-      const groups = data.groups || [];
-      const followUps = data.follow_ups || [];
-      hasReflectionData = Boolean(data.executive_summary || groups.length || followUps.length);
-      let html = `<p>${summary}</p>`;
-      if (groups.length) {
-        html += '<ul>' + groups.slice(0, 4).map((group) => `
-          <li>${badge(group.severity || 'info')} ${group.file_path || 'repo'} – ${group.message || ''}</li>
-        `).join('') + '</ul>';
-      } else {
-        html += '<p class="muted">No reviewer comments were generated.</p>';
-      }
-      if (followUps.length) {
-        html += '<h3 style="margin:0.5rem 0 0.25rem;">Follow-ups</h3><ol>' + followUps.map((item) => `<li>${item}</li>`).join('') + '</ol>';
-      } else {
-        html += '<p class="muted">No additional follow-up actions requested.</p>';
-      }
-      reflectionBoard.innerHTML = html;
-    }
-
-    function hydrateFromResults(runs = []) {
-      if (!runs.length) {
-        return;
-      }
-      const latest = runs[runs.length - 1] || {};
-      if (!hasPlanData) {
-        renderPlan(latest.tasks || []);
-      }
-      if (!hasExecutionData) {
-        renderExecution(latest.task_reports || []);
-      }
-      if (!hasReflectionData) {
-        renderReflection(latest.critic || {});
-      }
-      if (!hasThoughtEvents) {
-        const manifest = latest.manifest || {};
-        const outputs = latest.node_outputs || {};
-        if (manifest.summary) {
-          addThought(`Manifest ready: ${manifest.summary}`);
-        }
-        if (outputs.context && typeof outputs.context.count === 'number') {
-          addThought(`Context packets prepared: ${outputs.context.count}`);
-        }
-        const triage = latest.triage || {};
-        if ((triage.lanes || []).length) {
-          addThought(`Triage lanes: ${(triage.lanes || []).join(', ')}`);
-        }
-        if (outputs.planner && typeof outputs.planner.task_count === 'number') {
-          addThought(`Planner scheduled ${outputs.planner.task_count} task(s)`);
-        }
-        if (outputs.tasks && typeof outputs.tasks.task_count === 'number') {
-          addThought(`Executed ${outputs.tasks.task_count} task report(s)`);
-        }
-        if (outputs.synthesis && outputs.synthesis.summary) {
-          addThought(`Synthesis: ${outputs.synthesis.summary.slice(0, 160)}`);
-        }
-      }
-      if (!hasToolEvents) {
-        const reports = latest.task_reports || [];
+      function renderExecution(reports = []) {
         if (!reports.length) {
-          addToolEvent('No tool executions were recorded.');
+          executionBoard.innerHTML =
+            '<span class="muted">No execution results yet.</span>';
+          hasExecutionData = false;
           return;
         }
-        reports.forEach((report) => {
-          const toolCount = (report.tool_ids || []).length;
-          const findingCount = (report.findings || []).length;
-          const title = report.title || report.task_id || 'Task';
-          addToolEvent(`🧰 ${title} – ${toolCount} tool(s), ${findingCount} finding(s)`);
-        });
+        hasExecutionData = true;
+        const items = reports
+          .map((report) => {
+            const actions = (report.action_results || [])
+              .map((action) => {
+                if (action.type === "tool") {
+                  const toolList =
+                    (action.tool_ids || []).join(", ") || "tools";
+                  return `<li><strong>${
+                    action.description || "Tools"
+                  }:</strong> ${toolList} (${
+                    action.findings ?? 0
+                  } finding(s))</li>`;
+                }
+                if (action.output) {
+                  return `<li><strong>${
+                    action.description || action.type
+                  }:</strong> ${action.output}</li>`;
+                }
+                return "";
+              })
+              .filter(Boolean)
+              .join("");
+            return `
+          <div class="plan-item">
+            <div class="plan-header">
+              <strong>${report.title || report.task_id || "Task"}</strong>
+              <span class="badge">${(
+                report.top_severity || "info"
+              ).toUpperCase()}</span>
+            </div>
+            <div class="plan-meta">${report.findings ?? 0} finding(s) · ${
+              (report.tools || []).length
+            } tool(s)</div>
+            ${report.sample ? `<p>${report.sample}</p>` : ""}
+            ${actions ? `<ul class="action-results">${actions}</ul>` : ""}
+          </div>
+        `;
+          })
+          .join("");
+        executionBoard.innerHTML = items;
+        scrollPanel(executionBoard);
       }
-    }
-  </script>
-</body>
+
+      function renderReflection(data = {}) {
+        const summary =
+          data.executive_summary ||
+          '<span class="muted">No executive summary yet.</span>';
+        const groups = data.groups || [];
+        const followUps = data.follow_ups || [];
+        hasReflectionData = Boolean(
+          data.executive_summary || groups.length || followUps.length
+        );
+        let html = `<p>${summary}</p>`;
+        if (groups.length) {
+          html +=
+            "<ul>" +
+            groups
+              .slice(0, 4)
+              .map(
+                (group) => `
+          <li>${badge(group.severity || "info")} ${
+                  group.file_path || "repo"
+                } – ${group.message || ""}</li>
+        `
+              )
+              .join("") +
+            "</ul>";
+        } else {
+          html += '<p class="muted">No reviewer comments were generated.</p>';
+        }
+        if (followUps.length) {
+          html +=
+            '<h3 style="margin:0.5rem 0 0.25rem;">Follow-ups</h3><ol>' +
+            followUps.map((item) => `<li>${item}</li>`).join("") +
+            "</ol>";
+        } else {
+          html +=
+            '<p class="muted">No additional follow-up actions requested.</p>';
+        }
+        reflectionBoard.innerHTML = html;
+        scrollPanel(reflectionBoard);
+      }
+
+      function hydrateFromResults(runs = []) {
+        if (!runs.length) {
+          return;
+        }
+        const latest = runs[runs.length - 1] || {};
+        if (!hasPlanData) {
+          renderPlan(latest.tasks || []);
+        }
+        if (!hasExecutionData) {
+          renderExecution(latest.task_reports || []);
+        }
+        if (!hasReflectionData) {
+          renderReflection(latest.critic || {});
+        }
+        if (!hasThoughtEvents) {
+          const manifest = latest.manifest || {};
+          const outputs = latest.node_outputs || {};
+          if (manifest.summary) {
+            addThought(`Manifest ready: ${manifest.summary}`);
+          }
+          if (outputs.context && typeof outputs.context.count === "number") {
+            addThought(`Context packets prepared: ${outputs.context.count}`);
+          }
+          const triage = latest.triage || {};
+          if ((triage.lanes || []).length) {
+            addThought(`Triage lanes: ${(triage.lanes || []).join(", ")}`);
+          }
+          if (
+            outputs.planner &&
+            typeof outputs.planner.task_count === "number"
+          ) {
+            addThought(
+              `Planner scheduled ${outputs.planner.task_count} task(s)`
+            );
+          }
+          if (outputs.tasks && typeof outputs.tasks.task_count === "number") {
+            addThought(`Executed ${outputs.tasks.task_count} task report(s)`);
+          }
+          if (outputs.synthesis && outputs.synthesis.summary) {
+            addThought(`Synthesis: ${outputs.synthesis.summary.slice(0, 160)}`);
+          }
+        }
+        if (!hasToolEvents) {
+          const reports = latest.task_reports || [];
+          if (!reports.length) {
+            addToolEvent("No tool executions were recorded.");
+            return;
+          }
+          reports.forEach((report) => {
+            const toolCount = (report.tool_ids || []).length;
+            const findingCount = (report.findings || []).length;
+            const title = report.title || report.task_id || "Task";
+            addToolEvent(
+              `🧰 ${title} – ${toolCount} tool(s), ${findingCount} finding(s)`
+            );
+          });
+        }
+      }
+    </script>
+  </body>
 </html>

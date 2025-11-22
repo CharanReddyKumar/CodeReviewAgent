@@ -1,8 +1,10 @@
 
 import os
-import git
 from pathlib import Path
 from urllib.parse import urlparse
+
+import git
+from git.exc import GitCommandError
 
 # New clean repo storage directory
 BASE_REPO_DIR = Path(".local_repos")
@@ -18,6 +20,19 @@ def _slug_from_url(repo_url: str) -> str:
     return "_".join(parts)
 
 
+def _checkout_branch(repo: git.Repo, branch: str) -> None:
+    origin = repo.remotes.origin
+    try:
+        origin.fetch(branch)
+    except GitCommandError as exc:
+        raise RuntimeError(f"Branch '{branch}' not found in origin.") from exc
+
+    try:
+        repo.git.checkout("-B", branch, f"origin/{branch}")
+    except GitCommandError as exc:
+        raise RuntimeError(f"Unable to checkout branch '{branch}'.") from exc
+
+
 def get_or_clone_repo(repo_url: str, branch: str = "main") -> Path:
     repo_id = _slug_from_url(repo_url)
     repo_path = BASE_REPO_DIR / repo_id
@@ -25,16 +40,11 @@ def get_or_clone_repo(repo_url: str, branch: str = "main") -> Path:
     if repo_path.exists():
         print(f"[repo_manager] Repo already exists locally: {repo_path}")
         repo = git.Repo(repo_path)
-        repo.remote().fetch()
+        repo.remotes.origin.fetch()
     else:
         print(f"[repo_manager] Cloning {repo_url} into {repo_path}")
         repo = git.Repo.clone_from(repo_url, repo_path)
 
-    try:
-        repo.git.checkout(branch)
-    except Exception as e:
-        print(f"[repo_manager] Could not checkout branch {branch}: {e}")
-
-    repo.remote().pull()
+    _checkout_branch(repo, branch)
     return repo_path
 

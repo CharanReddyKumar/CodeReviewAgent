@@ -516,7 +516,8 @@ class Supervisor:
                     },
                 )
                 if spec.scope == "file":
-                    tool_findings = self._run_file_tool(tool, contexts, tool_id)
+                    scoped_contexts = targeted_contexts or contexts
+                    tool_findings = self._run_file_tool(tool, scoped_contexts, tool_id)
                 else:
                     tool_findings = self._run_repo_tool(tool, commit, tool_id)
                 findings.extend(tool_findings)

@@ -1,7 +1,9 @@
 """Tests for repo_manager.py - Complete coverage"""
 import pytest
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch, MagicMock, call
+
+from git.exc import GitCommandError
 
 from repo_manager import _slug_from_url, get_or_clone_repo, BASE_REPO_DIR
 
@@ -55,7 +57,7 @@ class TestGetOrCloneRepo:
         """Test cloning a new repository."""
         mock_repo = MagicMock()
         mock_remote = MagicMock()
-        mock_repo.remote.return_value = mock_remote
+        mock_repo.remotes.origin = mock_remote
         mock_repo_class.clone_from.return_value = mock_repo
         
         with patch("repo_manager.BASE_REPO_DIR", temp_dir):
@@ -63,8 +65,8 @@ class TestGetOrCloneRepo:
             result = get_or_clone_repo(url, branch="main")
             
             mock_repo_class.clone_from.assert_called_once()
-            mock_repo.git.checkout.assert_called_once_with("main")
-            mock_remote.pull.assert_called_once()
+            mock_remote.fetch.assert_called_with("main")
+            mock_repo.git.checkout.assert_called_once_with("-B", "main", "origin/main")
             assert result == temp_dir / "github.com_user_repo"
 
     @patch("repo_manager.git.Repo")
@@ -76,7 +78,7 @@ class TestGetOrCloneRepo:
         
         mock_repo = MagicMock()
         mock_remote = MagicMock()
-        mock_repo.remote.return_value = mock_remote
+        mock_repo.remotes.origin = mock_remote
         mock_repo_class.return_value = mock_repo
         
         with patch("repo_manager.BASE_REPO_DIR", temp_dir):
@@ -84,50 +86,44 @@ class TestGetOrCloneRepo:
             result = get_or_clone_repo(url, branch="develop")
             
             mock_repo_class.assert_called_once_with(repo_dir)
-            mock_remote.fetch.assert_called_once()
-            mock_repo.git.checkout.assert_called_once_with("develop")
-            mock_remote.pull.assert_called_once()
+            assert mock_remote.fetch.call_args_list == [call(), call("develop")]
+            mock_repo.git.checkout.assert_called_once_with("-B", "develop", "origin/develop")
 
     @patch("repo_manager.git.Repo")
-    def test_checkout_branch_failure(self, mock_repo_class, temp_dir, capsys):
+    def test_checkout_branch_failure(self, mock_repo_class, temp_dir):
         """Test handling checkout failure gracefully."""
         mock_repo = MagicMock()
         mock_remote = MagicMock()
-        mock_repo.remote.return_value = mock_remote
-        mock_repo.git.checkout.side_effect = Exception("Branch not found")
+        mock_repo.remotes.origin = mock_remote
+        mock_remote.fetch.side_effect = [GitCommandError("origin fetch nonexistent", 1, "error"), None]
         mock_repo_class.clone_from.return_value = mock_repo
         
         with patch("repo_manager.BASE_REPO_DIR", temp_dir):
             url = "https://github.com/user/repo.git"
-            result = get_or_clone_repo(url, branch="nonexistent")
-            
-            # Should still return path even if checkout fails
-            assert result == temp_dir / "github.com_user_repo"
-            
-            # Check error was printed
-            captured = capsys.readouterr()
-            assert "Could not checkout branch" in captured.out
+            with pytest.raises(RuntimeError) as exc:
+                get_or_clone_repo(url, branch="nonexistent")
+            assert "Branch 'nonexistent'" in str(exc.value)
 
     @patch("repo_manager.git.Repo")
     def test_get_or_clone_default_branch(self, mock_repo_class, temp_dir):
         """Test cloning with default branch."""
         mock_repo = MagicMock()
         mock_remote = MagicMock()
-        mock_repo.remote.return_value = mock_remote
+        mock_repo.remotes.origin = mock_remote
         mock_repo_class.clone_from.return_value = mock_repo
         
         with patch("repo_manager.BASE_REPO_DIR", temp_dir):
             url = "https://github.com/user/repo.git"
             result = get_or_clone_repo(url)  # Default branch is "main"
             
-            mock_repo.git.checkout.assert_called_once_with("main")
+            mock_repo.git.checkout.assert_called_once_with("-B", "main", "origin/main")
 
     @patch("repo_manager.git.Repo")
     def test_get_or_clone_repo_prints_messages(self, mock_repo_class, temp_dir, capsys):
         """Test that appropriate messages are printed."""
         mock_repo = MagicMock()
         mock_remote = MagicMock()
-        mock_repo.remote.return_value = mock_remote
+        mock_repo.remotes.origin = mock_remote
         mock_repo_class.clone_from.return_value = mock_repo
         
         with patch("repo_manager.BASE_REPO_DIR", temp_dir):
