@@ -24,6 +24,7 @@ from repo_manager import get_or_clone_repo
 from report_writer import write_report
 from session import ReviewSessionManager
 from telemetry.langsmith import LangSmithTracer
+from telemetry.run_logger import log_event, set_session as set_log_session, clear_session as clear_log_session
 from workflow import execute_review_workflow
 
 
@@ -229,6 +230,10 @@ def run_review(
             progress_sink(event, body)
         except Exception:
             pass
+        log_payload = dict(body)
+        log_payload.setdefault("repo", repo)
+        log_payload.setdefault("branch", branch)
+        log_event(event, log_payload)
 
     repo_path = get_or_clone_repo(repo, branch)
     emit("repo_ready", path=str(repo_path))
@@ -340,9 +345,22 @@ def run_review(
     tracer = LangSmithTracer()
     if getattr(tracer, "enabled", False):
         print(f"[agentic_reviewer] LangSmith tracing enabled (project={tracer.project_name}).")
+    session_run_name = f"review-session:{session_identifier}"
+    if pr:
+        session_run_name += f":pr{pr}"
+    session_inputs = {
+        "repo": repo,
+        "branch": branch,
+        "session_id": session_identifier,
+        "pr": pr,
+        "max_commits": max_commits,
+        "pending_commits": len(commits),
+    }
+    session_id_value = session_run_name
+    set_log_session(session_id_value)
     review_run = tracer.start_run(
-        name=f"review:{repo}@{branch}",
-        inputs={"repo": repo, "branch": branch, "pr": pr, "max_commits": max_commits},
+        name=session_run_name,
+        inputs=session_inputs,
     )
 
     supervisor = Supervisor(repo, repo_path, tracer=tracer, progress_callback=emit)
@@ -444,3 +462,4 @@ def run_review(
         return results
     finally:
         tracer.end_run(review_run, outputs={"result_count": len(results)})
+        clear_log_session()

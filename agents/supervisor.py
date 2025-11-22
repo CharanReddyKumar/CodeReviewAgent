@@ -93,7 +93,11 @@ class Supervisor:
         
         self.conversation_agent = ConversationAgent(self.repo_path, self.graph_store)
         self.autofix_agent = AutofixAgent(self.repo_path)
-        self.security_scanner = SecurityScanner(self.repo_path, self.graph_store)
+        self.security_scanner = SecurityScanner(
+            self.repo_path,
+            self.graph_store,
+            repo_reference=self.repo_reference,
+        )
         self.test_generator = TestGeneratorAgent(self.repo_path, self.graph_store)
         self.custom_rules = CustomRuleEngine(self.repo_path)
 

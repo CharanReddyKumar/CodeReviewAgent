@@ -20,7 +20,7 @@ load_dotenv()
 class ReviewRequest(BaseModel):
     repo: str = Field(..., description="Repository URL or local path")
     branch: str = Field("main", description="Git branch or ref to inspect")
-    max_commits: int = Field(1, ge=1, le=10)
+    max_commits: int = Field(5, ge=1, le=5)
     refresh_artifacts: bool = False
     refresh_best_practices: bool = False
     best_practices_docs: Optional[str] = Field(
@@ -115,7 +115,7 @@ async def review_repo(payload: ReviewRequest) -> ReviewJobSubmission:
 async def review_stream(
     repo: str,
     branch: str = "main",
-    max_commits: int = 1,
+    max_commits: int = 5,
 ) -> StreamingResponse:
     queue: asyncio.Queue[tuple[Optional[str], Optional[Dict[str, Any]]]] = asyncio.Queue()
 

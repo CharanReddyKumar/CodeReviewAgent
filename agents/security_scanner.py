@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from agents.semgrep_agent import SemgrepAgent
 from knowledge_graph.graph_store import GraphStore
+from graph_defination import normalize_repo_reference, repo_slug
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +21,24 @@ class SecurityScanner:
     Integrates with SAST tools and stores results in the knowledge graph.
     """
 
-    def __init__(self, repo_path: Path, graph_store: Optional[GraphStore] = None):
+    def __init__(
+        self,
+        repo_path: Path,
+        graph_store: Optional[GraphStore] = None,
+        repo_reference: Optional[str] = None,
+    ):
         self.repo_path = Path(repo_path)
         self.graph_store = graph_store
         self.semgrep_agent = SemgrepAgent(repo_path)
         self.scan_history: List[Dict[str, Any]] = []
         self.is_running = False
+        self.repo_reference = (
+            normalize_repo_reference(repo_reference)
+            if repo_reference
+            else None
+        )
+        self.repo_slug = repo_slug(self.repo_reference) if self.repo_reference else None
+        self._repo_root = self.repo_path.resolve()
 
     def run_full_scan(self) -> Dict[str, Any]:
         """
@@ -51,6 +64,8 @@ class SecurityScanner:
             'scan_id': f"scan_{scan_start.strftime('%Y%m%d_%H%M%S')}",
             'timestamp': scan_start.isoformat(),
             'repo_path': str(self.repo_path),
+            'repo_reference': self.repo_reference,
+            'repo_slug': self.repo_slug,
             'total_vulnerabilities': len(vulnerabilities),
             'vulnerabilities': vulnerabilities,
             'severity_breakdown': self._count_by_severity(vulnerabilities),
@@ -94,12 +109,21 @@ class SecurityScanner:
             return
         
         try:
+            repo_metadata = {
+                'repo_path': str(self.repo_path),
+                'repo_reference': self.repo_reference,
+                'repo_slug': self.repo_slug,
+            }
             # Create scan node
             scan_query = """
             CREATE (scan:SecurityScan {
                 id: $scan_id,
                 timestamp: $timestamp,
-                total_vulnerabilities: $total_vulnerabilities
+                total_vulnerabilities: $total_vulnerabilities,
+                repo_path: $repo_path,
+                repo_reference: $repo_reference,
+                repo_slug: $repo_slug,
+                layer: 'security'
             })
             RETURN scan
             """
@@ -107,11 +131,14 @@ class SecurityScanner:
             self.graph_store.query(scan_query, {
                 'scan_id': scan_result['scan_id'],
                 'timestamp': scan_result['timestamp'],
-                'total_vulnerabilities': scan_result['total_vulnerabilities']
+                'total_vulnerabilities': scan_result['total_vulnerabilities'],
+                **repo_metadata,
             })
             
             # Create vulnerability nodes and link to files
             for vuln in scan_result['vulnerabilities']:
+                rel_path = self._relative_file_path(vuln.get('file_path', ''))
+                file_match_clause = self._build_file_match_clause()
                 vuln_query = """
                 MERGE (v:Vulnerability {
                     rule_id: $rule_id,
@@ -121,29 +148,61 @@ class SecurityScanner:
                 SET v.severity = $severity,
                     v.category = $category,
                     v.message = $message,
-                    v.last_seen = $timestamp
+                    v.last_seen = $timestamp,
+                    v.repo_path = $repo_path,
+                    v.repo_reference = $repo_reference,
+                    v.repo_slug = $repo_slug,
+                    v.layer = 'security'
                 WITH v
                 MATCH (scan:SecurityScan {id: $scan_id})
-                MERGE (scan)-[:FOUND]->(v)
+                MERGE (scan)-[fs:FOUND]->(v)
+                SET fs.layer = 'security'
                 WITH v
-                MATCH (file:File {path: $file_path})
-                MERGE (file)-[:HAS_VULNERABILITY]->(v)
-                """
-                
-                self.graph_store.query(vuln_query, {
+                {file_match_clause}
+                MERGE (file)-[hv:HAS_VULNERABILITY]->(v)
+                SET hv.layer = 'security'
+                """.replace("{file_match_clause}", file_match_clause)
+
+                params = {
                     'scan_id': scan_result['scan_id'],
                     'rule_id': vuln.get('rule_id', 'unknown'),
-                    'file_path': vuln.get('file_path', ''),
+                    'file_path': rel_path,
                     'line': vuln.get('line', 0),
                     'severity': vuln.get('severity', 'unknown'),
                     'category': vuln.get('category', 'unknown'),
                     'message': vuln.get('message', ''),
-                    'timestamp': scan_result['timestamp']
-                })
+                    'timestamp': scan_result['timestamp'],
+                    **repo_metadata,
+                }
+                file_identifier = self._file_node_id(rel_path)
+                if file_identifier:
+                    params['file_id'] = file_identifier
+                
+                self.graph_store.query(vuln_query, params)
             
             logger.info(f"Stored scan results in graph: {scan_result['scan_id']}")
         except Exception as exc:
             logger.error(f"Failed to store scan results in graph: {exc}")
+
+    def _relative_file_path(self, file_path: str) -> str:
+        """Return repository-relative POSIX path for a finding."""
+        try:
+            candidate = Path(file_path).resolve()
+            relative = candidate.relative_to(self._repo_root)
+            return relative.as_posix()
+        except Exception:
+            # Fall back to provided value (Semgrep sometimes emits repo-relative already)
+            return file_path.replace("\\", "/")
+
+    def _file_node_id(self, relative_path: str) -> Optional[str]:
+        if not self.repo_slug or not relative_path:
+            return None
+        return f"{self.repo_slug}::file::{relative_path}"
+
+    def _build_file_match_clause(self) -> str:
+        if self.repo_slug:
+            return "MATCH (file:File {id: $file_id})"
+        return "MATCH (file:File {path: $file_path})"
 
     def get_scan_history(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get recent scan history."""

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Callable, Dict, List, Optional, TypedDict
+from uuid import uuid4
 
 from langgraph.graph import END, StateGraph
 
@@ -24,13 +26,46 @@ class ReviewState(TypedDict, total=False):
     node_outputs: Dict[str, Any]
     _supervisor: Any
     _commit: Any
-    _progress_callback: Optional[Callable[[str, Dict[str, Any]], None]]
+    _progress_callback_id: Optional[str]
     replanning_needed: bool
     loop_count: int
 
 
 _GRAPH_CACHE: Dict[str, Any] = {}
 _GRAPH_VERSION = 2
+_LANGGRAPH_ENV_KEYS = (
+    "LANGGRAPH_ENV",
+    "LANGGRAPH_HOST",
+    "LANGGRAPH_SERVER_URL",
+    "LANGGRAPH_API_URL",
+    "LANGGRAPH_DEPLOYMENT",
+    "LANGGRAPH_PLATFORM",
+)
+
+
+def _use_local_checkpointer() -> bool:
+    """
+    Decide whether to wire up the local Sqlite checkpointer.
+
+    LangGraph Cloud / Studio manages persistence automatically and disallows
+    providing a custom checkpointer. If we detect that environment (or the
+    user explicitly disables the local checkpointer), compile the graph
+    without it so `langgraph dev` / Studio can load the topology.
+    """
+
+    force_disable = os.environ.get("LANGGRAPH_DISABLE_CUSTOM_CHECKPOINTER")
+    if force_disable and force_disable.strip().lower() in {"1", "true", "yes", "on"}:
+        return False
+
+    force_enable = os.environ.get("LANGGRAPH_FORCE_CUSTOM_CHECKPOINTER")
+    if force_enable and force_enable.strip().lower() in {"1", "true", "yes", "on"}:
+        return True
+
+    for key in _LANGGRAPH_ENV_KEYS:
+        if key in os.environ:
+            return False
+
+    return True
 
 
 def build_review_graph():
@@ -92,7 +127,7 @@ def build_review_graph():
         return summaries
 
     def _notify_progress(state: ReviewState, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
-        callback = state.get("_progress_callback")
+        callback = _get_progress_callback(state.get("_progress_callback_id"))
         if not callback:
             return
         data = dict(payload or {})
@@ -316,17 +351,17 @@ def build_review_graph():
     builder.add_edge("memory", "finalize")
     builder.add_edge("finalize", END)
 
-    from langgraph.checkpoint.sqlite import SqliteSaver
-    import sqlite3
+    use_checkpointer = _use_local_checkpointer()
+    if use_checkpointer:
+        from langgraph.checkpoint.sqlite import SqliteSaver
+        import sqlite3
 
-    # Use a persistent checkpointer
-    conn = sqlite3.connect("checkpoints.sqlite", check_same_thread=False)
-    memory = SqliteSaver(conn)
+        conn = sqlite3.connect("checkpoints.sqlite", check_same_thread=False)
+        memory = SqliteSaver(conn)
+        graph = builder.compile(checkpointer=memory, interrupt_before=["finalize"])
+    else:
+        graph = builder.compile(interrupt_before=["finalize"])
 
-    graph = builder.compile(
-        checkpointer=memory,
-        interrupt_before=["finalize"]
-    )
     _GRAPH_CACHE[key] = graph
     return graph
 
@@ -342,18 +377,22 @@ def execute_review_workflow(
 ) -> ReviewState:
     graph = build_review_graph()
     file_contexts = supervisor.prepare_file_contexts(commit) if commit.parents else []
-    commit_run = supervisor.tracer.start_run(
-        name=f"review:{commit.hexsha[:7]}",
-        inputs={"commit": commit.hexsha, "summary": getattr(commit, "summary", "")},
-        parent_run=parent_run,
+    commit_run = supervisor.tracer.child_run(
+        parent_run,
+        name=f"commit:{commit.hexsha[:7]}",
+        inputs={
+            "commit": commit.hexsha,
+            "summary": getattr(commit, "summary", ""),
+        },
     )
+    callback_id = _register_progress_callback(progress_callback)
     initial_state: ReviewState = {
         "changed_files": changed_files,
         "diff_excerpt": diff_excerpt,
         "file_contexts": file_contexts,
         "commit_run": commit_run,
         "node_outputs": {},
-        "_progress_callback": progress_callback,
+        "_progress_callback_id": callback_id,
         "_supervisor": supervisor,
         "_commit": commit,
     }
@@ -380,3 +419,26 @@ def execute_review_workflow(
     except Exception as exc:
         supervisor.tracer.end_run(commit_run, error=str(exc))
         raise
+    finally:
+        _unregister_progress_callback(callback_id)
+_PROGRESS_CALLBACKS: Dict[str, Callable[[str, Dict[str, Any]], None]] = {}
+
+
+def _register_progress_callback(callback: Optional[Callable[[str, Dict[str, Any]], None]]) -> Optional[str]:
+    if not callback:
+        return None
+    key = uuid4().hex
+    _PROGRESS_CALLBACKS[key] = callback
+    return key
+
+
+def _get_progress_callback(callback_id: Optional[str]) -> Optional[Callable[[str, Dict[str, Any]], None]]:
+    if not callback_id:
+        return None
+    return _PROGRESS_CALLBACKS.get(callback_id)
+
+
+def _unregister_progress_callback(callback_id: Optional[str]) -> None:
+    if not callback_id:
+        return
+    _PROGRESS_CALLBACKS.pop(callback_id, None)

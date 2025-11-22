@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 from langchain_core.messages import BaseMessage
 
 from telemetry.langsmith import LangSmithTracer
+from telemetry.run_logger import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,13 @@ def build_chat_model(task: str = "general", *, temperature: Optional[float] = No
         azure_api_key = os.environ.get("AZURE_OPENAI_API_KEY")
         azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
         azure_deployment = _azure_deployment(task)
+        
+        # If deployment not set, use LLM_MODEL as deployment name
+        if not azure_deployment:
+            azure_deployment = model_name
+            
         if azure_api_key and azure_endpoint and azure_deployment:
+
             from langchain_openai import AzureChatOpenAI
 
             chat = AzureChatOpenAI(
@@ -75,7 +82,7 @@ def build_chat_model(task: str = "general", *, temperature: Optional[float] = No
                 api_key=azure_api_key,
                 api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-06-01"),
                 azure_deployment=azure_deployment,
-                temperature=1.0,
+                temperature=1.0,  # gpt-5-nano only supports temperature=1.0
                 request_timeout=timeout,
             )
             return _instrument_chat_model(chat, task)
@@ -89,7 +96,8 @@ def build_chat_model(task: str = "general", *, temperature: Optional[float] = No
             request_timeout=timeout,
         )
         return _instrument_chat_model(chat, task)
-    except Exception:
+    except ImportError as e:
+        # Only fall back to Ollama if Azure libs aren't installed
         from langchain_community.chat_models import ChatOllama  # type: ignore
 
         num_ctx = int(os.environ.get("LLM_NUM_CTX", "8192"))
@@ -101,6 +109,7 @@ def build_chat_model(task: str = "general", *, temperature: Optional[float] = No
             base_url=ollama_host,
         )
         return _instrument_chat_model(chat, task)
+    # Let all other exceptions propagate (don't silently fall back to Ollama)
 
 
 _JSON_BLOCK_RE = re.compile(r"```(?:json)?\s*([\s\S]+?)\s*```", re.DOTALL)
@@ -165,10 +174,18 @@ class _InstrumentedChat:
 
     def invoke(self, messages: List[BaseMessage], **kwargs):
         tracer = self._tracer
+        summary = _summarize_messages(messages)
         parent_run = tracer.current_run() if tracer else None
         llm_run = None
+        log_event(
+            "agent_message",
+            {
+                "agent": self._task,
+                "direction": "request",
+                "messages": summary,
+            },
+        )
         if tracer:
-            summary = _summarize_messages(messages)
             run_inputs = {"messages": summary, "model": getattr(self._chat, "model_name", getattr(self._chat, "model", "chat"))}
             if parent_run:
                 llm_run = tracer.child_run(
@@ -188,6 +205,14 @@ class _InstrumentedChat:
         except Exception as exc:
             if llm_run:
                 tracer.end_run(llm_run, error=str(exc))
+            log_event(
+                "agent_message",
+                {
+                    "agent": self._task,
+                    "direction": "response",
+                    "error": str(exc),
+                },
+            )
             raise
         if llm_run:
             outputs = {"text": str(getattr(response, "content", response))[:400]}
@@ -195,6 +220,14 @@ class _InstrumentedChat:
             if usage:
                 outputs["usage_metadata"] = usage
             tracer.end_run(llm_run, outputs=outputs)
+        log_event(
+            "agent_message",
+            {
+                "agent": self._task,
+                "direction": "response",
+                "text": str(getattr(response, "content", response))[:400],
+            },
+        )
         return response
 
     def __getattr__(self, item):

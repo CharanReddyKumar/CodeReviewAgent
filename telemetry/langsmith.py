@@ -32,6 +32,7 @@ class LangSmithTracer:
     def __init__(self):
         self._client = None
         self._RunTree = None
+        self._root_run = None
         tags_env = os.environ.get("LANGSMITH_RUN_TAGS") or os.environ.get("LANGCHAIN_TAGS")
         self.default_tags: List[str] = (
             [tag.strip() for tag in tags_env.split(",") if tag.strip()] if tags_env else []
@@ -69,15 +70,33 @@ class LangSmithTracer:
         if not self.enabled or self._RunTree is None or self._client is None:
             return _NullRun()
         try:
-            if parent_run and not isinstance(parent_run, _NullRun):
-                run = parent_run.create_child(
+            effective_parent = parent_run
+            if not effective_parent or isinstance(effective_parent, _NullRun):
+                stack_parent = self.current_run()
+                if stack_parent and not isinstance(stack_parent, _NullRun):
+                    effective_parent = stack_parent
+                elif (
+                    getattr(self, "_root_run", None)
+                    and not isinstance(self._root_run, _NullRun)
+                ):
+                    effective_parent = self._root_run
+
+            is_child = bool(effective_parent and not isinstance(effective_parent, _NullRun))
+            if is_child:
+                run = effective_parent.create_child(
                     name=name,
                     run_type=run_type,
                     inputs=inputs or {},
                     tags=self.default_tags or None,
                 )
             else:
-                resolved_name = self.run_name or name
+                resolved_name = name
+                if (
+                    self.run_name
+                    and run_type == "chain"
+                    and (not parent_run or isinstance(parent_run, _NullRun))
+                ):
+                    resolved_name = self.run_name
                 run = self._RunTree(
                     name=resolved_name,
                     run_type=run_type,
@@ -86,8 +105,10 @@ class LangSmithTracer:
                     ls_client=self._client,
                     tags=self.default_tags or None,
                 )
+                self._root_run = run
             self._push_run(run)
-            self._publish(run)
+            if not is_child:
+                self._publish(run)
             return run
         except Exception:
             return _NullRun()
@@ -97,11 +118,14 @@ class LangSmithTracer:
             return
         try:
             run.end(outputs=outputs or {}, error=error)
-            run.post(self._client)
+            if getattr(run, "parent_run", None) is None:
+                run.post(self._client)
         except Exception:
             pass
         finally:
             self._pop_run(run)
+            if getattr(self, "_root_run", None) is run:
+                self._root_run = None
 
     def child_run(self, parent_run, name: str, *, run_type: str = "tool", inputs: Optional[Dict[str, Any]] = None):
         return self.start_run(

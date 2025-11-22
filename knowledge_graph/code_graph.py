@@ -2,16 +2,22 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import json
+import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 
 from graph_defination import normalize_repo_reference, repo_slug, should_skip_path
+from .graph_store import GraphStore
+from .schema import Edge, GraphSchema, Node
 from .store import save_layer_graph
 
 
 SymbolInfo = Tuple[str, str]  # (symbol_id, qualified_name)
+
+logger = logging.getLogger(__name__)
 
 
 def _file_hash(path: Path) -> str:
@@ -122,7 +128,11 @@ def _call_name(node: ast.Call) -> Optional[str]:
     return None
 
 
-def build_code_structure_graph(repo_path: str | Path, repo_reference: str) -> nx.MultiDiGraph:
+def build_code_structure_graph(
+    repo_path: str | Path,
+    repo_reference: str,
+    graph_store: GraphStore | None = None,
+) -> nx.MultiDiGraph:
     repo_root = Path(repo_path).resolve()
     canonical = normalize_repo_reference(repo_reference)
     slug = repo_slug(canonical)
@@ -210,8 +220,156 @@ def build_code_structure_graph(repo_path: str | Path, repo_reference: str) -> nx
         CallVisitor().visit(tree)
 
     save_layer_graph(graph, repo_reference=canonical, layer="code")
+    try:
+        _persist_graph_to_store(graph, canonical, slug, repo_root, graph_store)
+    except Exception as exc:
+        logger.warning("Neo4j sync failed for %s: %s", canonical, exc)
     print(
         f"[knowledge_graph] Code graph for {canonical} -> "
         f"{graph.number_of_nodes()} nodes / {graph.number_of_edges()} edges"
     )
     return graph
+
+
+def _persist_graph_to_store(
+    graph: nx.MultiDiGraph,
+    repo_reference: str,
+    repo_slug_value: str,
+    repo_root: Path,
+    graph_store: GraphStore | None,
+) -> None:
+    store = graph_store
+    close_store = False
+    if store is None:
+        store = GraphStore()
+        close_store = True
+
+    if not getattr(store, "driver", None):
+        if close_store:
+            store.close()
+        logger.info("Neo4j driver unavailable; skipping graph sync.")
+        return
+
+    repo_context = {
+        "repo_reference": repo_reference,
+        "repo_slug": repo_slug_value,
+        "repo_path": repo_root.as_posix(),
+        "layer": "code",
+    }
+
+    store.clear_layer(repo_slug_value, "code")
+
+    nodes = _build_nodes_for_store(graph, repo_context)
+    if nodes:
+        store.add_nodes(nodes)
+
+    edges = _build_edges_for_store(graph, repo_context)
+    if edges:
+        store.add_edges(edges)
+
+    _relink_vulnerabilities(store, repo_context)
+
+    if close_store:
+        store.close()
+
+
+def _build_nodes_for_store(graph: nx.MultiDiGraph, repo_context: Dict[str, Any]) -> List[Node]:
+    nodes: List[Node] = []
+    base_id = repo_context["repo_slug"]
+    for node_id, attrs in graph.nodes(data=True):
+        label = _map_node_label(attrs.get("type"))
+        if not label:
+            continue
+        properties = dict(repo_context)
+        sanitized = _sanitize_properties({k: v for k, v in attrs.items() if k != "type"})
+        properties.update(sanitized)
+        properties["raw_id"] = node_id
+        nodes.append(
+            Node(
+                id=f"{base_id}::{node_id}",
+                type=label,
+                properties=properties,
+            )
+        )
+    return nodes
+
+
+def _build_edges_for_store(graph: nx.MultiDiGraph, repo_context: Dict[str, Any]) -> List[Edge]:
+    edges: List[Edge] = []
+    base_id = repo_context["repo_slug"]
+    for source, target, attrs in graph.edges(data=True):
+        rel_type = _map_edge_type(attrs.get("kind"))
+        if not rel_type:
+            continue
+        properties = dict(repo_context)
+        sanitized = _sanitize_properties({k: v for k, v in attrs.items() if k != "kind"})
+        properties.update(sanitized)
+        properties["raw_kind"] = attrs.get("kind")
+        properties["source_raw_id"] = source
+        properties["target_raw_id"] = target
+        edges.append(
+            Edge(
+                source=f"{base_id}::{source}",
+                target=f"{base_id}::{target}",
+                type=rel_type,
+                properties=properties,
+            )
+        )
+    return edges
+
+
+def _map_node_label(node_type: Optional[str]) -> Optional[str]:
+    mapping = {
+        "file": GraphSchema.FILE,
+        "function": GraphSchema.FUNCTION,
+        "async_function": GraphSchema.FUNCTION,
+        "class": GraphSchema.CLASS,
+    }
+    return mapping.get((node_type or "").lower()) if isinstance(node_type, str) else None
+
+
+def _map_edge_type(kind: Optional[str]) -> Optional[str]:
+    mapping = {
+        "defines": GraphSchema.DEFINES,
+        "calls": GraphSchema.CALLS,
+    }
+    key = (kind or "").lower()
+    return mapping.get(key)
+
+
+def _sanitize_properties(props: Dict[str, Any]) -> Dict[str, Any]:
+    sanitized: Dict[str, Any] = {}
+    for key, value in props.items():
+        sanitized[key] = _sanitize_value(value)
+    return sanitized
+
+
+def _sanitize_value(value: Any) -> Any:
+    if isinstance(value, tuple):
+        return [_sanitize_value(v) for v in value]
+    if isinstance(value, list):
+        return [_sanitize_value(v) for v in value]
+    if isinstance(value, dict):
+        try:
+            return json.dumps(value, sort_keys=True)
+        except Exception:
+            return str(value)
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
+
+
+def _relink_vulnerabilities(store: GraphStore, repo_context: Dict[str, Any]) -> None:
+    repo_slug_value = repo_context["repo_slug"]
+    try:
+        store.query(
+            """
+            MATCH (v:Vulnerability {repo_slug: $repo_slug})
+            MATCH (file:File {repo_slug: $repo_slug, path: v.file_path})
+            MERGE (file)-[hv:HAS_VULNERABILITY]->(v)
+            SET hv.layer = COALESCE(hv.layer, 'security')
+            """,
+            {"repo_slug": repo_slug_value},
+        )
+    except Exception as exc:
+        logger.warning("Failed to relink vulnerabilities for %s: %s", repo_slug_value, exc)

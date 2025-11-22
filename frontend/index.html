@@ -66,6 +66,65 @@
         margin-top: 0;
         font-size: 1.1rem;
       }
+      .process-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+      .process-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.35rem;
+      }
+      .process-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .process-detail {
+        margin: 0.2rem 0 0;
+        font-size: 0.85rem;
+        color: #475569;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.2rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        min-width: 78px;
+      }
+      .pill-muted,
+      .pill-pending {
+        background: #e2e8f0;
+        color: #475569;
+      }
+      .pill-active {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .pill-ready {
+        background: #dcfce7;
+        color: #065f46;
+      }
+      .pill-cached {
+        background: #e0f2fe;
+        color: #0f172a;
+      }
+      .pill-done {
+        background: #ddd6fe;
+        color: #4c1d95;
+      }
+      .pill-error {
+        background: #fee2e2;
+        color: #991b1b;
+      }
       .timeline {
         list-style: none;
         padding: 0;
@@ -233,7 +292,7 @@
         <input
           type="number"
           id="max-commits"
-          value="1"
+          value="5"
           min="1"
           max="5"
           required
@@ -249,6 +308,141 @@
 
     <div id="status"></div>
     <section class="grid">
+      <div class="panel">
+        <h2>Process Tracker</h2>
+        <ul class="process-list" id="process-board">
+          <li
+            class="process-item"
+            data-step="repo"
+            data-default="Waiting for repository checkout."
+          >
+            <div>
+              <strong>Repository</strong>
+              <p class="process-detail muted">
+                Waiting for repository checkout.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="cleanup"
+            data-default="Removing transient artifacts."
+          >
+            <div>
+              <strong>Cleanup</strong>
+              <p class="process-detail muted">
+                Removing transient artifacts.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="vectors"
+            data-default="Preparing embeddings for semantic search."
+          >
+            <div>
+              <strong>Embeddings</strong>
+              <p class="process-detail muted">
+                Preparing embeddings for semantic search.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="imports"
+            data-default="Updating repository import graph."
+          >
+            <div>
+              <strong>Import Graph</strong>
+              <p class="process-detail muted">
+                Updating repository import graph.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="code"
+            data-default="Analyzing code structure graph."
+          >
+            <div>
+              <strong>Code Graph</strong>
+              <p class="process-detail muted">
+                Analyzing code structure graph.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="best"
+            data-default="Syncing best-practice knowledge."
+          >
+            <div>
+              <strong>Best Practices</strong>
+              <p class="process-detail muted">
+                Syncing best-practice knowledge.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="plan"
+            data-default="Planner will schedule specialist tasks."
+          >
+            <div>
+              <strong>Planner</strong>
+              <p class="process-detail muted">
+                Planner will schedule specialist tasks.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="execution"
+            data-default="Agents will execute plan actions."
+          >
+            <div>
+              <strong>Execution</strong>
+              <p class="process-detail muted">
+                Agents will execute plan actions.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="reflection"
+            data-default="Critic synthesizes the review."
+          >
+            <div>
+              <strong>Reflection</strong>
+              <p class="process-detail muted">
+                Critic synthesizes the review.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+          <li
+            class="process-item"
+            data-step="results"
+            data-default="Findings will appear in the Results feed."
+          >
+            <div>
+              <strong>Results</strong>
+              <p class="process-detail muted">
+                Findings will appear in the Results feed.
+              </p>
+            </div>
+            <span class="pill pill-pending">Pending</span>
+          </li>
+        </ul>
+      </div>
       <div class="panel">
         <h2>Thought Process</h2>
         <ul class="timeline" id="thought-log"></ul>
@@ -289,6 +483,7 @@
       const planBoard = document.getElementById("plan-board");
       const executionBoard = document.getElementById("execution-board");
       const reflectionBoard = document.getElementById("reflection-board");
+      const processBoard = document.getElementById("process-board");
       const stopBtn = document.getElementById("stop-btn");
       let hasThoughtEvents = false;
       let hasToolEvents = false;
@@ -320,6 +515,14 @@
       const HTML_COMMENT_EXTS = new Set(["html", "htm", "xml"]);
       const SEMICOLON_COMMENT_EXTS = new Set(["clj", "cljs", "cljc"]);
       const APOSTROPHE_COMMENT_EXTS = new Set(["vb"]);
+      const PROCESS_PILL_COPY = {
+        pending: "Pending",
+        active: "Running",
+        ready: "Ready",
+        cached: "Cached",
+        done: "Done",
+        error: "Error",
+      };
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -334,6 +537,7 @@
           '<span class="muted">Waiting for execution...</span>';
         reflectionBoard.innerHTML =
           '<span class="muted">Critic insights will land here.</span>';
+        resetProcessBoard();
         hasThoughtEvents = false;
         hasToolEvents = false;
         hasPlanData = false;
@@ -367,6 +571,7 @@
       stopBtn.addEventListener("click", () => {
         appendLog("Stopping review (user requested).");
         statusEl.textContent = "Review cancelled.";
+        updateProcessStep("results", "error", "Review cancelled by user.");
         cleanupStream();
       });
 
@@ -379,20 +584,80 @@
 
         statusEl.textContent = "Review in progress...";
         appendLog("Starting review...");
+        updateProcessStep("repo", "active", "Preparing repository...");
+        updateProcessStep("results", "pending", "Waiting for findings...");
 
         eventSource = new EventSource(
           `http://127.0.0.1:8000/review/stream?${params.toString()}`
         );
 
         const handlers = {
-          repo_ready: (data) => appendLog(`Repository ready at ${data.path}`),
-          vector_store: (data) => appendLog(`Vector store: ${data.status}`),
-          import_graph: (data) => appendLog(`Import graph: ${data.status}`),
-          code_graph: () => appendLog("Building code structure graph..."),
-          best_practices: (data) =>
-            appendLog(`Best practices store: ${data.status}`),
-          best_practices_progress: (data) =>
-            addThought(`Best practices indexing ${formatProgress(data)}`),
+          repo_ready: (data) => {
+            const detail = data.path
+              ? `Workspace ready at ${data.path}`
+              : "Repository prepared.";
+            const location = data.path || "local workspace";
+            appendLog(`Repository ready at ${location}`);
+            updateProcessStep("repo", "ready", detail);
+          },
+          cleanup: (data) => {
+            const removed = (data.removed || []).length;
+            const skipped = (data.skipped || []).length;
+            const detail = `${removed} removed · ${skipped} skipped`;
+            appendLog(
+              `Cleanup finished (${removed} removed, ${skipped} skipped).`
+            );
+            updateProcessStep("cleanup", "ready", detail);
+          },
+          vector_store: (data) => {
+            const refreshing = (data.status || "") === "refreshing";
+            const detail = refreshing
+              ? "Building fresh embeddings..."
+              : "Using cached embeddings.";
+            appendLog(`Vector store: ${data.status}`);
+            updateProcessStep(
+              "vectors",
+              refreshing ? "active" : "cached",
+              detail
+            );
+          },
+          import_graph: (data) => {
+            const refreshing = (data.status || "") === "refreshing";
+            const detail = refreshing
+              ? "Generating new import graph..."
+              : "Using cached import graph.";
+            appendLog(`Import graph: ${data.status}`);
+            updateProcessStep(
+              "imports",
+              refreshing ? "active" : "cached",
+              detail
+            );
+          },
+          code_graph: () => {
+            appendLog("Building code structure graph...");
+            updateProcessStep(
+              "code",
+              "active",
+              "Building repository knowledge graph..."
+            );
+          },
+          best_practices: (data) => {
+            const refreshing = (data.status || "") === "refreshing";
+            const detail = refreshing
+              ? "Syncing latest best practices..."
+              : "Using cached best-practice store.";
+            appendLog(`Best practices store: ${data.status}`);
+            updateProcessStep(
+              "best",
+              refreshing ? "active" : "cached",
+              detail
+            );
+          },
+          best_practices_progress: (data) => {
+            const progress = formatProgress(data);
+            addThought(`Best practices indexing ${progress}`);
+            updateProcessStep("best", "active", `Indexing ${progress}`);
+          },
           file_contexts_start: (data) =>
             addThought(
               `Collecting file contexts for ${data.file_count ?? 0} files`
@@ -467,11 +732,22 @@
             hydrateFromResults(data.runs || []);
             appendLog("Review complete.");
             statusEl.textContent = "Review complete.";
+            const runCount = (data.runs || []).length;
+            updateProcessStep(
+              "results",
+              "done",
+              `${runCount || 0} commit(s) reviewed`
+            );
             cleanupStream();
           },
           error: (data) => {
             appendLog(`Error: ${data.detail || "Unknown error"}`);
             statusEl.textContent = "Error during review.";
+            updateProcessStep(
+              "results",
+              "error",
+              data.detail || "Review failed."
+            );
             cleanupStream();
           },
         };
@@ -523,6 +799,44 @@
       function addToolEvent(message) {
         hasToolEvents = true;
         appendTimelineItem(toolLogEl, message);
+      }
+
+      function updateProcessStep(step, status = "ready", detail = "") {
+        if (!processBoard) return;
+        const row = processBoard.querySelector(`[data-step="${step}"]`);
+        if (!row) return;
+        const pill = row.querySelector(".pill");
+        const detailEl = row.querySelector(".process-detail");
+        const normalized = status || "pending";
+        if (pill) {
+          const label = PROCESS_PILL_COPY[normalized] || normalized;
+          pill.textContent = label;
+          pill.className = `pill pill-${normalized}`;
+        }
+        if (detailEl) {
+          if (detail) {
+            detailEl.textContent = detail;
+            detailEl.classList.remove("muted");
+          } else {
+            const fallback = row.dataset.default || "";
+            detailEl.textContent = fallback;
+            if (fallback) {
+              detailEl.classList.add("muted");
+            } else {
+              detailEl.classList.remove("muted");
+            }
+          }
+        }
+      }
+
+      function resetProcessBoard() {
+        if (!processBoard) return;
+        processBoard.querySelectorAll(".process-item").forEach((item) => {
+          const step = item.dataset.step;
+          if (step) {
+            updateProcessStep(step, "pending");
+          }
+        });
       }
 
       function badge(text = "") {
@@ -696,9 +1010,20 @@
           planBoard.innerHTML =
             '<span class="muted">Planner did not produce any tasks.</span>';
           hasPlanData = false;
+          updateProcessStep("plan", "pending");
           return;
         }
         hasPlanData = true;
+        updateProcessStep(
+          "plan",
+          "ready",
+          `${tasks.length} task(s) prepared`
+        );
+        updateProcessStep(
+          "code",
+          "done",
+          "Repository analysis complete."
+        );
         const items = tasks
           .map((task) => {
             const files = (task.files || []).length
@@ -739,9 +1064,15 @@
           executionBoard.innerHTML =
             '<span class="muted">No execution results yet.</span>';
           hasExecutionData = false;
+          updateProcessStep("execution", "pending");
           return;
         }
         hasExecutionData = true;
+        updateProcessStep(
+          "execution",
+          "ready",
+          `${reports.length} task report(s)`
+        );
         const items = reports
           .map((report) => {
             const actions = (report.action_results || [])
@@ -794,6 +1125,14 @@
         hasReflectionData = Boolean(
           data.executive_summary || groups.length || followUps.length
         );
+        if (hasReflectionData) {
+          const summaryText = data.executive_summary
+            ? data.executive_summary.slice(0, 120)
+            : "Reviewer shared structured findings.";
+          updateProcessStep("reflection", "ready", summaryText);
+        } else {
+          updateProcessStep("reflection", "pending");
+        }
         let html = `<p>${summary}</p>`;
         if (groups.length) {
           html +=
@@ -830,6 +1169,13 @@
           return;
         }
         const latest = runs[runs.length - 1] || {};
+        if (latest.commit) {
+          updateProcessStep(
+            "repo",
+            "ready",
+            `Latest commit ${latest.commit.slice(0, 7)}`
+          );
+        }
         if (!hasPlanData) {
           renderPlan(latest.tasks || []);
         }
@@ -882,6 +1228,11 @@
             );
           });
         }
+        updateProcessStep(
+          "results",
+          "done",
+          `${runs.length} commit(s) reviewed`
+        );
       }
     </script>
   </body>

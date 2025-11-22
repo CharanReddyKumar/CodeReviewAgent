@@ -6,8 +6,9 @@ from urllib.parse import urlparse
 import git
 from git.exc import GitCommandError
 
-# New clean repo storage directory
-BASE_REPO_DIR = Path(".local_repos")
+
+_CACHE_ROOT = Path(os.environ.get("AGENTIC_CACHE_ROOT", Path.home() / ".agentic_reviewer"))
+BASE_REPO_DIR = Path(os.environ.get("AGENTIC_REPO_DIR", _CACHE_ROOT / "repos"))
 BASE_REPO_DIR.mkdir(exist_ok=True, parents=True)
 
 
@@ -47,4 +48,3 @@ def get_or_clone_repo(repo_url: str, branch: str = "main") -> Path:
 
     _checkout_branch(repo, branch)
     return repo_path
-
