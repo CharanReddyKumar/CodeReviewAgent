@@ -24,6 +24,11 @@ class TestLanguageForSuffix:
         """Test Python file suffix."""
         assert _language_for_suffix(".py") == "python"
 
+    def test_major_language_suffixes(self):
+        """Ensure other major language suffixes are recognized."""
+        assert _language_for_suffix(".java") == "java"
+        assert _language_for_suffix(".rs") == "rust"
+
     def test_markdown_suffix(self):
         """Test Markdown file suffix."""
         assert _language_for_suffix(".md") == "markdown"
@@ -164,6 +169,7 @@ class TestConstants:
     def test_code_extensions(self):
         """Test CODE_EXTENSIONS is defined."""
         assert ".py" in CODE_EXTENSIONS
+        assert ".js" in CODE_EXTENSIONS
 
     def test_doc_extensions(self):
         """Test DOC_EXTENSIONS is defined."""
@@ -180,7 +186,7 @@ class TestIndexRepository:
     """Tests for index_repository function - requires ChromaDB."""
 
     @patch("rag.vector_store.get_code_collection")
-    @patch("rag.vector_store.iter_python_files")
+    @patch("rag.vector_store.iter_code_files")
     @patch("rag.vector_store._iter_doc_files")
     def test_index_repository_mock(self, mock_doc_files, mock_py_files, mock_collection, temp_dir):
         """Test repository indexing with mocks."""

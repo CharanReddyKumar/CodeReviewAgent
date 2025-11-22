@@ -7,6 +7,7 @@ import chromadb
 from chromadb.config import Settings
 import ast
 
+from agent_registry import LANGUAGE_EXTENSION_MAP
 from graph_defination import (
     chroma_collection_name,
     normalize_repo_reference,
@@ -15,18 +16,30 @@ from graph_defination import (
 )
 
 CHROMA_DIR = os.environ.get("LOCAL_VECTOR_DIR", ".local_vectorstore")
-CODE_EXTENSIONS = (".py",)
+
+_CODE_SUFFIXES = {
+    suffix.lower()
+    for extensions in LANGUAGE_EXTENSION_MAP.values()
+    for suffix in extensions
+}
+CODE_EXTENSIONS = tuple(sorted(_CODE_SUFFIXES))
 DOC_EXTENSIONS = (".md", ".rst", ".txt")
 SPECIAL_DOC_FILENAMES = {"readme", "readme.md", "readme.rst", "contributing.md"}
 CHUNK_MAX_LINES = 80
 CHUNK_OVERLAP_LINES = 10
 
-LANGUAGE_BY_SUFFIX = {
-    ".py": "python",
-    ".md": "markdown",
-    ".rst": "rst",
-    ".txt": "text",
+LANGUAGE_BY_SUFFIX: Dict[str, str] = {
+    suffix.lower(): language
+    for language, extensions in LANGUAGE_EXTENSION_MAP.items()
+    for suffix in extensions
 }
+LANGUAGE_BY_SUFFIX.update(
+    {
+        ".md": "markdown",
+        ".rst": "rst",
+        ".txt": "text",
+    }
+)
 
 RISK_HINTS = {
     "security": ("auth", "token", "secret", "crypto", "password", "pii", "oauth"),
@@ -86,7 +99,7 @@ def _iter_files(repo_path: Path, *, suffixes: Iterable[str]) -> Iterator[Path]:
             yield path
 
 
-def iter_python_files(repo_path: Path) -> Iterator[Path]:
+def iter_code_files(repo_path: Path) -> Iterator[Path]:
     return _iter_files(repo_path, suffixes=CODE_EXTENSIONS)
 
 
@@ -227,6 +240,12 @@ def _iter_python_blocks(text: str) -> List[Chunk]:
     ]
 
 
+def _iter_code_chunks(path: Path, text: str) -> Iterable[Chunk]:
+    if path.suffix.lower() == ".py":
+        return _iter_python_blocks(text)
+    return _chunk_text(text)
+
+
 def _sanitize_id_component(value: str) -> str:
     return value.replace("/", "_").replace(":", "_")
 
@@ -308,7 +327,7 @@ def index_repository(repo_path: Path, repo_reference: str):
             print(f"[vector_store] Skipping {rel}: {exc}")
             return
         if content_type == "code":
-            chunks = _iter_python_blocks(text)
+            chunks = _iter_code_chunks(path, text)
         else:
             chunks = _chunk_text(text)
         for record in _build_chunk_records(
@@ -328,7 +347,7 @@ def index_repository(repo_path: Path, repo_reference: str):
             if len(docs) >= batch_size:
                 flush_batch()
 
-    for code_file in iter_python_files(repo_path):
+    for code_file in iter_code_files(repo_path):
         process_file(code_file, "code")
 
     for doc_file in _iter_doc_files(repo_path):

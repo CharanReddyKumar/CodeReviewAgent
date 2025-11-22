@@ -187,14 +187,21 @@
         margin-top: 0.6rem;
       }
       .code-snippet {
-        background: #0f172a0d;
-        border-left: 3px solid #2563eb;
-        padding: 0.4rem 0.6rem;
-        border-radius: 4px;
+        background: #0f172a;
+        border-left: 4px solid #f97316;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
         font-family: Menlo, monospace;
         font-size: 0.9rem;
-        white-space: pre-wrap;
-        color: #0f172a;
+        white-space: pre;
+        color: #e2e8f0;
+        overflow-x: auto;
+        margin-top: 0.6rem;
+      }
+      .code-snippet code {
+        color: inherit;
+        font-family: inherit;
+        white-space: pre;
       }
       .citations {
         font-size: 0.85rem;
@@ -289,6 +296,30 @@
       let hasExecutionData = false;
       let hasReflectionData = false;
       let eventSource = null;
+      const HASH_COMMENT_EXTS = new Set([
+        "py",
+        "rb",
+        "sh",
+        "bash",
+        "zsh",
+        "ps1",
+        "psm1",
+        "r",
+        "pl",
+        "pm",
+        "tf",
+        "tfvars",
+        "yaml",
+        "yml",
+        "toml",
+        "ex",
+        "exs",
+      ]);
+      const DASH_COMMENT_EXTS = new Set(["sql", "lua", "hs"]);
+      const BLOCK_COMMENT_EXTS = new Set(["css", "scss", "sass"]);
+      const HTML_COMMENT_EXTS = new Set(["html", "htm", "xml"]);
+      const SEMICOLON_COMMENT_EXTS = new Set(["clj", "cljs", "cljc"]);
+      const APOSTROPHE_COMMENT_EXTS = new Set(["vb"]);
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -524,6 +555,73 @@
         return `${processed}/${total} (${percent}%)`;
       }
 
+      function escapeHtml(value = "") {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function fileExtension(filePath = "") {
+        const normalized = (filePath || "").split("/").pop() || "";
+        const segments = normalized.split(".");
+        if (segments.length <= 1) {
+          return "";
+        }
+        return segments.pop().toLowerCase();
+      }
+
+      function commentSyntaxFor(filePath = "") {
+        const ext = fileExtension(filePath);
+        if (HASH_COMMENT_EXTS.has(ext)) return { type: "prefix", value: "#" };
+        if (SEMICOLON_COMMENT_EXTS.has(ext)) return { type: "prefix", value: ";;" };
+        if (APOSTROPHE_COMMENT_EXTS.has(ext)) return { type: "prefix", value: "'" };
+        if (DASH_COMMENT_EXTS.has(ext)) return { type: "prefix", value: "--" };
+        if (HTML_COMMENT_EXTS.has(ext)) return { type: "wrap", start: "<!--", end: "-->" };
+        if (BLOCK_COMMENT_EXTS.has(ext)) return { type: "wrap", start: "/*", end: "*/" };
+        return { type: "prefix", value: "//" };
+      }
+
+      function formatCommentLine(syntax, text) {
+        const value = (text || "").trim();
+        if (!value) return "";
+        if (syntax.type === "wrap") {
+          return `${syntax.start} ${value} ${syntax.end}`;
+        }
+        return `${syntax.value} ${value}`;
+      }
+
+      function buildInlineCommentText(finding = {}) {
+        const syntax = commentSyntaxFor(finding.file_path || "");
+        const severity = (finding.severity || "info").toUpperCase();
+        const lines = [];
+        if (finding.message) {
+          lines.push(formatCommentLine(syntax, `[${severity}] ${finding.message}`));
+        }
+        if (finding.recommended_fix) {
+          lines.push(formatCommentLine(syntax, `Fix: ${finding.recommended_fix}`));
+        }
+        const snippet = (finding.code_line || "").trimEnd();
+        if (snippet) {
+          lines.push(snippet);
+        }
+        const inlineText = lines.filter(Boolean).join("\n");
+        if (!inlineText) {
+          return "";
+        }
+        return escapeHtml(inlineText);
+      }
+
+      function renderInlineCommentSnippet(finding = {}) {
+        const inlineText = buildInlineCommentText(finding);
+        if (!inlineText) {
+          return "";
+        }
+        return `<pre class="code-snippet"><code>${inlineText}</code></pre>`;
+      }
+
       function scrollPanel(el) {
         if (!el) return;
         requestAnimationFrame(() => {
@@ -563,12 +661,7 @@
               const combinedCitations = citations
                 .concat(fallbackCitations)
                 .filter(Boolean);
-              const snippet = finding.code_line
-                ? `<pre class="code-snippet">${finding.code_line}</pre>`
-                : "";
-              const recommendation = finding.recommended_fix
-                ? `<p><strong>Recommendation:</strong> ${finding.recommended_fix}</p>`
-                : "";
+              const inlineComment = renderInlineCommentSnippet(finding);
               const citationBlock = combinedCitations.length
                 ? `<div class="citations">${combinedCitations
                     .map((item) => `• ${item}`)
@@ -577,13 +670,16 @@
               const confidence = finding.confidence
                 ? finding.confidence.toUpperCase()
                 : "UNSPECIFIED";
+              const inlineContent =
+                inlineComment ||
+                `<p>${escapeHtml(
+                  finding.message || "No details provided."
+                )}</p>`;
               div.innerHTML = `
               <strong>${idx + 1}. [${finding.severity}] ${
                 finding.file_path || "repo"
               }:${finding.line || "?"}:</strong>
-              <p>${finding.message}</p>
-              ${snippet}
-              ${recommendation}
+              ${inlineContent}
               <p><strong>Confidence:</strong> ${confidence}</p>
               ${citationBlock}
             `;

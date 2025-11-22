@@ -81,6 +81,23 @@ class TestDetectLanguages:
         assert "html" in languages
         assert "css" in languages
 
+    @pytest.mark.parametrize(
+        "filename,expected",
+        [
+            ("Main.java", "java"),
+            ("server.go", "go"),
+            ("App.kt", "kotlin"),
+            ("Program.cs", "csharp"),
+            ("contract.sol", "solidity"),
+            ("lib.rs", "rust"),
+        ],
+    )
+    def test_detect_major_languages(self, temp_dir, filename, expected):
+        """Ensure additional major languages are detected from extensions."""
+        (temp_dir / filename).write_text("code")
+        languages = detect_languages(temp_dir)
+        assert expected in languages
+
 
 class TestResolveKwargs:
     """Tests for _resolve_kwargs function."""
