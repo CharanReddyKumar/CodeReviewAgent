@@ -1,0 +1,17 @@
+# Intentionally insecure configuration used by the Omniverse Inspector demo
+database:
+  path: "./inspector.db"
+  backup_script: "python scripts/full_report.py --dump"
+  allow_raw_sql: true
+
+security:
+  debug_mode: true
+  trusted_hosts:
+    - "*"
+  allow_eval: true
+  slack_webhook: "https://hooks.slack.com/services/T000/B000/FAKESECRETWEBHOOK"
+
+features:
+  enable_upload_proxy: true
+  worker_count: 1
+  archive_bucket: "omniverse-prod-archive"

@@ -20,6 +20,9 @@ __pycache__/
 .langgraph_api/
 .pytest_cache/
 .benchmarks/
+.langgraph_api
+.local_graphs
+.vscode
 
 # Local run artifacts & caches
 .env
@@ -45,3 +48,7 @@ build/
 
 # Operating system cruft
 .DS_Store
+
+# Folder
+ playground/
+ .coderabbit.yaml.example

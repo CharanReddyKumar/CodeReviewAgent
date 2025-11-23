@@ -1,9 +1,10 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, List, Optional
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Set
 
 import chromadb
+from chromadb.api.types import Metadata
 from chromadb.config import Settings
 import ast
 
@@ -23,8 +24,33 @@ _CODE_SUFFIXES = {
     for suffix in extensions
 }
 CODE_EXTENSIONS = tuple(sorted(_CODE_SUFFIXES))
-DOC_EXTENSIONS = (".md", ".rst", ".txt")
+DOC_EXTENSIONS = (
+    ".md",
+    ".mdx",
+    ".rst",
+    ".txt",
+    ".adoc",
+    ".csv",
+    ".tsv",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".ini",
+    ".cfg",
+    ".conf",
+    ".env",
+    ".log",
+    ".xml",
+    ".html",
+    ".htm",
+    ".properties",
+    ".config",
+    ".ipynb",
+)
 SPECIAL_DOC_FILENAMES = {"readme", "readme.md", "readme.rst", "contributing.md"}
+BINARY_SNIFF_BYTES = 4096
+MIN_TEXTUAL_RATIO = 0.6
 CHUNK_MAX_LINES = 80
 CHUNK_OVERLAP_LINES = 10
 
@@ -103,7 +129,26 @@ def iter_code_files(repo_path: Path) -> Iterator[Path]:
     return _iter_files(repo_path, suffixes=CODE_EXTENSIONS)
 
 
+def _looks_textual(path: Path) -> bool:
+    try:
+        with path.open("rb") as handle:
+            sample = handle.read(BINARY_SNIFF_BYTES)
+    except Exception:
+        return False
+    if not sample:
+        return True
+    if b"\x00" in sample:
+        return False
+    decoded = sample.decode("utf-8", errors="ignore")
+    if not decoded:
+        return False
+    ratio = len(decoded) / max(1, len(sample))
+    return ratio >= MIN_TEXTUAL_RATIO
+
+
 def _iter_doc_files(repo_path: Path) -> Iterator[Path]:
+    doc_suffixes: Set[str] = {suffix.lower() for suffix in DOC_EXTENSIONS}
+    code_suffixes: Set[str] = {suffix.lower() for suffix in CODE_EXTENSIONS}
     for path in repo_path.rglob("*"):
         if not path.is_file():
             continue
@@ -111,7 +156,12 @@ def _iter_doc_files(repo_path: Path) -> Iterator[Path]:
             continue
         suffix = path.suffix.lower()
         lower_name = path.name.lower()
-        if suffix in DOC_EXTENSIONS or lower_name in SPECIAL_DOC_FILENAMES:
+        if suffix in doc_suffixes or lower_name in SPECIAL_DOC_FILENAMES:
+            yield path
+            continue
+        if suffix in code_suffixes:
+            continue
+        if _looks_textual(path):
             yield path
 
 
@@ -304,7 +354,7 @@ def index_repository(repo_path: Path, repo_reference: str):
     collection = get_code_collection(canonical_repo)
 
     docs: List[str] = []
-    metadatas: List[Dict] = []
+    metadatas: List[Metadata] = []
     ids: List[str] = []
 
     def flush_batch():

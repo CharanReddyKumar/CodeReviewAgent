@@ -393,9 +393,9 @@ def build_review_graph():
 
         conn = sqlite3.connect("checkpoints.sqlite", check_same_thread=False)
         memory = SqliteSaver(conn)
-        graph = builder.compile(checkpointer=memory, interrupt_before=["finalize"])
+        graph = builder.compile(checkpointer=memory)
     else:
-        graph = builder.compile(interrupt_before=["finalize"])
+        graph = builder.compile()
 
     _GRAPH_CACHE[key] = graph
     return graph

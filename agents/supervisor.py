@@ -144,6 +144,7 @@ class Supervisor:
             for tool in tools:
                 tool_id = getattr(tool, "tool_id", tool.__class__.__name__)
                 instances[tool_id] = tool
+        print(f"[DEBUG] Loaded tools: {list(instances.keys())}")
         return instances
 
     def planner_tool_inventory(self) -> List[Dict[str, Any]]:
@@ -528,6 +529,7 @@ class Supervisor:
                 continue
 
             selected_tools = self._resolve_action_tools(action, tool_ids)
+            print(f"[DEBUG] Action {idx} selected tools: {selected_tools} for files: {action_files}")
             action_finding_count = 0
             
             # Parallel Execution Logic
